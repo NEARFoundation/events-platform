@@ -1,0 +1,20 @@
+{
+  "name": "events-platform",
+  "version": "1.0.0",
+  "license": "(MIT AND Apache-2.0)",
+  "scripts": {
+    "start": "cd frontend && yarn start",
+    "deploy": "cd contract && yarn deploy",
+    "build": "yarn build:contract && yarn build:web",
+    "build:web": "cd frontend && yarn build",
+    "build:contract": "cd contract && yarn build",
+    "test": "yarn test:unit && yarn test:integration",
+    "test:unit": "cd contract && yarn test",
+    "test:integration": "cd integration-tests && yarn test -- -- \"./contract/build/events.wasm\"",
+    "postinstall": "cd frontend && yarn install && cd .. && cd integration-tests && yarn install && cd .. && cd contract && yarn install"
+  },
+  "devDependencies": {
+    "near-cli": "^3.3.0"
+  },
+  "dependencies": {}
+}
