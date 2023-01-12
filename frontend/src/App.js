@@ -1,9 +1,9 @@
-import "regenerator-runtime/runtime";
-import React from "react";
+import 'regenerator-runtime/runtime';
+import React from 'react';
 
-import "./assets/global.css";
+import './assets/global.css';
 
-import { EducationalText, SignInPrompt, SignOutButton } from "./ui-components";
+import { EducationalText, SignInPrompt, SignOutButton } from './ui-components';
 
 export default function App({ isSignedIn, contractId, wallet }) {
   const [valueFromBlockchain, setValueFromBlockchain] = React.useState();
@@ -43,22 +43,22 @@ export default function App({ isSignedIn, contractId, wallet }) {
     // use the wallet to send the greeting to the contract
     wallet
       .callMethod({
-        method: "create_event",
+        method: 'create_event',
         args: {
-          name: "test",
-          type: "irl",
-          category: "test",
-          status: "published",
-          description: "test",
+          name: 'test',
+          type: 'irl',
+          category: 'test',
+          status: 'published',
+          description: 'test',
           start_date,
           end_date,
-          location: "here",
+          location: 'here',
           image: [],
           links: [],
         },
         contractId,
       })
-      .then(async () => {
+      .then(() => {
         return getEvents();
       })
       .then(setValueFromBlockchain)
@@ -69,7 +69,7 @@ export default function App({ isSignedIn, contractId, wallet }) {
 
   function getEvents() {
     // use the wallet to query the contract's greeting
-    return wallet.viewMethod({ method: "get_all_events", contractId });
+    return wallet.viewMethod({ method: 'get_all_events', contractId });
   }
 
   return (
@@ -78,9 +78,9 @@ export default function App({ isSignedIn, contractId, wallet }) {
         accountId={wallet.accountId}
         onClick={() => wallet.signOut()}
       />
-      <main className={uiPleaseWait ? "please-wait" : ""}>
+      <main className={uiPleaseWait ? 'please-wait' : ''}>
         <h1>
-          The contract says:{" "}
+          The contract says:{' '}
           <span className="greeting">{valueFromBlockchain}</span>
         </h1>
         <form onSubmit={changeGreeting} className="change">

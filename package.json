@@ -11,10 +11,15 @@
     "test": "yarn test:unit && yarn test:integration",
     "test:unit": "cd contract && yarn test",
     "test:integration": "cd integration-tests && yarn test -- -- \"./contract/build/events.wasm\"",
-    "postinstall": "cd frontend && yarn install && cd .. && cd integration-tests && yarn install && cd .. && cd contract && yarn install"
+    "postinstall": "cd frontend && yarn install && cd .. && cd integration-tests && yarn install && cd .. && cd contract && yarn install",
+    "lint": "cd frontend && eslint \"src/**/*.{js,jsx}\"",
+    "lint:fix": "cd frontend && eslint \"src/**/*.{js,jsx}\" --fix"
   },
   "devDependencies": {
-    "near-cli": "^3.3.0"
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "near-cli": "^3.3.0",
+    "prettier": "^2.8.2"
   },
   "dependencies": {}
 }

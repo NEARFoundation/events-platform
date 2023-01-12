@@ -1,10 +1,10 @@
 // React
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./App";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
 
 // NEAR
-import { Wallet } from "./near-wallet";
+import { Wallet } from './near-wallet';
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_NAME;
 
@@ -22,6 +22,6 @@ window.onload = async () => {
       contractId={CONTRACT_ADDRESS}
       wallet={wallet}
     />,
-    document.getElementById("root")
+    document.getElementById('root')
   );
 };

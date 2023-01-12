@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 export function SignInPrompt({ greeting, onClick }) {
   return (
@@ -13,12 +13,12 @@ export function SignInPrompt({ greeting, onClick }) {
         just use the button below.
       </p>
       <p>
-        Do not worry, this app runs in the test network ("testnet"). It works
-        just like the main network ("mainnet"), but using NEAR Tokens that are
-        only for testing!
+        Do not worry, this app runs in the test network (&quot;testnet&quot;).
+        It works just like the main network (&quot;mainnet&quot;), but using
+        NEAR Tokens that are only for testing!
       </p>
       <br />
-      <p style={{ textAlign: "center" }}>
+      <p style={{ textAlign: 'center' }}>
         <button onClick={onClick}>Sign in with NEAR Wallet</button>
       </p>
     </main>
@@ -27,7 +27,7 @@ export function SignInPrompt({ greeting, onClick }) {
 
 export function SignOutButton({ accountId, onClick }) {
   return (
-    <button style={{ float: "right" }} onClick={onClick}>
+    <button style={{ float: 'right' }} onClick={onClick}>
       Sign out {accountId}
     </button>
   );
@@ -42,13 +42,13 @@ export function EducationalText() {
       </p>
       <ol>
         <li>
-          Look in <code>frontend/App.js</code> - you'll see{" "}
-          <code>getGreeting</code> and <code>setGreeting</code> being called on{" "}
-          <code>contract</code>. What's this?
+          Look in <code>frontend/App.js</code> - you&apos;ll see{' '}
+          <code>getGreeting</code> and <code>setGreeting</code> being called on{' '}
+          <code>contract</code>. What&apos;s this?
         </li>
         <li>
-          Ultimately, this <code>contract</code> code is defined in{" "}
-          <code>./contract</code> – this is the source code for your{" "}
+          Ultimately, this <code>contract</code> code is defined in{' '}
+          <code>./contract</code> – this is the source code for your{' '}
           <a
             target="_blank"
             rel="noreferrer"
@@ -59,18 +59,18 @@ export function EducationalText() {
           .
         </li>
         <li>
-          When you run <code>npm run deploy</code>, the code in{" "}
+          When you run <code>npm run deploy</code>, the code in{' '}
           <code>./contract</code> gets deployed to the NEAR testnet. You can see
           how this happens by looking in <code>package.json</code>.
         </li>
       </ol>
       <hr />
       <p>
-        To keep learning, check out{" "}
+        To keep learning, check out{' '}
         <a target="_blank" rel="noreferrer" href="https://docs.near.org">
           the NEAR docs
-        </a>{" "}
-        or look through some{" "}
+        </a>{' '}
+        or look through some{' '}
         <a target="_blank" rel="noreferrer" href="https://examples.near.org">
           example apps
         </a>
