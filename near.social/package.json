@@ -1,0 +1,21 @@
+{
+  "name": "my-near-app",
+  "version": "1.0.0",
+  "license": "(MIT AND Apache-2.0)",
+  "scripts": {
+    "start": "TODO",
+    "dev": "TODO",
+    "build": "TODO",
+    "deploy": "TODO",
+    "lint": "eslint \"widgets/**/*.{js|ts|jsx}\"",
+    "lint:fix": "eslint \"widgets/**/*.{js|ts|jsx}\" --fix"
+  },
+  "devDependencies": {
+    "eslint": "^8.31.0",
+    "eslint-plugin-import": "^2.27.4",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-react": "^7.32.0"
+  },
+  "dependencies": {},
+  "browserslist": {}
+}

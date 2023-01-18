@@ -1,0 +1,215 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:import/errors",
+    "plugin:react/recommended",
+    "plugin:jsx-a11y/recommended"
+  ],
+  "plugins": [
+    "prettier",
+    "react",
+    "import",
+    "jsx-a11y"
+  ],
+  "globals": {
+    "Social": true,
+    "State": true,
+    "Near": true,
+    "context": true,
+    "props": true,
+    "state": true,
+    "CommitButton": true,
+    "Widget": true,
+    "styled": true
+  },
+  "rules": {
+    "react/react-in-jsx-scope": 0,
+    "react/prop-types": 0,
+    "indent": [
+      "error",
+      2
+    ],
+    "linebreak-style": 1,
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "accessor-pairs": "error",
+    "array-callback-return": "error",
+    "block-scoped-var": "error",
+    "class-methods-use-this": "error",
+    // complexity: ["error", 2],  // can be enabled on new projects. too hard to refactor on older projects
+    // complexity: ["warn", 4],
+    "consistent-return": "error",
+    "curly": "error", // maybe need to disable because of prettier
+    "default-case": "error",
+    "default-param-last": [
+      "error"
+    ],
+    "dot-notation": "error",
+    "eqeqeq": "error",
+    "for-direction": "error",
+    "getter-return": "error",
+    "grouped-accessor-pairs": "error",
+    "guard-for-in": "error",
+    "init-declarations": [
+      "error",
+      "always"
+    ],
+    "max-classes-per-file": [
+      "error",
+      1
+    ],
+    "no-alert": "error",
+    "no-async-promise-executor": "error", // preference
+    "no-await-in-loop": "error",
+    "no-caller": "error",
+    "no-case-declarations": "error",
+    "no-compare-neg-zero": "error",
+    "no-cond-assign": "error",
+    "no-constant-condition": "error",
+    "no-constructor-return": "error",
+    "no-control-regex": "error",
+    // "no-debugger": "error", // preference
+    "no-delete-var": "error",
+    "no-div-regex": "error",
+    "no-dupe-args": "error",
+    "no-dupe-else-if": "error",
+    "no-dupe-keys": "error",
+    "no-duplicate-case": "error",
+    "no-else-return": "error",
+    "no-empty": "error",
+    "no-empty-character-class": "error",
+    "no-empty-function": "error",
+    "no-empty-pattern": "error",
+    "no-eq-null": "error",
+    "no-eval": "error",
+    "no-ex-assign": "error",
+    "no-extend-native": "error",
+    "no-extra-bind": "error",
+    "no-extra-boolean-cast": "error",
+    "no-extra-label": "error",
+    "no-extra-semi": "error", // maybe conflicts with prettier
+    "no-fallthrough": "error",
+    "no-floating-decimal": "error",
+    "no-func-assign": "error",
+    "no-global-assign": "error",
+    "no-implicit-coercion": "error",
+    "no-implicit-globals": "error",
+    "no-implied-eval": "error",
+    "no-import-assign": "error",
+    "no-inner-declarations": "error",
+    "no-invalid-regexp": "error",
+    "no-invalid-this": "error",
+    "no-iterator": "error",
+    "no-label-var": "error",
+    "no-labels": "error",
+    "no-lone-blocks": "error",
+    "no-loop-func": "error",
+    "no-loss-of-precision": "error",
+    "no-magic-numbers": [
+      "error",
+      {
+        "ignore": [
+          0,
+          1,
+          2,
+          4,
+          100,
+          1000,
+          1024
+        ]
+      }
+    ],
+    "no-misleading-character-class": "error",
+    "no-new": "error",
+    "no-new-func": "error",
+    "no-new-wrappers": "error",
+    "no-nonoctal-decimal-escape": "error",
+    "no-obj-calls": "error",
+    "no-octal": "error",
+    "no-octal-escape": "error",
+    "no-param-reassign": "error",
+    "no-promise-executor-return": "error", // enable in new projects
+    "no-proto": "error",
+    "no-prototype-builtins": "error",
+    "no-redeclare": "error",
+    "no-regex-spaces": "error",
+    "no-return-assign": "error",
+    "no-script-url": "error",
+    "no-self-assign": "error",
+    "no-self-compare": "error",
+    "no-sequences": "error",
+    "no-setter-return": "error",
+    "no-shadow": "error",
+    "no-shadow-restricted-names": "error",
+    "no-sparse-arrays": "error",
+    "no-template-curly-in-string": "error",
+    "no-throw-literal": "error",
+    "no-undef": "error",
+    "no-undef-init": "error",
+    "no-undefined": "error",
+    "no-unmodified-loop-condition": "error",
+    "no-unreachable": "error",
+    "no-unreachable-loop": "error",
+    "no-unsafe-finally": "error",
+    "no-unsafe-negation": "error",
+    "no-unsafe-optional-chaining": "error",
+    "no-unused-expressions": "error",
+    "no-unused-labels": "error",
+    "no-unused-vars": "error",
+    "no-use-before-define": [
+      "error",
+      {
+        "functions": false,
+        "classes": true
+      }
+    ],
+    "no-useless-backreference": "error",
+    "no-useless-call": "error",
+    "no-useless-catch": "error",
+    "no-useless-concat": "error",
+    "no-useless-escape": "error",
+    "no-useless-return": "error",
+    "no-void": "error",
+    "no-with": "error",
+    "prefer-named-capture-group": "error",
+    "prefer-promise-reject-errors": "error",
+    "prefer-regex-literals": "error",
+    "prettier/prettier": [
+      "error"
+    ],
+    "radix": [
+      "error",
+      "always"
+    ],
+    "require-atomic-updates": "error",
+    "require-await": "error",
+    "require-unicode-regexp": "error",
+    "use-isnan": "error",
+    "valid-typeof": "error",
+    "vars-on-top": "error",
+    "wrap-iife": [
+      "error",
+      "inside"
+    ],
+    "yoda": "error"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "ecmaFeatures": {
+      "jsx": true,
+      "globalReturn": true
+    }
+  },
+  "env": {
+    "es6": true,
+    "browser": true,
+    "node": true
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}
