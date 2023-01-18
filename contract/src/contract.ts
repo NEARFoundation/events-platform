@@ -12,6 +12,17 @@ import { AccountId } from "near-sdk-js/lib/types";
 import { EventListsMap } from "./helpers";
 import { type Event, type CreateEvent, type UpdateEvent } from "./types";
 
+
+// function generateUUID(): string {
+//   const random = new Uint32Array(4);
+//   crypto.getRandomValues(random);
+//   return random
+//     .map((n) => n.toString(16))
+//     .join("")
+//     .padEnd(32, "0");
+// }
+
+
 @NearBindgen({})
 export class HelloNear {
   events: UnorderedMap<Event> = new UnorderedMap("e");
@@ -39,9 +50,13 @@ export class HelloNear {
     const now = new Date();
 
     // Store the event in the events map.
-    this.events.set(createEvent.name, {
+    // TODO: use UUIDs for event IDs.
+    // const uuid = generateUUID();
+    const uuid = createEvent.name;
+    this.events.set(
+      uuid, {
       ...createEvent,
-      id: createEvent.name,
+      id: uuid,
       owner_account_id,
       created_at: now,
       last_updated_at: now,
