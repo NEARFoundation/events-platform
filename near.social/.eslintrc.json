@@ -19,6 +19,7 @@
     "props": true,
     "state": true,
     "CommitButton": true,
+    "IpfsImageUpload": true,
     "Widget": true,
     "styled": true
   },
