@@ -42,7 +42,7 @@ test("create a new event and get it from the contract", async (t) => {
       start_date: "2023-01-11T14:54:06.652Z",
       end_date: "2023-01-12T14:54:06.652Z",
       location: "here",
-      image: [],
+      images: [],
       links: [],
     },
     { attachedDeposit: ONE_NEAR }
@@ -64,7 +64,7 @@ test("create a new event and get it from the contract", async (t) => {
     last_updated_at: new Date(0).toISOString(),
     owner_account_id: contract.accountId,
     liked_by: [],
-    image: [],
+    images: [],
     links: [],
   });
 });
@@ -83,7 +83,7 @@ test("create a new event and get all the events from the contract", async (t) =>
       start_date: "2023-01-11T14:54:06.652Z",
       end_date: "2023-01-12T14:54:06.652Z",
       location: "here",
-      image: [],
+      images: [],
       links: [],
     },
     { attachedDeposit: ONE_NEAR }
@@ -106,7 +106,7 @@ test("create a new event and get all the events from the contract", async (t) =>
       last_updated_at: new Date(0).toISOString(),
       owner_account_id: contract.accountId,
       liked_by: [],
-      image: [],
+      images: [],
       links: [],
     },
   ]);
@@ -126,7 +126,7 @@ test("create a new event and delete it", async (t) => {
       start_date: "2023-01-11T14:54:06.652Z",
       end_date: "2023-01-12T14:54:06.652Z",
       location: "here",
-      image: [],
+      images: [],
       links: [],
     },
     { attachedDeposit: ONE_NEAR }
@@ -153,7 +153,7 @@ test("create a new event and update the description", async (t) => {
       start_date: "2023-01-11T14:54:06.652Z",
       end_date: "2023-01-12T14:54:06.652Z",
       location: "here",
-      image: [],
+      images: [],
       links: [],
     },
     { attachedDeposit: ONE_NEAR }
