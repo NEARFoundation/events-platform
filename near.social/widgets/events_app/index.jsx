@@ -18,19 +18,19 @@ return (
   <div>
     <h1>Events</h1>
     <a
-      href={`#/${CONTRACT_OWNER}/widget/new_event?accountId=${accountId}`}
+      href={`#/${CONTRACT_OWNER}/widget/new?accountId=${accountId}`}
       className="TODO"
     >
       <Button>Create new Event</Button>
     </a>
 
     <a
-      href={`#/${CONTRACT_OWNER}/widget/index__container?accountId=${accountId}`}
+      href={`#/${CONTRACT_OWNER}/widget/index__list_container?accountId=${accountId}`}
       className="TODO"
     >
       <Button>My events</Button>
     </a>
 
-    <Widget src={`${CONTRACT_OWNER}/widget/index__container`} props={{}} />
+    <Widget src={`${CONTRACT_OWNER}/widget/index__list_container`} props={{}} />
   </div>
 );
