@@ -70,28 +70,6 @@ const Button = styled.button`
   background-color: #ccc;
 `;
 
-const LinkRemoveButton = styled.button`
-  width: 100%;
-  padding: 0.5rem;
-  margin: 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  background-color: #caa;
-  color: #fff;
-`;
-
-const LinkAddButton = styled.button`
-  width: 100%;
-  padding: 0.5rem;
-  margin: 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  background-color: #cfc;
-  color: #fff;
-`;
-
 const Select = styled.select`
   width: 100%;
   padding: 0.5rem;
@@ -130,6 +108,12 @@ const EventTypes = [
 const ImageTypes = [
   { value: 'tile', label: 'Tile' },
   { value: 'banner', label: 'Banner' },
+];
+
+const LinkTypes = [
+  { value: 'register', label: 'Register' },
+  { value: 'tickets', label: 'Tickets' },
+  { value: 'join_stream', label: 'Stream URL' },
 ];
 
 function addError(key, message) {
@@ -254,10 +238,19 @@ return (
     {/* TODO: add Back Button */}
 
     {/* FORM */}
-    <div>
+    <div
+      style={{
+        width: '50%',
+        margin: '0 auto',
+        minWidth: '300px',
+        maxWidth: '600px',
+        backgroundColor: '#fff',
+        padding: '1rem',
+      }}
+    >
       <h1>Create Event</h1>
 
-      <div className="mt-2">
+      <div className="mt-3">
         <Label>Name</Label>
         <input
           type="text"
@@ -270,7 +263,21 @@ return (
       </div>
       <Error>{getError('name')}</Error>
 
-      <div className="mt-2">
+      <div className="mt-3">
+        <Label>Description</Label>
+        <textarea
+          className="w-100"
+          placeholder="Event Description"
+          value={state.description}
+          onChange={(event) => {
+            updateState(event, 'description');
+          }}
+          rows={3}
+        />
+      </div>
+      <Error>{getError('description')}</Error>
+
+      <div className="mt-3">
         <Label>Type</Label>
         <Select
           value={state.type}
@@ -287,7 +294,7 @@ return (
       </div>
       <Error>{getError('type')}</Error>
 
-      <div className="mt-2">
+      <div className="mt-3">
         <Label>Category</Label>
         <input
           type="text"
@@ -300,7 +307,7 @@ return (
       </div>
       <Error>{getError('category')}</Error>
 
-      <div className="mt-2">
+      <div className="mt-3">
         <Label>Status</Label>
         <Select
           value={state.status}
@@ -317,7 +324,7 @@ return (
       </div>
       <Error>{getError('status')}</Error>
 
-      <div className="mt-2">
+      <div className="mt-3">
         <Label>Start Date</Label>
         <input
           type="date"
@@ -329,7 +336,7 @@ return (
       </div>
       <Error>{getError('start_date')}</Error>
 
-      <div className="mt-2">
+      <div className="mt-3">
         <Label>End Date</Label>
         <input
           type="date"
@@ -341,9 +348,10 @@ return (
       </div>
       <Error>{getError('end_date')}</Error>
 
-      <div className="mt-2">
+      <div className="mt-3">
         <Label>Location</Label>
         <textarea
+          className="w-100"
           placeholder="Event Location"
           value={state.location}
           onChange={(event) => {
@@ -354,11 +362,12 @@ return (
       </div>
       <Error>{getError('location')}</Error>
 
-      <div className="mt-2">
+      <div className="mt-3">
         <Label>Images</Label>
         {state.images.map((image, index) => (
-          <div key={index} className="mb-2">
+          <div key={index} className="mb-4 d-flex">
             <Select
+              style={{ width: '100px' }}
               value={image.type}
               onChange={(event) => {
                 const images = [...state.images];
@@ -374,13 +383,20 @@ return (
               ))}
             </Select>
 
-            <IpfsImageUpload
-              image={state.image}
-              onChange={(event) => {
-                updateState(event, 'image');
-              }}
-            />
-            <LinkRemoveButton
+            <div className="ms-2">
+              <IpfsImageUpload
+                image={image.url}
+                onChange={(event) => {
+                  const images = [...state.images];
+                  images[index].url = event.target.value;
+                  State.update({ images });
+                  sanitizeAndValidate({ ...state, images });
+                }}
+              />
+            </div>
+
+            <button
+              className="ms-2 btn btn-danger"
               onClick={() => {
                 const images = [...state.images];
                 images.splice(index, 1);
@@ -389,10 +405,12 @@ return (
               }}
             >
               Remove
-            </LinkRemoveButton>
+            </button>
           </div>
         ))}
-        <LinkAddButton
+
+        <button
+          className="btn btn-secondary"
           onClick={() => {
             const images = [...state.images];
             images.push({ type: 'tile', image: '' });
@@ -401,38 +419,86 @@ return (
           }}
         >
           Add Image
-        </LinkAddButton>
+        </button>
       </div>
       <Error>{getError('images')}</Error>
 
-      <div className="mt-2">
+      <div className="mt-3">
         <Label>Links</Label>
         {state.links.map((link, index) => (
-          <div key={index}>
+          <div key={index} className="mb-4">
             <input
               type="text"
-              placeholder="Event Link"
-              value={link}
+              placeholder="Link URL"
+              className="mb-2"
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                boxSizing: 'border-box',
+              }}
+              value={link.url}
               onChange={(event) => {
                 const links = [...state.links];
-                links[index] = event.target.value;
+                links[index].url = event.target.value;
                 State.update({ links });
                 sanitizeAndValidate({ ...state, links });
               }}
             />
-            <LinkRemoveButton
-              onClick={() => {
-                const links = [...state.links];
-                links.splice(index, 1);
-                State.update({ links });
-                sanitizeAndValidate({ ...state, links });
-              }}
-            >
-              Remove
-            </LinkRemoveButton>
+
+            <div>
+              <input
+                type="text"
+                placeholder="Link Text"
+                style={{
+                  width: '200px',
+                  display: 'inline-block',
+                  boxSizing: 'border-box',
+                }}
+                value={link.text}
+                onChange={(event) => {
+                  const links = [...state.links];
+                  links[index].text = event.target.value;
+                  State.update({ links });
+                  sanitizeAndValidate({ ...state, links });
+                }}
+              />
+
+              <Select
+                className="ms-2"
+                style={{ width: '100px' }}
+                value={link.type}
+                onChange={(event) => {
+                  const links = [...state.links];
+                  links[index].type = event.target.value;
+                  State.update({ links });
+                  sanitizeAndValidate({ ...state, links });
+                }}
+              >
+                {LinkTypes.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </Select>
+
+              <button
+                className="ms-2 btn btn-danger"
+                onClick={() => {
+                  const links = [...state.links];
+                  links.splice(index, 1);
+                  State.update({ links });
+                  sanitizeAndValidate({ ...state, links });
+                }}
+              >
+                Remove
+              </button>
+            </div>
           </div>
         ))}
-        <LinkAddButton
+        <button
+          className="btn btn-secondary"
           onClick={() => {
             const links = [...state.links];
             links.push('');
@@ -441,24 +507,12 @@ return (
           }}
         >
           Add Link
-        </LinkAddButton>
+        </button>
       </div>
       <Error>{getError('links')}</Error>
 
-      <div className="mt-2">
-        <Label>Description</Label>
-        <textarea
-          placeholder="Event Description"
-          value={state.description}
-          onChange={(event) => {
-            updateState(event, 'description');
-          }}
-          rows={3}
-        />
-      </div>
-      <Error>{getError('description')}</Error>
-
       <Button
+        className="mt-3"
         onClick={() => {
           sanitizeValidateAndCall(state);
         }}
