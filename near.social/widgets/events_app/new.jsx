@@ -23,8 +23,33 @@ const DEFAULT_STATE = {
   start_date: new Date(TODAY + ONE_WEEK),
   end_date: new Date(TOMORROW + ONE_WEEK),
   location: '',
-  image: '',
-  links: [],
+  images: [
+    {
+      url: '',
+      type: 'tile',
+    },
+    {
+      url: '',
+      type: 'banner',
+    },
+  ],
+  links: [
+    {
+      text: 'Register here',
+      url: '',
+      type: 'register',
+    },
+    {
+      text: 'Get tickets',
+      url: '',
+      type: 'tickets',
+    },
+    {
+      text: 'Watch live',
+      url: '',
+      type: 'join_stream',
+    },
+  ],
   description: '',
 
   errors: {},
@@ -34,51 +59,6 @@ State.init(DEFAULT_STATE);
 if (!state) {
   return <div>Loading...</div>;
 }
-
-const BG_DEFAULT = '#f0f0f0';
-const BG_CARD = '#fff';
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  background-color: ${BG_DEFAULT};
-`;
-
-// NOTE: `form` is not supported
-const Form = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 1rem 0;
-  background-color: ${BG_CARD};
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 0.5rem;
-  margin: 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-
-  /* on hover */
-  &:hover {
-    border: 1px solid #666;
-  }
-
-  /* on focus */
-  &:focus {
-    border: 1px solid #aac;
-    outline: none;
-  }
-`;
 
 const Button = styled.button`
   width: 100%;
@@ -129,22 +109,6 @@ const Label = styled.label`
   box-sizing: border-box;
 `;
 
-const TextArea = styled.textarea`
-  width: 100%;
-  padding: 0.5rem;
-  margin: 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-`;
-
-const FormSection = styled.div`
-  width: 100%;
-  padding: 0 1rem;
-  margin: 0.5rem 0;
-  box-sizing: border-box;
-`;
-
 const Error = styled.div`
   color: red;
   font-size: 0.8rem;
@@ -163,6 +127,11 @@ const EventTypes = [
   { value: 'mixed', label: 'Both' },
 ];
 
+const ImageTypes = [
+  { value: 'tile', label: 'Tile' },
+  { value: 'banner', label: 'Banner' },
+];
+
 function addError(key, message) {
   console.log('addError', key, message);
   State.update({ errors: { ...state.errors, [key]: message } });
@@ -177,7 +146,6 @@ function getError(key) {
 }
 
 function assertCondition(valid, condition, key, message) {
-  console.log('assertCondition', valid, condition, key);
   if (!condition) {
     addError(key, message);
     return false;
@@ -281,15 +249,17 @@ const updateState = (event, key) => {
   sanitizeAndValidate({ ...state, [key]: event.target.value });
 };
 
-console.log('RENDER', state);
 return (
-  <Container>
-    <Form>
+  <div>
+    {/* TODO: add Back Button */}
+
+    {/* FORM */}
+    <div>
       <h1>Create Event</h1>
 
-      <FormSection>
+      <div className="mt-2">
         <Label>Name</Label>
-        <Input
+        <input
           type="text"
           placeholder="Event Name"
           value={state.name || ''}
@@ -297,10 +267,10 @@ return (
             updateState(event, 'name');
           }}
         />
-        <Error>{getError('name')}</Error>
-      </FormSection>
+      </div>
+      <Error>{getError('name')}</Error>
 
-      <FormSection>
+      <div className="mt-2">
         <Label>Type</Label>
         <Select
           value={state.type}
@@ -314,12 +284,12 @@ return (
             </option>
           ))}
         </Select>
-        <Error>{getError('type')}</Error>
-      </FormSection>
+      </div>
+      <Error>{getError('type')}</Error>
 
-      <FormSection>
+      <div className="mt-2">
         <Label>Category</Label>
-        <Input
+        <input
           type="text"
           placeholder="Event Category"
           value={state.category}
@@ -327,10 +297,10 @@ return (
             updateState(event, 'category');
           }}
         />
-        <Error>{getError('category')}</Error>
-      </FormSection>
+      </div>
+      <Error>{getError('category')}</Error>
 
-      <FormSection>
+      <div className="mt-2">
         <Label>Status</Label>
         <Select
           value={state.status}
@@ -344,36 +314,36 @@ return (
             </option>
           ))}
         </Select>
-        <Error>{getError('status')}</Error>
-      </FormSection>
+      </div>
+      <Error>{getError('status')}</Error>
 
-      <FormSection>
+      <div className="mt-2">
         <Label>Start Date</Label>
-        <Input
+        <input
           type="date"
           value={state.start_date}
           onChange={(event) => {
             updateState(event, 'start_date');
           }}
         />
-        <Error>{getError('start_date')}</Error>
-      </FormSection>
+      </div>
+      <Error>{getError('start_date')}</Error>
 
-      <FormSection>
+      <div className="mt-2">
         <Label>End Date</Label>
-        <Input
+        <input
           type="date"
           value={state.end_date}
           onChange={(event) => {
             updateState(event, 'end_date');
           }}
         />
-        <Error>{getError('end_date')}</Error>
-      </FormSection>
+      </div>
+      <Error>{getError('end_date')}</Error>
 
-      <FormSection>
+      <div className="mt-2">
         <Label>Location</Label>
-        <TextArea
+        <textarea
           placeholder="Event Location"
           value={state.location}
           onChange={(event) => {
@@ -381,25 +351,65 @@ return (
           }}
           rows={3}
         />
-        <Error>{getError('location')}</Error>
-      </FormSection>
+      </div>
+      <Error>{getError('location')}</Error>
 
-      <FormSection>
-        <Label>Image</Label>
-        <IpfsImageUpload
-          image={state.image}
-          onChange={(event) => {
-            updateState(event, 'image');
+      <div className="mt-2">
+        <Label>Images</Label>
+        {state.images.map((image, index) => (
+          <div key={index} className="mb-2">
+            <Select
+              value={image.type}
+              onChange={(event) => {
+                const images = [...state.images];
+                images[index].type = event.target.value;
+                State.update({ images });
+                sanitizeAndValidate({ ...state, images });
+              }}
+            >
+              {ImageTypes.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </Select>
+
+            <IpfsImageUpload
+              image={state.image}
+              onChange={(event) => {
+                updateState(event, 'image');
+              }}
+            />
+            <LinkRemoveButton
+              onClick={() => {
+                const images = [...state.images];
+                images.splice(index, 1);
+                State.update({ images });
+                sanitizeAndValidate({ ...state, images });
+              }}
+            >
+              Remove
+            </LinkRemoveButton>
+          </div>
+        ))}
+        <LinkAddButton
+          onClick={() => {
+            const images = [...state.images];
+            images.push({ type: 'tile', image: '' });
+            State.update({ images });
+            sanitizeAndValidate({ ...state, images });
           }}
-        />
-        <Error>{getError('image')}</Error>
-      </FormSection>
+        >
+          Add Image
+        </LinkAddButton>
+      </div>
+      <Error>{getError('images')}</Error>
 
-      <FormSection>
+      <div className="mt-2">
         <Label>Links</Label>
         {state.links.map((link, index) => (
           <div key={index}>
-            <Input
+            <input
               type="text"
               placeholder="Event Link"
               value={link}
@@ -432,12 +442,12 @@ return (
         >
           Add Link
         </LinkAddButton>
-        <Error>{getError('links')}</Error>
-      </FormSection>
+      </div>
+      <Error>{getError('links')}</Error>
 
-      <FormSection>
+      <div className="mt-2">
         <Label>Description</Label>
-        <TextArea
+        <textarea
           placeholder="Event Description"
           value={state.description}
           onChange={(event) => {
@@ -445,8 +455,8 @@ return (
           }}
           rows={3}
         />
-        <Error>{getError('description')}</Error>
-      </FormSection>
+      </div>
+      <Error>{getError('description')}</Error>
 
       <Button
         onClick={() => {
@@ -455,7 +465,6 @@ return (
       >
         Create Event
       </Button>
-    </Form>
-    {/* TODO: add Back Button */}
-  </Container>
+    </div>
+  </div>
 );
