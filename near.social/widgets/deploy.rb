@@ -14,38 +14,25 @@ Dir.glob("**/*.jsx") do |file|
 
   content = File.read(file)
 
-  # # escape double quotes
-  # content = content.gsub('"', '\"')
+  # escape quotes
+  content = content.gsub('"', "\"")
+  content = content.gsub("'", "\\'")
 
-  # # remove whitespace (at least two spaces)
-  # content = content.gsub("  ", "")
+  # remove whitespace (at least two spaces)
+  content = content.gsub("  ", "")
 
-  # # escape newlines
-  # content = content.gsub("\n", "\\n")
-
+  # escape newlines
+  content = content.gsub("\n", "\\n")
 
 
   # generate shell command  
   # NEAR_ENV=mainnet near call $CONTRACT set --accountId $ACCOUNT --args '{"data": {"$ACCOUNT": {"widget": {"$name": {"": $content}}}}}'
   # where $CONTRACT is the contract name, $ACCOUNT is the account name, $name is the file name, $content is the file content (escaped)
-  args = Shellwords.escape("
-    \"data\": {
-      \"#{ACCOUNT}\": {
-        \"widget\": {
-          \"#{name}\": {
-            \"\": \"#{content}\"
-          }
-        }
-      }
-    }
-  ")
-  command = "NEAR_ENV=mainnet near call #{CONTRACT} --accountId #{ACCOUNT} set  --args '{#{args}'}"
+  args = "{\"data\": {\"#{ACCOUNT}\": {\"widget\": {\"#{name}\": {\"\": \"#{content}\"}}}}}"
+  command = "NEAR_ENV=mainnet near call #{CONTRACT} --accountId #{ACCOUNT} set  --args '#{args}'"
+
+  # puts command
 
   # execute shell command
-  system(command)
+  # system(command)
 end
-
-
-
-
-
