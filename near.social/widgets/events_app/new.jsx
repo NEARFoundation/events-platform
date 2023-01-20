@@ -10,6 +10,9 @@ const MIN_LENGTH_DESCRIPTION = 10;
 const MILLISECONDS_IN_DAY = 86400000;
 const DAYS_IN_WEEK = 7;
 
+const TGAS_300 = '300000000000000';
+const ONE_NEAR = '1000000000000000000000000';
+
 const TODAY =
   Math.floor((Date.now() + 0) / MILLISECONDS_IN_DAY) * MILLISECONDS_IN_DAY;
 const TOMORROW = TODAY + MILLISECONDS_IN_DAY;
@@ -200,19 +203,25 @@ function callContract(data) {
     links,
     description,
   } = data;
-  Near.call(CONTRACT, 'create_event', {
-    account_id: accountId,
-    name,
-    type,
-    category,
-    status,
-    start_date,
-    end_date,
-    location,
-    image,
-    links,
-    description,
-  });
+  Near.call(
+    CONTRACT,
+    'create_event',
+    {
+      account_id: accountId,
+      name,
+      type,
+      category,
+      status,
+      start_date,
+      end_date,
+      location,
+      image,
+      links,
+      description,
+    },
+    TGAS_300,
+    ONE_NEAR
+  );
 }
 
 function sanitizeValidateAndCall(data) {
