@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "license": "(MIT AND Apache-2.0)",
   "scripts": {
-    "start": "TODO",
-    "dev": "TODO",
+    "dev": "node dev.js",
     "build": "TODO",
-    "deploy": "TODO",
+    "deploy": "node deploy.js",
     "lint": "eslint \"widgets/**/*.{js|ts|jsx}\"",
     "lint:fix": "eslint \"widgets/**/*.{js|ts|jsx}\" --fix"
   },
@@ -14,8 +13,14 @@
     "eslint": "^8.31.0",
     "eslint-plugin-import": "^2.27.4",
     "eslint-plugin-jsx-a11y": "^6.7.1",
-    "eslint-plugin-react": "^7.32.0"
+    "eslint-plugin-react": "^7.32.0",
+    "near-cli": "^3.4.0",
+    "near-sdk-js": "0.6.0",
+    "ts-morph": "^16.0.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "chokidar": "^3.5.3",
+    "nodemon": "^2.0.20"
+  },
   "browserslist": {}
 }
