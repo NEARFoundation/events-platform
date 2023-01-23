@@ -1,5 +1,6 @@
-const CONTRACT = 'events_v1.near';
-const CONTRACT_OWNER = 'solleder.near';
+const CONTRACT = 'nearevents.testnet';
+const APP_NAME = 'events_app';
+const APP_OWNER = 'nearevents.testnet';
 
 // accountID is used to determine for whom the events are displayed
 // if no accountID is provided, all events are displayed
@@ -14,13 +15,15 @@ if (accountId === undefined) {
   });
 }
 
+console.log({ events });
+
 if (!events) {
-  return 'Loading!';
+  return 'Loading';
 }
 
 return (
   <Widget
-    src={`${CONTRACT_OWNER}/widget/index__list`}
+    src={`${APP_OWNER}/widget/${APP_NAME}__index__list`}
     props={{ events: events }}
   />
 );

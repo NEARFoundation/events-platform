@@ -1,4 +1,5 @@
-const CONTRACT_OWNER = 'solleder.near';
+const APP_OWNER = 'nearevents.testnet';
+const APP_NAME = 'events_app';
 
 let event = props.event || null;
 
@@ -70,7 +71,7 @@ const EventBody = styled.div`
 
 return (
   <a
-    href={`#/${CONTRACT_OWNER}/widget/show?event_id=${event.event_id}`}
+    href={`#/${APP_OWNER}/widget/${APP_NAME}__show?event_id=${event.id}`}
     className="text-decoration-none"
   >
     <EventCard>

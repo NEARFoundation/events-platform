@@ -1,4 +1,5 @@
-const CONTRACT_OWNER = 'solleder.near';
+const APP_OWNER = 'nearevents.testnet';
+const APP_NAME = 'events_app';
 const accountId = props.accountId ?? context.accountId;
 
 const Button = styled.button`
@@ -18,19 +19,24 @@ return (
   <div>
     <h1>Events</h1>
     <a
-      href={`#/${CONTRACT_OWNER}/widget/new?accountId=${accountId}`}
+      href={`#/${APP_OWNER}/widget/${APP_NAME}__new?accountId=${accountId}`}
       className="TODO"
     >
       <Button>Create new Event</Button>
     </a>
 
     <a
-      href={`#/${CONTRACT_OWNER}/widget/index__list_container?accountId=${accountId}`}
+      href={`#/${APP_OWNER}/widget/${APP_NAME}__index__list_container?accountId=${accountId}`}
       className="TODO"
     >
       <Button>My events</Button>
     </a>
 
-    <Widget src={`${CONTRACT_OWNER}/widget/index__list_container`} props={{}} />
+    <br />
+
+    <Widget
+      src={`${APP_OWNER}/widget/${APP_NAME}__index__list_container`}
+      props={{}}
+    />
   </div>
 );

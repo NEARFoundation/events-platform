@@ -1,4 +1,5 @@
-const CONTRACT_OWNER = 'solleder.near';
+const APP_OWNER = 'nearevents.testnet';
+const APP_NAME = 'events_app';
 
 let events = props.events || [];
 
@@ -33,7 +34,7 @@ const eventsList = events.map((event) => {
   console.log(event);
   return (
     <Widget
-      src={`${CONTRACT_OWNER}/widget/index__list_item`}
+      src={`${APP_OWNER}/widget/${APP_NAME}__index__list_item`}
       props={{ event }}
       key={event.event_id}
     />
