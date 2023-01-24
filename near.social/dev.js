@@ -50,7 +50,9 @@ function fetchEnv(path) {
   return env;
 }
 
-// replaces `{{ env.KEY }}` with env.KEY value
+// loads file contents and replaces `{{ env.KEY }}` with env.KEY value
+// TODO: add support for `{{ env.KEY | 'default value' }}`
+// TODO: minify fileContent before deploying to save gas and storage
 function loadFileAsTemplate(env, path) {
   const content = readFileSync(path, 'utf8');
   return Object.entries(env).reduce((acc, [key, value]) => {
@@ -95,6 +97,9 @@ function deployWidget(path) {
 
   const fileContent = loadFileAsTemplate(env, path);
   const contractArgs = buildContractArgs(widgetName, fileContent);
+
+  // TODO: determine if we need to deploy or not by comparing fileContent with current state of contract
+  // NOTE: we must also check updated metadata, but maybe can do this in a separate call
 
   const args = [
     'call',
