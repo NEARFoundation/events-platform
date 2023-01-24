@@ -1,6 +1,6 @@
-const CONTRACT = 'nearevents.testnet';
-const APP_NAME = 'events_app';
-const APP_OWNER = 'nearevents.testnet';
+const CONTRACT = '{{ env.CONTRACT }}';
+const APP_OWNER = '{{ env.APP_OWNER }}';
+const APP_NAME = '{{ env.APP_NAME }}';
 
 // accountID is used to determine for whom the events are displayed
 // if no accountID is provided, all events are displayed

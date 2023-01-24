@@ -1,6 +1,6 @@
-const CONTRACT = 'nearevents.testnet';
-const APP_OWNER = 'nearevents.testnet';
-const APP_NAME = 'events_app';
+const CONTRACT = '{{ env.CONTRACT }}';
+const APP_OWNER = '{{ env.APP_OWNER }}';
+const APP_NAME = '{{ env.APP_NAME }}';
 
 const accountId = context.accountId;
 if (!accountId) {
@@ -20,7 +20,8 @@ if (!event) {
 }
 
 const TGAS_300 = '300000000000000';
-const ONE_NEAR = '1000000000000000000000000';
+// const ONE_NEAR = '1000000000000000000000000';
+const ONE_HALF_NEAR = '500000000000000000000000';
 
 function callContract(data) {
   const {
@@ -52,7 +53,7 @@ function callContract(data) {
       description,
     },
     TGAS_300,
-    ONE_NEAR
+    ONE_HALF_NEAR
   );
 }
 
@@ -67,7 +68,7 @@ return (
     <h1> Edit Event</h1>
     <Widget
       src={`${APP_OWNER}/widget/${APP_NAME}___form`}
-      props={{ model: event, onSave }}
+      props={{ model: event, onSave, buttonText: 'Update event' }}
     />
   </>
 );

@@ -1,6 +1,6 @@
-const CONTRACT = 'nearevents.testnet';
-const APP_OWNER = 'nearevents.testnet';
-const APP_NAME = 'events_app';
+const CONTRACT = '{{ env.CONTRACT }}';
+const APP_OWNER = '{{ env.APP_OWNER }}';
+const APP_NAME = '{{ env.APP_NAME }}';
 
 const eventId = props.event_id;
 if (!eventId) {

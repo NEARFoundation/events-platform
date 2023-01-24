@@ -9,6 +9,7 @@ if (onSave === undefined || onSave === null) {
 }
 
 const model = props.model;
+const buttonText = props.buttonText || 'Save';
 
 const MIN_LENGTH_NAME = 4;
 const MIN_LENGTH_DESCRIPTION = 10;
@@ -240,6 +241,7 @@ return (
       />
     </div>
     <ErrorMessage>{getError('name')}</ErrorMessage>
+
     <div className="mt-3">
       <Label>Description</Label>
       <textarea
@@ -253,6 +255,7 @@ return (
       />
     </div>
     <ErrorMessage>{getError('description')}</ErrorMessage>
+
     <div className="mt-3">
       <Label>Type</Label>
       <Select
@@ -269,6 +272,7 @@ return (
       </Select>
     </div>
     <ErrorMessage>{getError('type')}</ErrorMessage>
+
     <div className="mt-3">
       <Label>Category</Label>
       <input
@@ -281,6 +285,7 @@ return (
       />
     </div>
     <ErrorMessage>{getError('category')}</ErrorMessage>
+
     <div className="mt-3">
       <Label>Status</Label>
       <Select
@@ -297,6 +302,7 @@ return (
       </Select>
     </div>
     <ErrorMessage>{getError('status')}</ErrorMessage>
+
     <div className="mt-3">
       <Label>Start Date</Label>
       <input
@@ -308,6 +314,7 @@ return (
       />
     </div>
     <ErrorMessage>{getError('start_date')}</ErrorMessage>
+
     <div className="mt-3">
       <Label>End Date</Label>
       <input
@@ -319,6 +326,7 @@ return (
       />
     </div>
     <ErrorMessage>{getError('end_date')}</ErrorMessage>
+
     <div className="mt-3">
       <Label>Location</Label>
       <textarea
@@ -332,6 +340,7 @@ return (
       />
     </div>
     <ErrorMessage>{getError('location')}</ErrorMessage>
+
     <div className="mt-3">
       <Label>Images</Label>
       {state.images.map((image, index) => (
@@ -392,6 +401,7 @@ return (
       </button>
     </div>
     <ErrorMessage>{getError('images')}</ErrorMessage>
+
     <div className="mt-3">
       <Label>Links</Label>
       {state.links.map((link, index) => (
@@ -479,13 +489,15 @@ return (
       </button>
     </div>
     <ErrorMessage>{getError('links')}</ErrorMessage>
+
+    <br />
     <Button
       className="mt-3"
       onClick={() => {
         sanitizeValidateAndCall(state);
       }}
     >
-      Create Event
+      {buttonText}
     </Button>
   </div>
 );

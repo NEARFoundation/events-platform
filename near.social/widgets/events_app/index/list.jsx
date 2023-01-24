@@ -1,5 +1,6 @@
-const APP_OWNER = 'nearevents.testnet';
-const APP_NAME = 'events_app';
+// const CONTRACT = '{{ env.CONTRACT }}';
+const APP_OWNER = '{{ env.APP_OWNER }}';
+const APP_NAME = '{{ env.APP_NAME }}';
 
 let events = props.events || [];
 
