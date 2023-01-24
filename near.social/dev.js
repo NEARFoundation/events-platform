@@ -36,6 +36,8 @@ function fetchEnv(path) {
     }
   }
 
+  // TODO: merge env from local file
+
   if (!envPath) {
     return {};
   }
