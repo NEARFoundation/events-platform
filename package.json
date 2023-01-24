@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "license": "(MIT AND Apache-2.0)",
   "scripts": {
-    "start": "cd frontend && yarn start",
-    "deploy": "cd contract && yarn deploy",
+    "start": "cd near.social && yarn dev",
+    "deploy": "yarn deploy:contract && yarn deploy:near.social",
+    "deploy:contract": "cd contract && yarn deploy",
+    "deploy:near.social": "cd near.social && yarn deploy",
     "build": "yarn build:contract && yarn build:web",
     "build:web": "cd frontend && yarn build",
     "build:contract": "cd contract && yarn build",
