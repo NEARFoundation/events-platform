@@ -84,6 +84,7 @@ function buildWidgetName(path) {
     .replace(`${__dirname}`, '')
     .replace(`${SRC_DIR}/`, '')
     .replace('.jsx', '')
+    .replace(/^\//u, '')
     .replace(/\//gu, '__');
 }
 

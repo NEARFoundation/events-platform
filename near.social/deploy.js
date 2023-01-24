@@ -68,8 +68,9 @@ function fetchEnv(path) {
 function loadFileAsTemplate(env, path) {
   const content = readFileSync(path, 'utf8');
   return Object.entries(env).reduce((acc, [key, value]) => {
-    const regexString = `\\{\\{\\s+env\\.${key}\\s+\\}\\}`;
-    return acc.replace(new RegExp(regexString, 'gu'), value);
+    const regexString = `\\{\\{\\s*env\\.${key}\\s*\\}\\}`;
+    const regex = new RegExp(regexString, 'gu');
+    return acc.replace(regex, value);
   }, content);
 }
 
@@ -94,6 +95,7 @@ function buildWidgetName(path) {
     .replace(`${__dirname}`, '')
     .replace(`${SRC_DIR}/`, '')
     .replace('.jsx', '')
+    .replace(/^\//u, '')
     .replace(/\//gu, '__');
 }
 
