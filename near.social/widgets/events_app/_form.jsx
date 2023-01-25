@@ -1,3 +1,6 @@
+const APP_OWNER = '{{ env.APP_OWNER }}';
+const APP_NAME = '{{ env.APP_NAME }}';
+
 const accountId = context.accountId;
 if (!accountId) {
   return 'Please connect your NEAR wallet to create an activity';
@@ -31,11 +34,11 @@ const DEFAULT_STATE = {
   location: '',
   images: [
     {
-      url: '',
+      url: null,
       type: 'tile',
     },
     {
-      url: '',
+      url: null,
       type: 'banner',
     },
   ],
@@ -61,6 +64,7 @@ const DEFAULT_STATE = {
   errors: {},
 };
 if (model) {
+  console.log('model', model);
   State.init({
     ...model,
     images: model.images || DEFAULT_STATE.images,
@@ -118,11 +122,6 @@ const EventTypes = [
   { value: 'mixed', label: 'Both' },
 ];
 
-const ImageTypes = [
-  { value: 'tile', label: 'Tile' },
-  { value: 'banner', label: 'Banner' },
-];
-
 const LinkTypes = [
   { value: 'register', label: 'Register' },
   { value: 'tickets', label: 'Tickets' },
@@ -160,7 +159,7 @@ function sanitize(data) {
     start_date,
     end_date,
     location,
-    image,
+    images,
     links,
     description,
   } = data;
@@ -172,7 +171,7 @@ function sanitize(data) {
     start_date: new Date(start_date).getTime(),
     end_date: new Date(end_date).getTime(),
     location,
-    image,
+    images,
     links,
     description,
   };
@@ -221,11 +220,7 @@ const updateState = (event, key) => {
 return (
   <div
     style={{
-      width: '50%',
-      margin: '0 auto',
-      minWidth: '300px',
-      maxWidth: '600px',
-      backgroundColor: '#fff',
+      width: '100%',
       padding: '1rem',
     }}
   >
@@ -343,48 +338,26 @@ return (
 
     <div className="mt-3">
       <Label>Images</Label>
+
       {state.images.map((image, index) => (
         <div key={index} className="mb-4 d-flex">
-          <Select
-            style={{ width: '100px' }}
-            value={image.type}
-            onChange={(event) => {
-              const images = [...state.images];
-              images[index].type = event.target.value;
-              State.update({ images });
-              sanitizeAndValidate({ ...state, images });
-            }}
-          >
-            {ImageTypes.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </Select>
-
-          <div className="ms-2">
-            <IpfsImageUpload
-              image={image.url}
-              onChange={(event) => {
+          <Widget
+            src={`${APP_OWNER}/widget/${APP_NAME}___form__image_component`}
+            props={{
+              image: image,
+              onChange: (changed) => {
+                console.log({ changed });
+                state.images[index] = changed;
+                sanitizeAndValidate({ ...state, images: state.images });
+              },
+              onRemove: () => {
                 const images = [...state.images];
-                images[index].url = event.target.value;
+                images.splice(index, 1);
                 State.update({ images });
                 sanitizeAndValidate({ ...state, images });
-              }}
-            />
-          </div>
-
-          <button
-            className="ms-2 btn btn-danger"
-            onClick={() => {
-              const images = [...state.images];
-              images.splice(index, 1);
-              State.update({ images });
-              sanitizeAndValidate({ ...state, images });
+              },
             }}
-          >
-            Remove
-          </button>
+          />
         </div>
       ))}
 

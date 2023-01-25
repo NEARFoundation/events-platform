@@ -1,12 +1,6 @@
-// const CONTRACT = '{{ env.CONTRACT }}';
-const APP_OWNER = '{{ env.APP_OWNER }}';
-const APP_NAME = '{{ env.APP_NAME }}';
-
 let events = props.events || [];
-
-// return data;
 if (!events) {
-  return 'Loading';
+  return '';
 }
 
 // if events are empty we want to show an empty list message
@@ -21,25 +15,15 @@ const IndexList = styled.div`
   & > * {
     margin: 1rem;
   }
-
-  & > *:nth-child(3n + 1) {
-    margin-left: 0;
-  }
-
-  & > *:nth-child(3n) {
-    margin-right: 0;
-  }
 `;
 
-const eventsList = events.map((event) => {
-  console.log(event);
-  return (
-    <Widget
-      src={`${APP_OWNER}/widget/${APP_NAME}__index__list_item`}
-      props={{ event }}
-      key={event.event_id}
-    />
-  );
-});
-
-return <IndexList>{eventsList}</IndexList>;
+return (
+  <IndexList>
+    {events.map((event) => {
+      return props.engine.renderComponent('index.list_item', {
+        event,
+        key: event.event_id,
+      });
+    })}
+  </IndexList>
+);

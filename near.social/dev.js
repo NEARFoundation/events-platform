@@ -1,6 +1,10 @@
+#!/usr/bin/env node
+
 const PATH_TO_NEAR_CLI = './node_modules/.bin/near';
-const SOCIAL_CONTRACT = 'v1.social08.testnet';
-const ACCOUNT_ON_SOCIAL = 'nearevents.testnet';
+// const SOCIAL_CONTRACT = 'v1.social08.testnet';
+// const ACCOUNT_ON_SOCIAL = 'nearevents.testnet';
+const SOCIAL_CONTRACT = 'social.near';
+const ACCOUNT_ON_SOCIAL = 'events_v1.near';
 const ENV_FILE_PATH = '.env';
 const SRC_DIR = 'widgets';
 

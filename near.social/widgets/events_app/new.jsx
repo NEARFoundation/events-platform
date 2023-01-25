@@ -1,4 +1,4 @@
-const CONTRACT = '{{ env.CONTRACT }}';
+const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';
 const APP_OWNER = '{{ env.APP_OWNER }}';
 const APP_NAME = '{{ env.APP_NAME }}';
 
@@ -8,10 +8,9 @@ if (!accountId) {
 }
 
 const TGAS_300 = '300000000000000';
-// const ONE_NEAR = '1000000000000000000000000';
-const ONE_HALF_NEAR = '500000000000000000000000';
+const ONE_NEAR = '1000000000000000000000000';
 
-function callContract(data) {
+function createEvent(data) {
   const {
     name,
     type,
@@ -24,8 +23,9 @@ function callContract(data) {
     links,
     description,
   } = data;
-  Near.call(
-    CONTRACT,
+
+  const event = Near.call(
+    EVENTS_CONTRACT,
     'create_event',
     {
       account_id: accountId,
@@ -41,13 +41,14 @@ function callContract(data) {
       description,
     },
     TGAS_300,
-    ONE_HALF_NEAR
+    ONE_NEAR
   );
+
+  console.log('event', { event });
 }
 
 function onSave(data) {
-  console.log('onSave', data);
-  callContract(data);
+  createEvent(data);
 }
 
 return (

@@ -1,4 +1,4 @@
-const CONTRACT = '{{ env.CONTRACT }}';
+const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';
 const APP_OWNER = '{{ env.APP_OWNER }}';
 const APP_NAME = '{{ env.APP_NAME }}';
 
@@ -12,7 +12,7 @@ if (!eventId) {
   return 'props.eventId is required';
 }
 
-const event = Near.view(CONTRACT, 'get_event', {
+const event = Near.view(EVENTS_CONTRACT, 'get_event', {
   event_id: props.event_id,
 });
 if (!event) {
@@ -37,7 +37,7 @@ function callContract(data) {
     description,
   } = data;
   Near.call(
-    CONTRACT,
+    EVENTS_CONTRACT,
     'create_event',
     {
       account_id: accountId,
