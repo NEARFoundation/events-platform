@@ -1,5 +1,5 @@
 {
-  "name": "events",
+  "name": "near_events_contract",
   "version": "1.0.0",
   "license": "(MIT AND Apache-2.0)",
   "type": "module",
