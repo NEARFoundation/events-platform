@@ -1,6 +1,10 @@
 import { Worker, NearAccount, ONE_NEAR } from "near-workspaces";
 import anyTest, { TestFn } from "ava";
 
+import { Event } from "../../contract/src/types";
+
+const THREE_HUNDRED_TGAS = "300000000000000";
+
 const test = anyTest as TestFn<{
   worker: Worker;
   accounts: Record<string, NearAccount>;
@@ -30,7 +34,7 @@ test.afterEach.always(async (t) => {
 
 test("create a new event and get it from the contract", async (t) => {
   const { contract } = t.context.accounts;
-  await contract.call(
+  const { id: event_id } = <Event>await contract.call(
     contract,
     "create_event",
     {
@@ -45,13 +49,15 @@ test("create a new event and get it from the contract", async (t) => {
       images: [],
       links: [],
     },
-    { attachedDeposit: ONE_NEAR }
+    {
+      attachedDeposit: ONE_NEAR,
+      gas: THREE_HUNDRED_TGAS,
+    }
   );
 
-  const event = await contract.view("get_event", { event_id: "test" });
+  const event = await contract.view("get_event", { event_id: event_id });
 
   t.deepEqual(event, {
-    id: "test",
     name: "test",
     type: "irl",
     category: "test",
@@ -59,19 +65,19 @@ test("create a new event and get it from the contract", async (t) => {
     description: "test",
     start_date: "2023-01-11T14:54:06.652Z",
     end_date: "2023-01-12T14:54:06.652Z",
-    location: "here",
     created_at: new Date(0).toISOString(),
     last_updated_at: new Date(0).toISOString(),
     owner_account_id: contract.accountId,
-    liked_by: [],
+    id: event_id,
+    location: "here",
     images: [],
-    links: [],
+    links: []
   });
 });
 
 test("create a new event and get all the events from the contract", async (t) => {
   const { contract } = t.context.accounts;
-  await contract.call(
+  const evt = <Event>await contract.call(
     contract,
     "create_event",
     {
@@ -86,35 +92,20 @@ test("create a new event and get all the events from the contract", async (t) =>
       images: [],
       links: [],
     },
-    { attachedDeposit: ONE_NEAR }
+    {
+      attachedDeposit: ONE_NEAR,
+      gas: THREE_HUNDRED_TGAS,
+    }
   );
 
   const events = await contract.view("get_all_events", {});
 
-  t.deepEqual(events, [
-    {
-      id: "test",
-      name: "test",
-      type: "irl",
-      category: "test",
-      status: "published",
-      description: "test",
-      start_date: "2023-01-11T14:54:06.652Z",
-      end_date: "2023-01-12T14:54:06.652Z",
-      location: "here",
-      created_at: new Date(0).toISOString(),
-      last_updated_at: new Date(0).toISOString(),
-      owner_account_id: contract.accountId,
-      liked_by: [],
-      images: [],
-      links: [],
-    },
-  ]);
+  t.deepEqual(events, [evt]);
 });
 
 test("create a new event and delete it", async (t) => {
   const { contract } = t.context.accounts;
-  await contract.call(
+  const { id: event_id } = <Event>await contract.call(
     contract,
     "create_event",
     {
@@ -129,19 +120,22 @@ test("create a new event and delete it", async (t) => {
       images: [],
       links: [],
     },
-    { attachedDeposit: ONE_NEAR }
+    {
+      attachedDeposit: ONE_NEAR,
+      gas: THREE_HUNDRED_TGAS
+    }
   );
 
-  await contract.call(contract, "remove_event", { event_id: "test" });
+  await contract.call(contract, "remove_event", { event_id });
 
-  const event = await contract.view("get_event", { event_id: "test" });
+  const event = await contract.view("get_event", { event_id });
 
   t.falsy(event);
 });
 
 test("create a new event and update the description", async (t) => {
   const { contract } = t.context.accounts;
-  await contract.call(
+  const { id: event_id } = <Event>await contract.call(
     contract,
     "create_event",
     {
@@ -156,22 +150,22 @@ test("create a new event and update the description", async (t) => {
       images: [],
       links: [],
     },
-    { attachedDeposit: ONE_NEAR }
+    { attachedDeposit: ONE_NEAR, gas: THREE_HUNDRED_TGAS }
   );
 
-  await contract.call(
+  const updatedEvent = <Event>await contract.call(
     contract,
     "update_event",
     {
-      event_id: "test",
+      event_id: event_id,
       event: { description: "test2" },
     },
-    { attachedDeposit: ONE_NEAR }
+    { attachedDeposit: ONE_NEAR, gas: THREE_HUNDRED_TGAS }
   );
 
-  const { description } = (await contract.view("get_event", {
-    event_id: "test",
-  })) as { description: string };
+  const updatedEventFromApi = <Event>await contract.view("get_event", {
+    event_id: event_id,
+  });
 
-  t.is(description, "test2");
+  t.deepEqual(updatedEvent, updatedEventFromApi);
 });

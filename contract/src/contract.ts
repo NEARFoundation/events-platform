@@ -13,7 +13,7 @@ import { AccountId } from "near-sdk-js/lib/types";
 import { EventListsMap } from "./helpers";
 import { type Event, type CreateEvent, type UpdateEvent } from "./types";
 
-const FIVE_TGAS = BigInt("50000000000000");
+const TWENTY_TGAS = BigInt("200000000000000");
 const NO_DEPOSIT = BigInt(0);
 // const NO_ARGS = bytes(JSON.stringify({}));
 
@@ -41,8 +41,11 @@ export class HelloNear {
     const oldStorageUsage = near.storageUsage();
     const owner_account_id = near.signerAccountId();
 
+    const uuid = bytes(near.randomSeed()).split('').map((c) => {
+      return c.charCodeAt(0).toString(16)
+    }).join('');
+
     const now = new Date();
-    const uuid = near.randomSeed();
 
     const event = <Event>{
       ...createEvent,
@@ -79,25 +82,23 @@ export class HelloNear {
     // If there was a sufficient amount deposited, we refund any surplus.
     const refundAmount = attachedDeposit - priceOfUsedStorage;
 
-    const returnEventPromise = NearPromise.new(near.currentAccountId()).functionCall("return_event", bytes(uuid), NO_DEPOSIT, FIVE_TGAS)
-    const refundStoragePromise = NearPromise.new(owner_account_id).transfer(refundAmount)
+
+    // We return a promise that will return the event to the user.
+    const eventId = JSON.stringify({ event_id: uuid })
+    const returnEventPromise = NearPromise
+      .new(near.currentAccountId())
+      .functionCall("return_event", eventId, NO_DEPOSIT, TWENTY_TGAS)
 
     if (refundAmount > 0) {
-      return refundStoragePromise.then(returnEventPromise)
+      return NearPromise.new(owner_account_id).transfer(refundAmount)
+        .then(returnEventPromise)
     }
-    return returnEventPromise;
+    return returnEventPromise
   }
 
   @call({ privateFunction: true })
-  return_event(): Event {
-    let { result, success } = promiseResult()
-
-    if (success) {
-      return this.get_event({ event_id: result })
-    } else {
-      near.log("Promise failed...")
-      return null;
-    }
+  return_event(args: { event_id: string }): Event {
+    return this.events.get(args.event_id);
   }
 
 
@@ -181,9 +182,15 @@ export class HelloNear {
     // We refund the signer if need be.
     const refundAmount = attachedDeposit - priceOfUsedStorage;
 
+    const eventId = JSON.stringify({ event_id })
+    const returnEventPromise = NearPromise
+      .new(near.currentAccountId())
+      .functionCall("return_event", eventId, NO_DEPOSIT, TWENTY_TGAS)
+
     if (refundAmount > 0) {
-      return NearPromise.new(signerAccountId).transfer(refundAmount);
+      return NearPromise.new(signerAccountId).transfer(refundAmount).then(returnEventPromise)
     }
+    return returnEventPromise
   }
 
   /**
@@ -217,7 +224,7 @@ export class HelloNear {
     const priceOfUsedStorage = storageUsedByCall * near.storageByteCost();
 
     if (priceOfUsedStorage > 0) {
-      return NearPromise.new(signerAccountId).transfer(priceOfUsedStorage);
+      return NearPromise.new(signerAccountId).transfer(priceOfUsedStorage)
     }
   }
 }
