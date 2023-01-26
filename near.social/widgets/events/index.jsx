@@ -1,12 +1,13 @@
-const Button = props.Components.Button;
+const Button = props.__.Components.Button;
+const PageTitle = props.__.Components.PageTitle;
 
 return (
   <div>
-    <h1>Events</h1>
+    <PageTitle>Events</PageTitle>
 
     <Button
       onClick={() => {
-        props.routing.push('new', {}, 'container', {
+        props.__.engine.push('new', {}, 'modal', {
           title: 'Create new Event',
           back: true,
         });
@@ -17,10 +18,10 @@ return (
 
     <Button
       onClick={() => {
-        props.routing.push(
+        props.__.engine.push(
           'index.list_container',
           {
-            forAccountId: props.accountId,
+            forAccountId: props.__.accountId,
           },
           'container',
           {
@@ -35,6 +36,6 @@ return (
 
     <br />
 
-    {props.engine.renderComponent('index.list_container', {})}
+    {props.__.engine.renderComponent('index.list_container', {})}
   </div>
 );

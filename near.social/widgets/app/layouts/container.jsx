@@ -1,8 +1,8 @@
 const NAVBAR_HEIGHT = 64;
-const NAVBAR_OFFSET_TOP = 72;
+const NAVBAR_OFFSET_TOP = 0;
 
-const title = props.layoutProps.title ?? '';
-const dropdownItems = props.layoutProps.dropdownItems ?? [];
+const title = props.title || '';
+const dropdownItems = props.dropdownItems || [];
 
 const dropdownElement =
   dropdownItems && dropdownItems.length > 0 ? (
@@ -22,11 +22,11 @@ const dropdownElement =
       <div className="collapse navbar-collapse" id="navbarSupportedContent">
         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
           {dropdownItems.map((item, idx) => {
-            return props.engine.renderComponent(
-              item.component,
+            return props.__.engine.renderComponent(
+              item.name,
               {
                 ...item.props,
-                key: `dropdown_item_${idx}`,
+                key: `dropdown_item_${item.name}_${idx}`,
               },
               item.layout,
               item.layoutProps
@@ -41,7 +41,10 @@ return (
   <>
     <div
       style={{
-        width: '100%',
+        width: '100vw',
+        minHeight: '100%',
+        backgroundColor: 'white',
+        overflow: 'auto',
       }}
     >
       <div
@@ -55,29 +58,26 @@ return (
       >
         <div className="container-fluid h-100 flex">
           <div className="d-flex">
-            {props.layoutProps.back ? (
-              <button
-                className=""
-                style={{
-                  color: 'black',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: '100%',
-                  border: 'none',
-                  outline: 'none',
-                  background: 'transparent',
-                  width: NAVBAR_HEIGHT,
-                }}
-                type="button"
-                onClick={() => {
-                  console.log('back');
-                  props.routing.pop();
-                }}
-              >
-                &lt;
-              </button>
-            ) : null}
+            <button
+              className=""
+              style={{
+                color: 'black',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                border: 'none',
+                outline: 'none',
+                background: 'transparent',
+                width: NAVBAR_HEIGHT,
+              }}
+              type="button"
+              onClick={() => {
+                props.__.engine.pop();
+              }}
+            >
+              &lt;
+            </button>
 
             <h2 className="navbar-brand">{title}</h2>
           </div>
@@ -93,7 +93,12 @@ return (
         }}
       >
         <div className="col-12">
-          <Widget src={props.component.src} props={props.component.props} />
+          {props.__.engine.renderComponent(
+            props.component.name,
+            props.component.props,
+            props.component.layout,
+            props.component.layoutProps
+          )}
         </div>
       </div>
     </div>

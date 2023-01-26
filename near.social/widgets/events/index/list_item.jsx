@@ -66,24 +66,21 @@ const EventBody = styled.div`
   padding: 1rem;
 `;
 
-console.log('event', event);
-console.log('props', props);
-
 function gotoEvent() {
-  props.routing.push('show', { event_id: event.id }, 'container', {
+  props.__.engine.push('show', { event_id: event.id }, 'modal', {
     title: event.name,
     back: true,
     dropdownItems: [
       {
-        component: 'components.dropdown_item',
+        name: 'components.dropdown_item',
         props: {
           label: 'Edit',
-          onClick: () => {
-            props.routing.push('edit', { event_id: event.id }, 'container', {
-              title: 'Edit Event',
-              back: true,
-            });
-          },
+          // onClick: () => {
+          //   props.__.engine.push('edit', { event_id: event.id }, 'container', {
+          //     title: 'Edit Event',
+          //     back: true,
+          //   });
+          // },
         },
         layout: 'dropdown_item',
         layoutProps: {},
