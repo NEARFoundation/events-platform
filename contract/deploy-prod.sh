@@ -9,5 +9,5 @@ fi
 
 echo ">> Deploying contract"
 
-# https://docs.near.org/tools/near-cli#near-deploy
-NEAR_ENV=mainnet near deploy events_v1.near --wasmFile build/events.wasm
+# https://docs.near.org/tools/near-cli#near-dev-deploy
+near deploy --accountId nearevents.testnet --wasmFile build/events.wasm
