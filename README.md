@@ -25,15 +25,13 @@ Exploring The Code
 
 1. The smart-contract code lives in the `/contract` folder. See the README there for
    more info. In blockchain apps, the smart contract is the "backend" of your app.
-2. The frontend code lives in the `/frontend` folder. `/frontend/index.html` is a great
-   place to start exploring. Note that it loads in `/frontend/index.js`,
-   this is your entry point to learn how the frontend connects to the NEAR blockchain.
+2. The near.social code lives in the `/near.social` folder.
 3. Test your contract: `yarn test`, this will run the tests in the `integration-tests` directory.
 
 Deploy
 ======
 
-Every smart contract in NEAR has its [own associated account][NEAR accounts]. 
+Every smart contract in NEAR has its [own associated account][NEAR accounts].
 When you run `yarn deploy`, your smart contract gets deployed to the live NEAR TestNet with a temporary dev account.
 When you're ready to make it permanent, here's how:
 
@@ -72,7 +70,6 @@ Replace `PATH_TO_WASM_FILE` with the `wasm` that was generated in the `contract`
 
     near deploy --accountId near-blank-project.YOUR-NAME.testnet --wasmFile PATH_TO_WASM_FILE
 
-Step 3: Set contract name in your frontend code
 -----------------------------------------------
 
 Modify the line in `src/config.js` that sets the account name of the contract. Set it to the account id you used above.
@@ -86,9 +83,6 @@ On Windows, if you're seeing an error containing `EPERM` it may be related to sp
 [this issue](https://github.com/zkat/npx/issues/209) for more details.
 
   [create-near-app]: https://github.com/near/create-near-app
-  [Node.js]: https://nodejs.org/en/download/package-manager/
-  [jest]: https://jestjs.io/
   [NEAR accounts]: https://docs.near.org/concepts/basics/account
   [NEAR Wallet]: https://wallet.testnet.near.org/
   [near-cli]: https://github.com/near/near-cli
-  [gh-pages]: https://github.com/tschaub/gh-pages

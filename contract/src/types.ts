@@ -62,10 +62,10 @@ export type Event = {
   start_date: Date;
   end_date: Date;
   location: string;
-  image: {
+  images: {
     url: string;
     type: ImageType;
-  };
+  }[];
   links: {
     text: string;
     type: LinkType;
@@ -86,7 +86,7 @@ export type CreateEvent = Pick<
   | "start_date"
   | "end_date"
   | "location"
-  | "image"
+  | "images"
   | "links"
   | "description"
 >;

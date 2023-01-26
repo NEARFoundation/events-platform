@@ -10,4 +10,4 @@ fi
 echo ">> Deploying contract"
 
 # https://docs.near.org/tools/near-cli#near-dev-deploy
-near dev-deploy --wasmFile build/events.wasm
+near deploy --accountId nearevents.testnet --wasmFile build/events.wasm
