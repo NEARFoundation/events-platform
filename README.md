@@ -10,7 +10,7 @@ If you haven't installed dependencies during setup:
 
     yarn
 
-Build and deploy your contract to *Mainnet* with a temporary dev account:
+Build and deploy your contract to *Mainnet*:
 
     NEAR_ENV=mainnet near login
     yarn build
@@ -30,9 +30,9 @@ Development
 0. Adjust Environment Variables in `near.social/.env` file
 1. Run the local development environment:
 
-    yarn start
+    NEAR_ENV=mainnet yarn start
 
-This will start the local near.social dev-server which will automatically redeploy your widgets on near.social
+This will start the local near.social dev-server which will automatically redeploy your widgets on near.social mainnet when you change the code in the `widgets` folder.
 
 ## Features
 
