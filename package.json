@@ -4,7 +4,8 @@
   "license": "(MIT AND Apache-2.0)",
   "scripts": {
     "start": "cd near.social && yarn dev",
-    "deploy": "yarn deploy:contract && yarn deploy:near.social",
+    "deploy": "yarn deploy:contract",
+    "deploy:prod": "yarn deploy:prod && yarn deploy:near.social",
     "deploy:contract": "cd contract && yarn deploy",
     "deploy:near.social": "cd near.social && yarn deploy",
     "build": "yarn build:contract",
