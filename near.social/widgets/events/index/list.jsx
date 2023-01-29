@@ -11,9 +11,17 @@ if (events.length === 0) {
 const IndexList = styled.div`
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: stretch;
+  justify-content: flex-start;
+  width: 100%;
+
   & > * {
     margin: 1rem;
+    max-width: 480px;
+    min-width: 240px;
+    width: 33vw;
+    flex-grow: 1;
+    flex-shrink: 1;
   }
 `;
 

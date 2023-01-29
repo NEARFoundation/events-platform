@@ -12,12 +12,9 @@ const EventCard = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  max-width: 400px;
-  margin: 2rem auto;
   padding: 0;
   background-color: ${BG_CARD};
-  border-radius: 5px;
+  border-radius: 12px;
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
   border: 1px solid #ccc;
 `;
@@ -62,30 +59,11 @@ const EventBody = styled.div`
 `;
 
 function gotoEvent() {
-  props.__engine.push('show', { event_id: event.id }, 'container', {
-    title: event.name,
-    back: true,
-    dropdownItems: [
-      {
-        name: 'components.dropdown_item',
-        props: {
-          label: 'Edit',
-          // onClick: () => {
-          //   props.__engine.push('edit', { event_id: event.id }, 'container', {
-          //     title: 'Edit Event',
-          //     back: true,
-          //   });
-          // },
-        },
-        layout: 'dropdown_item',
-        layoutProps: {},
-      },
-    ],
-  });
+  props.__engine.push('show', { event_id: event.id }, 'container');
 }
 
 return (
-  <div
+  <EventCard
     onClick={() => {
       gotoEvent();
     }}
@@ -94,23 +72,31 @@ return (
         gotoEvent();
       }
     }}
-    className="text-decoration-none"
     role="button"
     tabIndex={0}
   >
-    <EventCard>
-      <EventHeader>
+    <EventHeader>
+      <div
+        style={{
+          height: '40vh',
+          maxHeight: '400px',
+          minHeight: '200px',
+          overflow: 'hidden',
+          borderRadius: '12px 12px 0 0',
+        }}
+      >
         {props.__engine.renderComponent('components.event_image_slider', {
           event,
+          mode: 'tile',
         })}
-        <EventTitle>{event.name}</EventTitle>
-      </EventHeader>
+      </div>
+      <EventTitle>{event.name}</EventTitle>
+    </EventHeader>
 
-      <EventBody>
-        <EventDescription>{event.description}</EventDescription>
-        <EventDate>{event.start_date}</EventDate>
-        <EventDate>{event.end_date}</EventDate>
-      </EventBody>
-    </EventCard>
-  </div>
+    <EventBody>
+      <EventDescription>{event.description}</EventDescription>
+      <EventDate>{event.start_date}</EventDate>
+      <EventDate>{event.end_date}</EventDate>
+    </EventBody>
+  </EventCard>
 );

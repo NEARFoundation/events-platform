@@ -6,10 +6,7 @@ if (!event) {
   return <img src="" alt="Event!" />;
 }
 
-const EventImage = styled.img`
-  width: 100%;
-  height: auto;
-`;
+const mode = props.mode || 'banner';
 
 const imagesWithCid = (event.images || [])
   .filter((image) => {
@@ -19,27 +16,26 @@ const imagesWithCid = (event.images || [])
     return image.url.cid.length > 0;
   });
 
-const bannerImages = imagesWithCid.filter((image) => {
-  return image.type === 'banner';
+const displayImages = imagesWithCid.filter((image) => {
+  return image.type === mode;
 });
 
 return (
   <div
     style={{
       width: '100%',
+      height: '100%',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      height: '40vh',
-      maxHeight: '400px',
-      minHeight: '200px',
       maxWidth: '100%',
       overflow: 'hidden',
+      userSelect: 'none',
     }}
   >
-    {bannerImages.map((image) => {
+    {displayImages.map((image) => {
       return (
-        <EventImage
+        <img
           src={`https://ipfs.near.social/ipfs/${image.url.cid}`}
           key={image.cid}
           alt={image.url.cid}

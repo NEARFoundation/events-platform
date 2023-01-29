@@ -24,14 +24,53 @@ console.log('event', { event });
 
 return (
   <>
-    <div style={{}}>
-      {props.__engine.renderComponent('components.event_image_slider', {
-        event,
-      })}
-    </div>
     <div
       style={{
-        padding: '40px 20px',
+        position: 'relative',
+        backgroundColor: 'black',
+      }}
+    >
+      {props.__engine.renderComponent('components.event_image_slider', {
+        event,
+        mode: 'banner',
+      })}
+
+      <div
+        style={{
+          position: 'absolute',
+          left: '0',
+          bottom: '0',
+          transform: 'translate(10%, 33%)',
+          padding: '4px',
+          width: '14vw',
+          height: '14vw',
+          minWidth: '100px',
+          minHeight: '100px',
+          background: 'white',
+          borderRadius: 14,
+          border: '0.3vw solid black',
+        }}
+      >
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            overflow: 'hidden',
+            borderRadius: 10,
+          }}
+        >
+          {props.__engine.renderComponent('components.event_image_slider', {
+            event,
+            mode: 'tile',
+          })}
+        </div>
+      </div>
+    </div>
+
+    <div
+      style={{
+        padding: '20px 20px',
+        marginTop: '8vw',
       }}
     >
       {/* title */}
