@@ -1,10 +1,16 @@
+props.controller.setLayout('container', {
+  title: 'ND Events',
+  back: false,
+});
+
 const Button = props.__engine.Components.Button;
-const PageTitle = props.__engine.Components.PageTitle;
 
 return (
-  <div>
-    <PageTitle>Events</PageTitle>
-
+  <div
+    style={{
+      padding: '40px 20px',
+    }}
+  >
     <Button
       onClick={() => {
         props.__engine.push('new', {}, 'modal', {

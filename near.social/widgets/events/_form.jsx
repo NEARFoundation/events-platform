@@ -1,11 +1,6 @@
 const APP_OWNER = '{{ env.APP_OWNER }}';
 const APP_NAME = '{{ env.APP_NAME }}';
 
-const accountId = context.accountId;
-if (!accountId) {
-  return 'Please connect your NEAR wallet to create an activity';
-}
-
 const onSave = props.onSave;
 if (onSave === undefined || onSave === null) {
   return 'props.onSave is required';
@@ -63,17 +58,18 @@ const DEFAULT_STATE = {
 
   errors: {},
 };
-if (model) {
-  State.init({
-    ...model,
-    images: model.images || DEFAULT_STATE.images,
-    links: model.links || DEFAULT_STATE.links,
-  });
-} else {
-  State.init(DEFAULT_STATE);
-}
+
 if (!state) {
-  return <div>Loading...</div>;
+  if (model) {
+    State.init({
+      ...model,
+      images: model.images || DEFAULT_STATE.images,
+      links: model.links || DEFAULT_STATE.links,
+    });
+  } else {
+    State.init(DEFAULT_STATE);
+  }
+  return 'Loading...';
 }
 
 const Button = styled.button`

@@ -1,27 +1,25 @@
-props.controller.setLayout('dropdown-item', {});
-
-const DropdownButton = styled.button`
+const DropdownButton = styled.div`
   background-color: transparent;
-  border: none;
-  outline: none;
-  color: black;
-  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
   cursor: pointer;
   padding: 0;
   margin: 0;
-  margin-right: 1rem;
 `;
 
 return (
-  <DropdownButton
-    aria-current="page"
-    href=""
-    onClick={(e) => {
-      console.log('DropdownItem', props.label, 'onClick');
-      console.log({ props });
-      props.handleClick(e);
-    }}
-  >
-    {props.label}
-  </DropdownButton>
+  <li className="nav-item" key={props.key}>
+    <DropdownButton
+      aria-current="page"
+      href=""
+      onClick={(e) => {
+        console.log('DropdownItem onClick', e);
+        props.onClick(e);
+        console.log('DropdownItem onClick after', props.onClick);
+      }}
+    >
+      {props.label}
+    </DropdownButton>
+  </li>
 );

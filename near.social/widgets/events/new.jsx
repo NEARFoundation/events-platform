@@ -1,5 +1,6 @@
 props.controller.setLayout('modal', {
   title: 'Create Event',
+  back: true,
 });
 
 const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';

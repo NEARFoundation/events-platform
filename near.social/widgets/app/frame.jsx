@@ -295,24 +295,10 @@ function pop() {
   rerender();
 }
 
-// let counter = 0;
-function _renderComponent(owner, name, props) {
-  // console.log('renderComponent', name, props);
-
-  // counter = counter + 1;
-  // // need another const ref to prevent vm to re-render
-  // const ref = counter + 1;
-
-  function renderComponent(_name, _props) {
-    return _renderComponent(null, _name, _props);
-  }
-
+function renderComponent(name, props) {
   const engine = {
     env,
     accountId,
-
-    // ref,
-    // owner,
 
     push,
     pop,
@@ -322,7 +308,7 @@ function _renderComponent(owner, name, props) {
     layoutPathFromName,
     widgetPathFromName,
 
-    renderComponent,
+    renderComponent: safeRender,
 
     Components: {
       Select,
@@ -354,6 +340,23 @@ function _renderComponent(owner, name, props) {
   );
 }
 
+function safeRender(_name, _props) {
+  try {
+    return renderComponent(_name, _props);
+  } catch (err) {
+    console.log(err);
+    return (
+      <div>
+        Failed to render component <strong>{_name}</strong> with props:{' '}
+        <pre>{JSON.stringify(_props, null, 4)}</pre>
+        <br />
+        <pre>{err.toString()}</pre>
+        <br />
+      </div>
+    );
+  }
+}
+
 return (
   <>
     <div id="app-state" data-state={JSON.stringify(state)}></div>
@@ -382,12 +385,6 @@ return (
     </div>
 
     {state.layers.map((layer, index) => {
-      // // DEBUG: render only the last layer
-      // if (index !== state.layers.length - 1) {
-      //   return null;
-      // }
-      // console.log('layers', state.layers);
-      // console.log('LOOP LAYER', index, layer);
       return (
         <div
           key={index}
@@ -404,7 +401,7 @@ return (
             overflow: 'auto',
           }}
         >
-          {_renderComponent(null, layer.name, layer.props, true)}
+          {safeRender(layer.name, layer.props)}
         </div>
       );
     })}
