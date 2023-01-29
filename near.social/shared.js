@@ -31,7 +31,8 @@ const didDeploy = {};
 function fetchEnv(path) {
   let envPath = null;
   const parts = (path.replace(EXT_JSX, '') + '/')
-    .replace(`${__dirname}/${SRC_DIR}/`, '')
+    .replace(`${__dirname}/`, '')
+    .replace(`${SRC_DIR}/`, '')
     .split('/');
 
   // tries to find .env file in parent directories

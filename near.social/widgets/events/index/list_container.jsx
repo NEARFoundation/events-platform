@@ -13,9 +13,9 @@ if (forAccountId === undefined) {
   });
 }
 
-const Loading = props.__.Components.Loading;
+const Loading = props.__engine.Components.Loading;
 if (!events) {
   return <Loading>Loading events</Loading>;
 }
 
-return props.__.engine.renderComponent('index.list', { events });
+return props.__engine.renderComponent('index.list', { events });

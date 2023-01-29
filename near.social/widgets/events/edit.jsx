@@ -1,11 +1,10 @@
+props.controller.setLayout('modal', {
+  title: 'Edit Event',
+});
+
 const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';
 const APP_OWNER = '{{ env.APP_OWNER }}';
 const APP_NAME = '{{ env.APP_NAME }}';
-
-const accountId = context.accountId;
-if (!accountId) {
-  return 'Please connect your NEAR wallet to create an activity';
-}
 
 const eventId = props.event_id;
 if (!eventId) {
@@ -40,7 +39,7 @@ function callContract(data) {
     EVENTS_CONTRACT,
     'create_event',
     {
-      account_id: accountId,
+      account_id: props.__engine.accountId,
       name,
       type,
       category,
@@ -58,8 +57,6 @@ function callContract(data) {
 }
 
 function onSave(data) {
-  console.log('onSave', data);
-
   callContract(data);
 }
 

@@ -61,7 +61,7 @@ This will start the local near.social dev-server which will automatically redepl
     1. Widgets can render child widgets by referencing their names (e.g. `renderComponent('some_widget.child.another', {})`).
     2. Widgets can within layouts (e.g. `renderComponent('some_widget.child.another', {}, 'container')`).
     3. Router with methods for navigating between pages (e.g. `push('some_widget')` and `pop()`).
-    4. Shared Components (e.g. `props.__.Components.Button`).
+    4. Shared Components (e.g. `props.__engine.Components.Button`).
     5. Overlays/Modals via layouts (e.g. `renderComponent('some_widget.child.another', {}, 'modal')`). This is useful for
        widgets that need to render a modal on top of the current page.
 

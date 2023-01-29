@@ -1,3 +1,18 @@
+props.controller.setLayout('container', {
+  dropdownItems: [
+    {
+      name: 'components.dropdown_item',
+      props: {
+        label: 'Edit Event',
+        handleClick: (e) => {
+          console.log('Edit Event', e);
+          props.__engine.push('edit', { event_id: props.event_id });
+        },
+      },
+    },
+  ],
+});
+
 const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';
 
 const eventId = props.event_id;
@@ -12,17 +27,10 @@ if (!event) {
   return 'Loading';
 }
 
-const images = event.images || [];
-
-const EventImage = styled.img`
-  width: 100%;
-  height: auto;
-`;
-
 return (
   <>
-    {images.map((image, idx) => {
-      return <EventImage src={image} key={`image_idx_${idx}`} />;
+    {props.__engine.renderComponent('components.event_image_slider', {
+      event,
     })}
 
     <h1>{event.name}</h1>

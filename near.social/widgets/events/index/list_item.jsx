@@ -15,16 +15,11 @@ const EventCard = styled.div`
   width: 100%;
   max-width: 400px;
   margin: 2rem auto;
-  padding: 1rem 0;
+  padding: 0;
   background-color: ${BG_CARD};
   border-radius: 5px;
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
   border: 1px solid #ccc;
-`;
-
-const EventImage = styled.img`
-  width: 100%;
-  height: auto;
 `;
 
 const EventHeader = styled.div`
@@ -67,7 +62,7 @@ const EventBody = styled.div`
 `;
 
 function gotoEvent() {
-  props.__.engine.push('show', { event_id: event.id }, 'modal', {
+  props.__engine.push('show', { event_id: event.id }, 'container', {
     title: event.name,
     back: true,
     dropdownItems: [
@@ -76,7 +71,7 @@ function gotoEvent() {
         props: {
           label: 'Edit',
           // onClick: () => {
-          //   props.__.engine.push('edit', { event_id: event.id }, 'container', {
+          //   props.__engine.push('edit', { event_id: event.id }, 'container', {
           //     title: 'Edit Event',
           //     back: true,
           //   });
@@ -105,7 +100,9 @@ return (
   >
     <EventCard>
       <EventHeader>
-        <EventImage src={event.image} />
+        {props.__engine.renderComponent('components.event_image_slider', {
+          event,
+        })}
         <EventTitle>{event.name}</EventTitle>
       </EventHeader>
 

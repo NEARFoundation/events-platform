@@ -49,18 +49,12 @@ const VERSION = '{{ env.VERSION }}';
  *       - you choose a widget like 'my_widget'
  *       - app, widgets and subwidgets are separated by '__'
  *       - In order to use the widget in your app, you must upload it to your account with the name: `my_app__my_widget`
- *     - e.g. app_name__component1
- *     - e.g. app_name__component1__subcomponent
+ *     - e.g. app_namecomponent1
+ *     - e.g. app_namecomponent1__subcomponent
  *  - Each widget can have a layout
- *    - lyouts can be passed to the renderComponent function
- *      - calling `renderComponent('parent.subcomponent', {}, 'my_layout', { someLayoutProp: 'someValue' })`
- *        - will render the widget 'parent' using the layout 'my_layout'
- *        - the layout will be passed the props: { someLayoutProp: 'someValue' }
- *        - the corresponding layout widget must be uploaded to your account with the name: `app__layouts__my_layout`
- *           - NOTE: the layouts can be shared across apps, so they are namespaced within 'app' **not** the app's name
- *        - the corresponding widget must be uploaded to your account with the name: `my_app__my_widget__subcomponent`
- *    - layouts are also rendered as widgets and get passed the same props as the widget they are rendering
- *
+ *    - layouts are also widgets
+ *   - layouts are named as follows:
+ *    - you choose a layout like 'my_layout'
  *
  *
  *  Functions available to widgets:
@@ -68,8 +62,6 @@ const VERSION = '{{ env.VERSION }}';
  *
  *  @param {String} name - the name of the widget to render
  *  @param {Object} props - the props to pass to the widget
- *  @param {String} layout - the name of the layout to use
- *  @param {Object} layoutProps - the props to pass to the layout
  *  available in: props.engine
  *  renderComponent(name, props, layout, layoutProps)
  *    renders a widget with the given name and props within the given layout,
@@ -78,8 +70,6 @@ const VERSION = '{{ env.VERSION }}';
  *
  *  @param {String} name - the name of the widget to render
  *  @param {Object} props - the props to pass to the widget
- *  @param {String} layout - the name of the layout to use
- *  @param {Object} layoutProps - the props to pass to the layout
  *  available in: props.routing
  *  push(name, props, layout, layoutProps)
  *    pushes a new layer onto the stack of layers to render
@@ -175,6 +165,21 @@ const entryProps = props.entryProps || {};
 const entryLayout = props.entryLayout || null;
 const entryLayoutProps = props.entryLayoutProps || {};
 
+const rootRoute = {
+  name: entryRoute,
+  props: entryProps,
+  layout: entryLayout,
+  layoutProps: entryLayoutProps,
+};
+
+if (!state) {
+  State.init({
+    renderCycles: state ? state.renderCycles + 1 : 1,
+    layers: [rootRoute],
+  });
+  return 'Loading...';
+}
+
 const env = {
   app: {
     owner: appOwner,
@@ -183,29 +188,29 @@ const env = {
   VERSION,
 };
 
+const AppState = {
+  _state: {},
+  set: (prop, value) => {
+    AppState._state[prop] = value;
+    return true;
+  },
+  get: (prop) => {
+    return AppState._state[prop];
+  },
+};
+
+function appStateGet(prop, defaultValue) {
+  return AppState.get(`${appOwner}.${appName}.${prop}`) || defaultValue;
+}
+function appStateSet(prop, value) {
+  return AppState.set(`${appOwner}.${appName}.${prop}`, value);
+}
+
 function storageGet(prop, defaultValue) {
   return Storage.get(`${appOwner}.${appName}.${prop}`) || defaultValue;
 }
 function storageSet(prop, value) {
   return Storage.set(`${appOwner}.${appName}.${prop}`, value);
-}
-
-const rootRoute = {
-  name: entryRoute,
-  props: entryProps,
-  layout: entryLayout,
-  layoutProps: entryLayoutProps,
-};
-
-// TODO: get layers from URL
-State.init({
-  env,
-  renderCycles: state ? state.renderCycles + 1 : 1,
-  layers: [rootRoute],
-});
-
-if (!state) {
-  return 'Loading...';
 }
 
 function restoreRoutes() {
@@ -225,6 +230,8 @@ function restoreRoutes() {
     State.update({
       layers: info,
     });
+
+    // console.log('rerendering', info);
   }
 }
 
@@ -236,13 +243,17 @@ function persistRoutingInformation(newState) {
 }
 
 function slugFromName(name) {
-  // console.log('slugFromName', name, name.split('.').join('__'));
-  return name.split('.').join('__');
+  // console.log('slugFromName', name);
+  return name.split('.').join('__').split('-').join('_');
 }
 
-function layoutFromName(name) {
-  // console.log('layoutFromName', name);
-  return `${appOwner}/widget/app__layouts__${slugFromName(name)}`;
+function widgetPathFromName(name) {
+  // console.log('widgetPathFromName', name);
+  return `${appOwner}/widget/${appName}__${slugFromName(name)}`;
+}
+
+function layoutPathFromName(name) {
+  return widgetPathFromName(`layouts.${name}`);
 }
 
 function rerender() {
@@ -252,13 +263,11 @@ function rerender() {
   });
 }
 
-function push(name, props, layout, layoutProps) {
-  // console.log('push', name, props, layout, layoutProps);
+function push(name, props) {
+  // console.log('push', name, props);
   const layer = {
     name,
     props: props || {},
-    layout: layout || null,
-    layoutProps: layoutProps || null,
   };
   const newLayers = [...state.layers, layer];
 
@@ -286,78 +295,61 @@ function pop() {
   rerender();
 }
 
-function renderComponent(name, props, layout, layoutProps) {
-  // console.log('renderComponent', name, layout, props);
-  if (!name) {
-    return null;
+// let counter = 0;
+function _renderComponent(owner, name, props) {
+  // console.log('renderComponent', name, props);
+
+  // counter = counter + 1;
+  // // need another const ref to prevent vm to re-render
+  // const ref = counter + 1;
+
+  function renderComponent(_name, _props) {
+    return _renderComponent(null, _name, _props);
   }
 
-  const componentProps = {
-    __: {
-      engine: {
-        push,
-        pop,
-        renderComponent,
-        rerender,
-        storageGet,
-        storageSet,
-      },
-      Components: {
-        Select,
-        Button,
-        Loading,
-        PageTitle,
-      },
-      helpers: {
-        propIsRequiredMessage,
-      },
-      accountId,
-      VERSION,
-      callbacks: [],
-      registerCallback: (callback) => {
-        componentProps._.callbacks.push(callback);
-      },
+  const engine = {
+    env,
+    accountId,
+
+    // ref,
+    // owner,
+
+    push,
+    pop,
+    rerender,
+    appStateGet,
+    appStateSet,
+    layoutPathFromName,
+    widgetPathFromName,
+
+    renderComponent,
+
+    Components: {
+      Select,
+      Button,
+      Loading,
+      PageTitle,
+    },
+
+    helpers: {
+      propIsRequiredMessage,
     },
   };
-  const layoutKey = layoutProps && layoutProps.key ? layoutProps.key : null;
-  const widgetKey = props && props.key ? props.key : name;
-  const key = layoutKey || widgetKey;
 
-  const innerLayout = (layoutProps || {}).innerLayout || null;
-  const innerLayoutProps = (layoutProps || {}).innerLayoutProps || null;
+  const controllerProps = {
+    __engine: engine,
 
-  const widgetProps = { ...componentProps, ...(props || {}) };
-
-  // guard to allow 'default' layout exit infinite render loop
-  if (
-    layout === 'default' ||
-    layout === null ||
-    layout === '' ||
-    layout === undefined
-  ) {
-    return (
-      <Widget
-        src={`${appOwner}/widget/${appName}__${slugFromName(name)}`}
-        key={key}
-        props={widgetProps}
-      />
-    );
-  }
+    component: {
+      name: name,
+      props: props,
+    },
+  };
 
   return (
     <Widget
-      src={layoutFromName(layout)}
-      key={key}
-      props={{
-        ...componentProps,
-        ...(layoutProps || {}),
-        component: {
-          name: name,
-          props: props,
-          layout: innerLayout,
-          layoutProps: innerLayoutProps,
-        },
-      }}
+      src={`${appOwner}/widget/app__layout_controller`}
+      key={props && props.key ? props.key : name}
+      props={controllerProps}
     />
   );
 }
@@ -366,10 +358,36 @@ return (
   <>
     <div id="app-state" data-state={JSON.stringify(state)}></div>
 
+    {/* state reset button */}
+    <div
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        right: 0,
+        zIndex: 9999,
+        padding: 8,
+        backgroundColor: 'transparent',
+      }}
+    >
+      <Button
+        onClick={() => {
+          storageSet('routing', [rootRoute]);
+          State.update({
+            layers: [rootRoute],
+          });
+        }}
+      >
+        Reset
+      </Button>
+    </div>
+
     {state.layers.map((layer, index) => {
-      if (index < state.layers.length - 2) {
-        return null;
-      }
+      // // DEBUG: render only the last layer
+      // if (index !== state.layers.length - 1) {
+      //   return null;
+      // }
+      // console.log('layers', state.layers);
+      // console.log('LOOP LAYER', index, layer);
       return (
         <div
           key={index}
@@ -386,12 +404,7 @@ return (
             overflow: 'auto',
           }}
         >
-          {renderComponent(
-            layer.name,
-            layer.props,
-            layer.layout,
-            layer.layoutProps
-          )}
+          {_renderComponent(null, layer.name, layer.props, true)}
         </div>
       );
     })}

@@ -1,11 +1,10 @@
+props.controller.setLayout('modal', {
+  title: 'Create Event',
+});
+
 const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';
 const APP_OWNER = '{{ env.APP_OWNER }}';
 const APP_NAME = '{{ env.APP_NAME }}';
-
-const accountId = context.accountId;
-if (!accountId) {
-  return 'Please connect your NEAR wallet to create an activity';
-}
 
 const TGAS_300 = '300000000000000';
 const ONE_NEAR = '1000000000000000000000000';
@@ -28,7 +27,7 @@ function createEvent(data) {
     EVENTS_CONTRACT,
     'create_event',
     {
-      account_id: accountId,
+      account_id: props.__engine.accountId,
       name,
       type,
       category,
