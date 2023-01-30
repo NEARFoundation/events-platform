@@ -21,6 +21,7 @@
     "CommitButton": true,
     "IpfsImageUpload": true,
     "Widget": true,
+    "Markdown": true,
     "styled": true
   },
   "rules": {
@@ -28,7 +29,10 @@
     "react/prop-types": 0,
     "indent": [
       "error",
-      2
+      2,
+      {
+        "SwitchCase": 1
+      }
     ],
     "linebreak-style": 1,
     "quotes": [
