@@ -55,31 +55,11 @@ const VERSION = '{{ env.VERSION }}';
  *    - layouts are also widgets
  *   - layouts are named as follows:
  *    - you choose a layout like 'my_layout'
+ *   - In order to use the layout in your app, you must upload it to your account with the name: `my_app__layouts__my_layout`
  *
  *
  *  Functions available to widgets:
- *
- *
- *  @param {String} name - the name of the widget to render
- *  @param {Object} props - the props to pass to the widget
- *  available in: props.engine
- *  renderComponent(name, props, layout, layoutProps)
- *    renders a widget with the given name and props within the given layout,
- *    use this instead of <Widget src="" />
- *
- *
- *  @param {String} name - the name of the widget to render
- *  @param {Object} props - the props to pass to the widget
- *  available in: props.routing
- *  push(name, props, layout, layoutProps)
- *    pushes a new layer onto the stack of layers to render
- *    this will cause the app to render a new layer on top of the current layer
- *
- *
- *  available in: props.routing
- *  pop()
- *    pops the current layer off the stack of layers to render.
- *    Functions the same as the back button
+ *  - TODO: document
  *
  */
 
@@ -90,6 +70,8 @@ const VERSION = '{{ env.VERSION }}';
 const PROP_IS_REQUIRED_MESSAGE = 'props.{prop} is required';
 const PLEASE_CONNECT_WALLET_MESSAGE =
   'Please connect your NEAR wallet to continue.';
+
+const ContainerPaddingHorizontal = 'calc(max(28px, 1.6vw))';
 
 const Select = styled.select`
   background-color: #4caf50;
@@ -129,10 +111,76 @@ const Loading = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  font-size: 2em;
-  text-align: center;
-  color: palevioletred;
+  font-size: calc(max(32px, 2.5vw));
+  color: black;
 `;
+
+const Container = styled.div`
+  padding-left: ${ContainerPaddingHorizontal};
+  padding-right: ${ContainerPaddingHorizontal};
+  padding-top: 12px;
+  padding-bottom: 12px;
+`;
+
+const InfoBar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 0px ${ContainerPaddingHorizontal};
+  border-bottom: 1px solid #e0e0e0;
+`;
+
+const InfoBarItem = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 12px;
+  padding: 8px 0;
+`;
+
+const InfoBarLink = styled.a`
+  font-size: 16px;
+  color: #424242;
+  text-decoration: none;
+  margin-right: 12px;
+  padding: 8px 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:visited {
+    color: #424242;
+  }
+
+  &:active {
+    color: #424242;
+  }
+`;
+
+const TextHeader = styled.div`
+  font-size: 20px;
+  color: #424242;
+`;
+
+const InlineTag = styled.div`
+  display: inline-block;
+  background-color: #e0e0e0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-right: 8px;
+  margin-left: 8px;
+`;
+
+const Text = styled.div`
+  font-size: 16px;
+  color: #424242;
+  margin-right: 8px;
+`;
+
 /**
  *   I suggest you don't edit anything below this line
  * */
@@ -162,14 +210,10 @@ if (!entryRoute) {
 }
 
 const entryProps = props.entryProps || {};
-const entryLayout = props.entryLayout || null;
-const entryLayoutProps = props.entryLayoutProps || {};
 
 const rootRoute = {
   name: entryRoute,
   props: entryProps,
-  layout: entryLayout,
-  layoutProps: entryLayoutProps,
 };
 
 if (!state) {
@@ -220,35 +264,28 @@ function restoreRoutes() {
   }
 
   const layers = state.layers;
-  // console.log('checking if routing info has changed', layers);
   if (
     layers &&
     Array.isArray(info) &&
     JSON.stringify(info) !== JSON.stringify(layers)
   ) {
-    // console.log('update route from storage');
     State.update({
       layers: info,
     });
-
-    // console.log('rerendering', info);
   }
 }
 
 restoreRoutes();
 
 function persistRoutingInformation(newState) {
-  // console.log('persistRoutingInformation', newState);
   storageSet('routing', newState);
 }
 
 function slugFromName(name) {
-  // console.log('slugFromName', name);
   return name.split('.').join('__').split('-').join('_');
 }
 
 function widgetPathFromName(name) {
-  // console.log('widgetPathFromName', name);
   return `${appOwner}/widget/${appName}__${slugFromName(name)}`;
 }
 
@@ -264,7 +301,6 @@ function rerender() {
 }
 
 function push(name, props) {
-  // console.log('push', name, props);
   const layer = {
     name,
     props: props || {},
@@ -300,7 +336,6 @@ function replace(name, props) {
 // pop from the stack, ensure we always have at least one layer
 function pop() {
   const newLayers =
-    // eslint-disable-next-line no-magic-numbers
     state.layers.length > 1 ? state.layers.slice(0, -1) : state.layers;
 
   persistRoutingInformation(newLayers);
@@ -310,6 +345,23 @@ function pop() {
   });
 
   rerender();
+}
+
+function dirtyEval(args) {
+  const method = args[0];
+  const key = args[1];
+  const mArgs = args.slice(2);
+
+  switch (method) {
+    case 'push':
+      return push(key, mArgs[0]);
+    case 'replace':
+      return replace(key, mArgs[0]);
+    case 'pop':
+      return pop();
+    default:
+      throw new Error(`Unknown method ${method}`);
+  }
 }
 
 function renderComponent(name, props) {
@@ -335,10 +387,21 @@ function renderComponent(name, props) {
       Button,
       Loading,
       PageTitle,
+      Container,
+      InfoBar,
+      InfoBarItem,
+      InfoBarLink,
+      TextHeader,
+      InlineTag,
+      Text,
     },
 
     helpers: {
       propIsRequiredMessage,
+    },
+
+    hacks: {
+      dirtyEval,
     },
   };
 
