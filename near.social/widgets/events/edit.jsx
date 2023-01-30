@@ -3,8 +3,6 @@ props.controller.setLayout('modal', {
 });
 
 const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';
-const APP_OWNER = '{{ env.APP_OWNER }}';
-const APP_NAME = '{{ env.APP_NAME }}';
 
 const eventId = props.event_id;
 if (!eventId) {
@@ -65,7 +63,12 @@ function onSave(data) {
 
 return (
   <Widget
-    src={`${APP_OWNER}/widget/${APP_NAME}___form`}
-    props={{ model: event, onSave, buttonText: 'Update event' }}
+    src={props.__engine.widgetPathFromName('_form')}
+    props={{
+      model: event,
+      onSave,
+      buttonText: 'Update event',
+      __engine: props.__engine,
+    }}
   />
 );

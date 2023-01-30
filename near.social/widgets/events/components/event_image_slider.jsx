@@ -1,6 +1,5 @@
 let event = props.event || null;
 
-// return data;
 if (!event) {
   // TODO: return default image
   return <img src="" alt="Event!" />;
@@ -40,7 +39,7 @@ return (
           key={image.cid}
           alt={image.url.cid}
           style={{
-            width: 'auto',
+            width: '100%',
             height: '100%',
             maxWidth: '100%',
             boxSizing: 'border-box',

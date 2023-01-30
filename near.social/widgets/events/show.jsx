@@ -1,4 +1,5 @@
 const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';
+const TGAS_300 = '300000000000000';
 
 const eventId = props.event_id;
 if (!eventId) {
@@ -17,10 +18,19 @@ props.controller.setLayout('container', {
   title: event.name,
 });
 
+function removeEvent() {
+  const contract = EVENTS_CONTRACT;
+  const method = 'remove_event';
+  const args = {
+    event_id: event.id,
+  };
+  const gas = TGAS_300;
+  const deposit = '0';
+  Near.call(contract, method, args, gas, deposit);
+}
+
 const startDate = new Date(event.start_date);
 const endDate = new Date(event.end_date);
-
-console.log('event', { event });
 
 return (
   <>
@@ -28,6 +38,9 @@ return (
       style={{
         position: 'relative',
         backgroundColor: 'black',
+        minHeight: '200px',
+        maxHeight: '50vh',
+        height: '400px',
       }}
     >
       {props.__engine.renderComponent('components.event_image_slider', {
@@ -112,31 +125,55 @@ return (
         }}
       >
         {props.__engine.accountId === event.account_id ? (
-          <span
-            style={{
-              color: '#000',
-              textDecoration: 'none',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              padding: '10px 0',
-            }}
-            role="button"
-            tabIndex={0}
-            onClick={() => {
-              props.__engine.push('edit', { event_id: props.event_id });
-            }}
-            onKeyDown={() => {
-              if (event.key === 'Enter') {
+          <>
+            <span
+              style={{
+                color: '#000',
+                textDecoration: 'none',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                padding: '10px 0',
+                marginRight: '10px',
+              }}
+              role="button"
+              tabIndex={0}
+              onClick={() => {
                 props.__engine.push('edit', { event_id: props.event_id });
-              }
-            }}
-          >
-            Edit
-          </span>
+              }}
+              onKeyDown={() => {
+                if (event.key === 'Enter') {
+                  props.__engine.push('edit', { event_id: props.event_id });
+                }
+              }}
+            >
+              Edit
+            </span>
+            <span
+              style={{
+                color: '#000',
+                textDecoration: 'none',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                padding: '10px 0',
+                marginRight: '10px',
+              }}
+              role="button"
+              tabIndex={0}
+              onClick={() => {
+                removeEvent();
+              }}
+              onKeyDown={() => {
+                if (event.key === 'Enter') {
+                  removeEvent();
+                }
+              }}
+            >
+              Delete
+            </span>
+          </>
         ) : null}
 
         {event.links.map((link, idx) => {
-          console.log('link', link);
           return (
             <a
               href={link.url}
@@ -149,7 +186,7 @@ return (
                 fontSize: '14px',
                 fontWeight: 'bold',
                 padding: '10px 0',
-                marginLeft: '10px',
+                marginRight: '10px',
               }}
             >
               {/* TODO: for each link type find and display icon */}

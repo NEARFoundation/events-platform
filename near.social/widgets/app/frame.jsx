@@ -277,7 +277,24 @@ function push(name, props) {
     layers: newLayers,
   });
 
-  rerender();
+  // rerender();
+}
+
+function replace(name, props) {
+  console.log('replace', name, props);
+  const layer = {
+    name,
+    props: props || {},
+  };
+  const newLayers = [...state.layers.slice(0, -1), layer];
+
+  persistRoutingInformation(newLayers);
+
+  State.update({
+    layers: newLayers,
+  });
+
+  // rerender();
 }
 
 // pop from the stack, ensure we always have at least one layer
@@ -302,9 +319,12 @@ function renderComponent(name, props) {
 
     push,
     pop,
+    replace,
     rerender,
     appStateGet,
     appStateSet,
+    storageGet,
+    storageSet,
     layoutPathFromName,
     widgetPathFromName,
 

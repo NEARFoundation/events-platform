@@ -59,7 +59,7 @@ const EventBody = styled.div`
 `;
 
 function gotoEvent() {
-  props.__engine.push('show', { event_id: event.id }, 'container');
+  props.__engine.push('show', { event_id: event.id });
 }
 
 return (
@@ -78,9 +78,11 @@ return (
     <EventHeader>
       <div
         style={{
-          height: '40vh',
+          height: '250px',
           maxHeight: '400px',
           minHeight: '200px',
+          width: '100%',
+          maxWidth: '100%',
           overflow: 'hidden',
           borderRadius: '12px 12px 0 0',
         }}

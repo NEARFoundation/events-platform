@@ -17,9 +17,9 @@ const IndexList = styled.div`
 
   & > * {
     margin: 1rem;
-    max-width: 480px;
-    min-width: 240px;
-    width: 33vw;
+    max-width: 720px;
+    min-width: 360px;
+    width: 30vw;
     flex-grow: 1;
     flex-shrink: 1;
   }
@@ -33,5 +33,8 @@ return (
         key: event.event_id,
       });
     })}
+    <div>{/* spacer */}</div>
+    <div>{/* spacer */}</div>
+    <div>{/* spacer */}</div>
   </IndexList>
 );
