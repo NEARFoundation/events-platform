@@ -13,15 +13,18 @@ const IndexList = styled.div`
   flex-wrap: wrap;
   align-items: stretch;
   justify-content: flex-start;
-  width: 100%;
+
+  width: auto;
+  margin-left: -20px;
+  margin-right: -20px;
 
   & > * {
-    margin: 1rem;
-    max-width: 720px;
-    min-width: 360px;
-    width: 30vw;
-    flex-grow: 1;
-    flex-shrink: 1;
+    margin: 20px 20px;
+    max-width: 520px;
+    min-width: 320px;
+    width: 240px;
+    flex-grow: 3;
+    flex-shrink: 3;
   }
 `;
 

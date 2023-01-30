@@ -1,30 +1,21 @@
 props.controller.setLayout('container', {
   title: 'ND Events',
   back: false,
+
+  primaryAction: {
+    label: 'Create new Event',
+    onClick: ['push', 'new', {}],
+  },
 });
 
 const Button = props.__engine.Components.Button;
+const Container = props.__engine.Components.Container;
 
 return (
-  <div
-    style={{
-      padding: '40px 20px',
-    }}
-  >
+  <Container>
     <Button
       onClick={() => {
-        props.__engine.push('new', {}, 'modal', {
-          title: 'Create new Event',
-          back: true,
-        });
-      }}
-    >
-      Create new Event
-    </Button>
-
-    <Button
-      onClick={() => {
-        props.__engine.push('my_events');
+        return props.__engine.push('my_events', {});
       }}
     >
       My Events
@@ -33,5 +24,5 @@ return (
     <br />
 
     {props.__engine.renderComponent('index.list_container', {})}
-  </div>
+  </Container>
 );

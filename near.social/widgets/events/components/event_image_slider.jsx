@@ -1,5 +1,9 @@
 let event = props.event || null;
 
+if (!state) {
+  State.init({ index: 0 });
+}
+
 if (!event) {
   // TODO: return default image
   return <img src="" alt="Event!" />;
@@ -44,6 +48,10 @@ return (
             maxWidth: '100%',
             boxSizing: 'border-box',
             objectFit: 'cover',
+            transform: `translateX(-${
+              (state.index * 100) / displayImages.length
+            }%)`,
+            transition: 'transform 0.5s',
           }}
         />
       );

@@ -10,95 +10,109 @@ const BG_CARD = '#ffffff';
 const EventCard = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: stretch;
   padding: 0;
   background-color: ${BG_CARD};
-  border-radius: 12px;
+  border-radius: 16px 16px;
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
-  border: 1px solid #ccc;
+  border: 0.1vw solid #cccccc;
+  cursor: pointer;
+
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  &:hover {
+    box-shadow: 5px 0 15px -2px rgba(0, 0, 0, 0.2);
+  }
 `;
 
-const EventHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+const EventHeaderImage = styled.div`
+  height: auto;
   width: 100%;
-  border-bottom: 1px solid #ccc;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 14px 14px 0 0;
+  border-bottom: 0.1vw solid #cccccc;
+  flex-shrink: 0;
+  flex-grow: 0;
 `;
 
 const EventTitle = styled.h1`
-  font-size: 1.5rem;
+  font-size: calc(max(1.25rem, 1.25vw));
   font-weight: 500;
   margin: 0;
-  padding: 1rem;
+  padding: 1vw calc(max(0.5rem, 0.5vw));
+  width: 100%;
 `;
 
-const EventDescription = styled.p`
-  font-size: 1rem;
+const EventDate = styled.div`
+  font-size: 0.8vw;
   font-weight: 400;
   margin: 0;
-  padding: 1rem;
-`;
-
-const EventDate = styled.p`
-  font-size: 1rem;
-  font-weight: 400;
-  margin: 0;
-  padding: 1rem;
+  padding: calc(max(0.5rem, 0.5vw));
+  height: 42px;
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 100%;
+  border-top: 0.1vw solid #cccccc;
 `;
 
 const EventBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   width: 100%;
-  padding: 1rem;
+  height: auto;
+  flex-grow: 100;
+  flex-shrink: 0;
 `;
 
-function gotoEvent() {
+function showEvent() {
   props.__engine.push('show', { event_id: event.id });
 }
+
+const startDate = new Date(event.start_date);
+const endDate = new Date(event.end_date);
+const datesAreEqual = startDate.toDateString() === endDate.toDateString();
 
 return (
   <EventCard
     onClick={() => {
-      gotoEvent();
+      showEvent();
     }}
     onKeyDown={(e) => {
       if (e.key === 'Enter') {
-        gotoEvent();
+        showEvent();
       }
     }}
     role="button"
     tabIndex={0}
   >
-    <EventHeader>
-      <div
-        style={{
-          height: '250px',
-          maxHeight: '400px',
-          minHeight: '200px',
-          width: '100%',
-          maxWidth: '100%',
-          overflow: 'hidden',
-          borderRadius: '12px 12px 0 0',
-        }}
-      >
-        {props.__engine.renderComponent('components.event_image_slider', {
-          event,
-          mode: 'tile',
-        })}
-      </div>
-      <EventTitle>{event.name}</EventTitle>
-    </EventHeader>
+    <EventHeaderImage>
+      {props.__engine.renderComponent('components.event_image_slider', {
+        event,
+        mode: 'tile',
+      })}
+    </EventHeaderImage>
 
     <EventBody>
-      <EventDescription>{event.description}</EventDescription>
-      <EventDate>{event.start_date}</EventDate>
-      <EventDate>{event.end_date}</EventDate>
+      <EventTitle>{event.name}</EventTitle>
     </EventBody>
+
+    <EventDate>
+      {datesAreEqual ? (
+        <>
+          {startDate.getDate()}{' '}
+          {startDate.toLocaleString('default', { month: 'short' })}{' '}
+          {startDate.getFullYear()}
+        </>
+      ) : (
+        <>
+          {startDate.getDate()}{' '}
+          {startDate.toLocaleString('default', { month: 'short' })}{' '}
+          {startDate.getFullYear()} - {endDate.getDate()}{' '}
+          {endDate.toLocaleString('default', { month: 'short' })}{' '}
+          {endDate.getFullYear()}
+        </>
+      )}
+    </EventDate>
   </EventCard>
 );

@@ -32,6 +32,25 @@ const dropdownElement =
     </>
   ) : null;
 
+const NavPrimaryButton = styled.button`
+  background-color: #2c2c54;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  transition: all 0.5s ease;
+  border-radius: 4px;
+  margin-left: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #2c2c54;
+  }
+`;
+
 const navbar = (
   <div
     className="navbar navbar-expand-lg navbar-dark"
@@ -40,11 +59,14 @@ const navbar = (
       position: 'fixed',
       top: NAVBAR_OFFSET_TOP,
       width: '100%',
-      backgroundColor: '#2c2c54',
+      // dark purple #2c2c54 with backdrop filter blur
+      backgroundColor: 'rgba(44, 44, 84, 0.85)',
+      backdropFilter: 'blur(32px) saturate(180%)',
+      zIndex: 99999999,
     }}
   >
     <div className="container-fluid h-100 flex">
-      <div className="d-flex align-items-center text-center">
+      <div className="d-flex align-items-center w-100">
         {props.back ? (
           <button
             className=""
@@ -74,12 +96,24 @@ const navbar = (
             margin: 0,
             padding: 0,
             marginLeft: 10,
+            marginRight: 'auto',
             fontSize: 20,
-            width: '100%',
+            display: 'inline-block',
           }}
         >
           {title}
         </h2>
+
+        {props.primaryAction ? (
+          <NavPrimaryButton
+            type="button"
+            onClick={() => {
+              props.__engine.hacks.dirtyEval(props.primaryAction.onClick);
+            }}
+          >
+            {props.primaryAction.label}
+          </NavPrimaryButton>
+        ) : null}
       </div>
 
       {dropdownItems && dropdownItems.length > 0 ? dropdownElement : null}
@@ -98,6 +132,7 @@ return (
       }}
     >
       {navbar}
+
       <div
         className="row"
         style={{
