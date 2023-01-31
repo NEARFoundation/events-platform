@@ -370,6 +370,44 @@ function dirtyEval(args) {
   }
 }
 
+function isDate(value) {
+  // we have no instanceof or typeof, so we check for the interface
+  try {
+    value.getFullYear();
+    value.getMonth();
+    value.getDate();
+    value.getHours();
+    value.getMinutes();
+    value.getSeconds();
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function formatDate(date, format) {
+  const properDate = isDate(date) ? date : new Date(date);
+
+  const dateString = properDate.toISOString();
+
+  const parts = {
+    YYYY: dateString.substring(0, 4),
+    YY: dateString.substring(2, 4),
+    MM: dateString.substring(5, 7),
+    DD: dateString.substring(8, 10),
+    hh: dateString.substring(11, 13),
+    mm: dateString.substring(14, 16),
+    ss: dateString.substring(17, 19),
+  };
+
+  return format.replace(
+    /\{\{\s*(?<part>YYYY|YY|MM|DD|hh|mm|ss)\s*\}\}/gu,
+    (match, part) => {
+      return parts[part];
+    }
+  );
+}
+
 // https://stackoverflow.com/questions/5515869/string-length-in-bytes-in-javascript
 function byteLength(str) {
   // returns the byte length of an utf8 string
@@ -441,6 +479,7 @@ function renderComponent(name, props) {
     helpers: {
       propIsRequiredMessage,
       calculateStorageCost,
+      formatDate,
     },
 
     hacks: {

@@ -19,6 +19,8 @@ const TODAY =
 const TOMORROW = TODAY + MILLISECONDS_IN_DAY;
 const ONE_WEEK = DAYS_IN_WEEK * MILLISECONDS_IN_DAY;
 
+const formatDate = props.__engine.helpers.formatDate;
+
 const DEFAULT_STATE = {
   name: '',
   type: '',
@@ -61,10 +63,20 @@ const DEFAULT_STATE = {
 
 if (!state) {
   if (model) {
+    const start_date = model.start_date
+      ? formatDate(model.start_date, '{{ YYYY }}-{{ MM }}-{{ DD }}')
+      : null;
+
+    const end_date = model.end_date
+      ? formatDate(model.end_date, '{{ YYYY }}-{{ MM }}-{{ DD }}')
+      : null;
+
     State.init({
       ...model,
       images: model.images || DEFAULT_STATE.images,
       links: model.links || DEFAULT_STATE.links,
+      start_date,
+      end_date,
     });
   } else {
     State.init(DEFAULT_STATE);
@@ -100,9 +112,9 @@ const Label = styled.label`
 `;
 
 const ErrorMessage = styled.div`
-  color: red;
+  color: #c00;
   font-size: 0.8rem;
-  margin: 0;
+  margin: 0.5rem 0 0 0;
 `;
 
 const EventStatus = [
