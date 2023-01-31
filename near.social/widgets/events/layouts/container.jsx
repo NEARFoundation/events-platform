@@ -33,8 +33,8 @@ const dropdownElement =
   ) : null;
 
 const NavPrimaryButton = styled.button`
-  background-color: #2c2c54;
-  border: none;
+  background-color: transparent;
+  user-select: none;
   color: white;
   padding: 8px 16px;
   text-align: center;
@@ -42,12 +42,17 @@ const NavPrimaryButton = styled.button`
   display: inline-block;
   font-size: 16px;
   transition: all 0.5s ease;
-  border-radius: 4px;
   margin-left: 8px;
   cursor: pointer;
 
+  border-radius: 8px;
+  border: 1px solid white;
+  box-shadow: 0 0 2px 1px rgb(0, 0, 0, 0.3),
+    0 0 89px 2px rgb(255, 255, 255, 0.4);
+
   &:hover {
-    background-color: #2c2c54;
+    /* darker and transparent */
+    background-color: rgba(44, 44, 84, 0.85);
   }
 `;
 
@@ -62,6 +67,7 @@ const navbar = (
       // dark purple #2c2c54 with backdrop filter blur
       backgroundColor: 'rgba(44, 44, 84, 0.85)',
       backdropFilter: 'blur(32px) saturate(180%)',
+      webkitBackdropFilter: 'blur(32px) saturate(180%)',
       zIndex: 99999999,
     }}
   >
