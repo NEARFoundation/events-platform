@@ -6,6 +6,22 @@ if (!eventId) {
   return props.__engine.helpers.propIsRequiredMessage('event_id');
 }
 
+const hasEvent = Near.view(EVENTS_CONTRACT, 'has_event', {
+  event_id: props.event_id,
+});
+
+if (hasEvent === null) {
+  return 'Loading';
+}
+
+if (hasEvent === false) {
+  // props.__engine.replace('not_found', {
+  //   message: `Event with id ${props.event_id} not found.`,
+  // });
+  props.__engine.pop();
+  return 'Event not found';
+}
+
 const event = Near.view(EVENTS_CONTRACT, 'get_event', {
   event_id: props.event_id,
 });

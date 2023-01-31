@@ -31,6 +31,14 @@ export class HelloNear {
   }
 
   /**
+ * Check if an event exists.
+ */
+  @view({})
+  has_event({ event_id }: { event_id: string }): Boolean {
+    return this.events.get(event_id) !== null;
+  }
+
+  /**
    * Create a new event.
    */
   @call({ payableFunction: true })
