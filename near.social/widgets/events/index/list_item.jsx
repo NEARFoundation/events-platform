@@ -69,10 +69,6 @@ function showEvent() {
   props.__engine.push('show', { event_id: event.id });
 }
 
-const startDate = new Date(event.start_date);
-const endDate = new Date(event.end_date);
-const datesAreEqual = startDate.toDateString() === endDate.toDateString();
-
 return (
   <EventCard
     onClick={() => {
@@ -98,21 +94,7 @@ return (
     </EventBody>
 
     <EventDate>
-      {datesAreEqual ? (
-        <>
-          {startDate.getDate()}{' '}
-          {startDate.toLocaleString('default', { month: 'short' })}{' '}
-          {startDate.getFullYear()}
-        </>
-      ) : (
-        <>
-          {startDate.getDate()}{' '}
-          {startDate.toLocaleString('default', { month: 'short' })}{' '}
-          {startDate.getFullYear()} - {endDate.getDate()}{' '}
-          {endDate.toLocaleString('default', { month: 'short' })}{' '}
-          {endDate.getFullYear()}
-        </>
-      )}
+      {props.__engine.renderComponent('components.event_date', { event })}
     </EventDate>
   </EventCard>
 );

@@ -29,21 +29,23 @@ if (!event) {
   return 'Loading';
 }
 
+const primaryAction = {
+  label: 'Edit',
+  // will not work. VM Bug?
+  // onClick: ()=>{props.__engine.push('edit', { event_id: props.event_id })}
+  // Yes. sic!. this is a hack. The Viewer VM 'forgets' about functions
+  // When defining a function here, it will exist, the function will not be
+  // undefined, but executing the function will just do nothing. Thats
+  // why we have to use another method of calling functions.
+  // might be related to us rerendering all the time to implement layouting.
+  onClick: ['push', 'edit', { event_id: props.event_id }],
+};
+
 props.controller.setLayout('container', {
   back: true,
   title: event.name,
-  primaryAction: {
-    label: 'Edit',
-    // Yes. sic!. this is a hack. The Viewer VM 'forgets' about functions
-    // When defining a function here, it will exist, the function will not be
-    // undefined. but simply executing the function will do nothing. Thats
-    // why we have to use another method of calling functions.
-    // onClick: ()=>{props.__engine.push('edit', { event_id: props.event_id })}
-    // will not work. VM Bug?
-    // might be related to us rerendering all the time to implement layouting.
-    //
-    onClick: ['push', 'edit', { event_id: props.event_id }],
-  },
+  primaryAction:
+    props.__engine.accountId === event.account_id ? primaryAction : null,
 });
 
 function removeEvent() {
@@ -65,12 +67,6 @@ const Text = props.__engine.Components.Text;
 const InlineTag = props.__engine.Components.InlineTag;
 const InfoBarItem = props.__engine.Components.InfoBarItem;
 const InfoBarLink = props.__engine.Components.InfoBarLink;
-
-const startDate = new Date(event.start_date);
-const endDate = new Date(event.end_date);
-const datesAreEqual = startDate.toDateString() === endDate.toDateString();
-const endDateIsNull =
-  endDate === null || endDate.toDateString() === new Date(0).toDateString();
 
 // console.log('event', event);
 
@@ -138,28 +134,7 @@ return (
         <Text>
           <i className="bi bi-calendar"></i>
 
-          {datesAreEqual ? (
-            <>
-              {startDate.getDate()}{' '}
-              {startDate.toLocaleString('default', { month: 'short' })}{' '}
-              {startDate.getFullYear()}
-            </>
-          ) : (
-            <>
-              {startDate.getDate()}{' '}
-              {startDate.toLocaleString('default', { month: 'short' })}{' '}
-              {startDate.getFullYear()}
-              {endDateIsNull ? (
-                <> - ongoing</>
-              ) : (
-                <>
-                  - {endDate.getDate()}{' '}
-                  {endDate.toLocaleString('default', { month: 'short' })}{' '}
-                  {endDate.getFullYear()}
-                </>
-              )}
-            </>
-          )}
+          {props.__engine.renderComponent('components.event_date', { event })}
         </Text>
       </InfoBarItem>
 
@@ -174,9 +149,20 @@ return (
 
       {event.category && event.category !== '' ? (
         <InfoBarItem>
-          <i className="bi bi-tag"></i>
+          <InlineTag>
+            <i className="bi bi-bookmark-heart"></i>
+            {event.category}
+          </InlineTag>
+        </InfoBarItem>
+      ) : null}
 
-          <InlineTag>{event.category}</InlineTag>
+      {event.type && event.type !== '' ? (
+        <InfoBarItem>
+          <InlineTag>
+            <i className="bi bi-braces"></i>
+
+            {event.type}
+          </InlineTag>
         </InfoBarItem>
       ) : null}
     </InfoBar>
@@ -228,8 +214,6 @@ return (
           <Markdown text={event.description} />
         </Text>
       </Container>
-
-      <p>{event.type}</p>
     </div>
   </>
 );
