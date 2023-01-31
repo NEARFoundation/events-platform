@@ -11,6 +11,13 @@ const buttonText = props.buttonText || 'Save';
 
 const MIN_LENGTH_NAME = 4;
 const MIN_LENGTH_DESCRIPTION = 10;
+const MAX_LENGTH_NAME = 100;
+const MAX_LENGTH_DESCRIPTION = 2000;
+const MIN_LENGTH_LOCATION = 10;
+const MAX_LENGTH_LOCATION = 400;
+const MIN_LENGTH_CATEGORY = 3;
+const MAX_LENGTH_CATEGORY = 20;
+
 const MILLISECONDS_IN_DAY = 86400000;
 const DAYS_IN_WEEK = 7;
 
@@ -21,11 +28,23 @@ const ONE_WEEK = DAYS_IN_WEEK * MILLISECONDS_IN_DAY;
 
 const formatDate = props.__engine.helpers.formatDate;
 
+const EventStatus = [
+  { value: 'draft', label: 'Draft' },
+  { value: 'published', label: 'Published' },
+  { value: 'cancelled', label: 'Cancelled' },
+];
+
+const EventTypes = [
+  { value: 'virtual', label: 'Online' },
+  { value: 'irl', label: 'In Person' },
+  { value: 'mixed', label: 'Both' },
+];
+
 const DEFAULT_STATE = {
   name: '',
-  type: '',
+  type: EventTypes[0].value,
   category: '',
-  status: '',
+  status: EventStatus[0].value,
   start_date: new Date(TODAY + ONE_WEEK),
   end_date: new Date(TOMORROW + ONE_WEEK),
   location: '',
@@ -117,18 +136,6 @@ const ErrorMessage = styled.div`
   margin: 0.5rem 0 0 0;
 `;
 
-const EventStatus = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'published', label: 'Published' },
-  { value: 'cancelled', label: 'Cancelled' },
-];
-
-const EventTypes = [
-  { value: 'virtual', label: 'Online' },
-  { value: 'irl', label: 'In Person' },
-  { value: 'mixed', label: 'Both' },
-];
-
 const LinkTypes = [
   { value: 'register', label: 'Register' },
   { value: 'tickets', label: 'Tickets' },
@@ -136,15 +143,44 @@ const LinkTypes = [
 ];
 
 function addError(key, message) {
-  State.update({ errors: { ...state.errors, [key]: message } });
+  const oldErrors = { ...state.errors };
+  const oldKeyErrors = oldErrors[key] || [];
+
+  const newKeyErrors = oldKeyErrors.includes(message)
+    ? oldKeyErrors
+    : [...oldKeyErrors, message];
+  const newErrors = { ...oldErrors, [key]: newKeyErrors };
+
+  State.update({
+    errors: newErrors,
+  });
 }
 
-function clearError(key) {
-  State.update({ errors: { ...state.errors, [key]: null } });
+function clearErrors() {
+  State.update({ errors: {} });
 }
 
-function getError(key) {
-  return state.errors[key];
+function getErrors(key) {
+  const errors = state.errors[key];
+  const hasErrors = errors && errors.length > 0;
+  if (hasErrors && errors.length === 1) {
+    return errors[0];
+  }
+
+  if (!hasErrors) {
+    return null;
+  }
+
+  return (
+    <>
+      <div>{key}</div>
+      <ul>
+        {errors.map((message, index) => (
+          <li key={index}>{message}</li>
+        ))}
+      </ul>
+    </>
+  );
 }
 
 function assertCondition(valid, condition, key, message) {
@@ -152,7 +188,6 @@ function assertCondition(valid, condition, key, message) {
     addError(key, message);
     return false;
   }
-  clearError(key);
   return valid;
 }
 
@@ -186,20 +221,51 @@ function sanitize(data) {
 function validate(data) {
   let valid = true;
 
-  const { name, description, end_date, start_date } = data;
+  const {
+    name,
+    description,
+    end_date,
+    start_date,
+    images,
+    category,
+    type,
+    status,
+    location,
+  } = data;
+
+  clearErrors();
 
   valid = assertCondition(
     valid,
-    name.length >= MIN_LENGTH_NAME,
+    name.length >= MIN_LENGTH_NAME && name.length < MAX_LENGTH_NAME,
     'name',
-    `Name must be at least ${MIN_LENGTH_NAME} characters long`
+    `Name must be between ${MIN_LENGTH_NAME} and ${MAX_LENGTH_NAME} characters long. Currently: ${name.length} characters.`
   );
 
   valid = assertCondition(
     valid,
-    description.length >= MIN_LENGTH_DESCRIPTION,
+    description.length >= MIN_LENGTH_DESCRIPTION &&
+      description.length < MAX_LENGTH_DESCRIPTION,
     'description',
-    `Description must be at least ${MIN_LENGTH_DESCRIPTION} characters long`
+    `Description must be between ${MIN_LENGTH_DESCRIPTION} and ${MAX_LENGTH_DESCRIPTION} characters long. Currently: ${description.length} characters.`
+  );
+
+  valid = assertCondition(
+    valid,
+    location !== null &&
+      location.length >= MIN_LENGTH_LOCATION &&
+      location.length < MAX_LENGTH_LOCATION,
+    'location',
+    `Location must be between ${MIN_LENGTH_LOCATION} and ${MAX_LENGTH_LOCATION} characters long. Currently: ${location.length} characters.`
+  );
+
+  valid = assertCondition(
+    valid,
+    category !== null &&
+      category.length >= MIN_LENGTH_CATEGORY &&
+      category.length < MAX_LENGTH_CATEGORY,
+    'category',
+    `Category must be between ${MIN_LENGTH_CATEGORY} and ${MAX_LENGTH_CATEGORY} characters long. Currently: ${category.length} characters.`
   );
 
   valid = assertCondition(
@@ -207,6 +273,66 @@ function validate(data) {
     !end_date || new Date(end_date).getTime() > new Date(start_date).getTime(),
     'end_date',
     'End date must be after start date, or empty'
+  );
+
+  valid = assertCondition(
+    valid,
+    start_date !== null && start_date !== undefined && start_date !== '',
+    'start_date',
+    'Event must have a start date'
+  );
+
+  valid = assertCondition(
+    valid,
+    category !== null && category !== undefined && category !== '',
+    'category',
+    'Event must have a category'
+  );
+
+  valid = assertCondition(
+    valid,
+    location !== null && location !== undefined && location !== '',
+    'location',
+    'Event must have a location'
+  );
+
+  valid = assertCondition(
+    valid,
+    images !== null &&
+      images !== undefined &&
+      images.length >= 2 &&
+      images.reduce(
+        (acc, image) =>
+          acc &&
+          image.url !== null &&
+          image.url !== undefined &&
+          image.url !== '',
+        true
+      ) &&
+      images.reduce(
+        (acc, image) =>
+          acc &&
+          image.type !== null &&
+          image.type !== undefined &&
+          image.type !== '',
+        true
+      ),
+    'images',
+    'Event must have at least 2 images with a url and type'
+  );
+
+  valid = assertCondition(
+    valid,
+    type !== null && type !== undefined && type !== '',
+    'type',
+    'Event must have a type'
+  );
+
+  valid = assertCondition(
+    valid,
+    status !== null && status !== undefined && status !== '',
+    'status',
+    'Event must have a status'
   );
 
   return valid;
@@ -248,7 +374,7 @@ return (
         }}
       />
     </div>
-    <ErrorMessage>{getError('name')}</ErrorMessage>
+    <ErrorMessage>{getErrors('name')}</ErrorMessage>
 
     <div className="mt-3">
       <Label>Description</Label>
@@ -262,7 +388,7 @@ return (
         rows={3}
       />
     </div>
-    <ErrorMessage>{getError('description')}</ErrorMessage>
+    <ErrorMessage>{getErrors('description')}</ErrorMessage>
 
     <div className="mt-3">
       <Label>Type</Label>
@@ -279,7 +405,7 @@ return (
         ))}
       </Select>
     </div>
-    <ErrorMessage>{getError('type')}</ErrorMessage>
+    <ErrorMessage>{getErrors('type')}</ErrorMessage>
 
     <div className="mt-3">
       <Label>Category</Label>
@@ -292,7 +418,7 @@ return (
         }}
       />
     </div>
-    <ErrorMessage>{getError('category')}</ErrorMessage>
+    <ErrorMessage>{getErrors('category')}</ErrorMessage>
 
     <div className="mt-3">
       <Label>Status</Label>
@@ -309,7 +435,7 @@ return (
         ))}
       </Select>
     </div>
-    <ErrorMessage>{getError('status')}</ErrorMessage>
+    <ErrorMessage>{getErrors('status')}</ErrorMessage>
 
     <div className="mt-3">
       <Label>Start Date</Label>
@@ -321,7 +447,7 @@ return (
         }}
       />
     </div>
-    <ErrorMessage>{getError('start_date')}</ErrorMessage>
+    <ErrorMessage>{getErrors('start_date')}</ErrorMessage>
 
     <div className="mt-3">
       <Label>End Date</Label>
@@ -333,7 +459,7 @@ return (
         }}
       />
     </div>
-    <ErrorMessage>{getError('end_date')}</ErrorMessage>
+    <ErrorMessage>{getErrors('end_date')}</ErrorMessage>
 
     <div className="mt-3">
       <Label>Location</Label>
@@ -347,7 +473,7 @@ return (
         rows={3}
       />
     </div>
-    <ErrorMessage>{getError('location')}</ErrorMessage>
+    <ErrorMessage>{getErrors('location')}</ErrorMessage>
 
     <div className="mt-3">
       <Label>Images</Label>
@@ -385,7 +511,7 @@ return (
         Add Image
       </button>
     </div>
-    <ErrorMessage>{getError('images')}</ErrorMessage>
+    <ErrorMessage>{getErrors('images')}</ErrorMessage>
 
     <div className="mt-3">
       <Label>Links</Label>
@@ -473,7 +599,7 @@ return (
         Add Link
       </button>
     </div>
-    <ErrorMessage>{getError('links')}</ErrorMessage>
+    <ErrorMessage>{getErrors('links')}</ErrorMessage>
 
     <br />
     <Button
