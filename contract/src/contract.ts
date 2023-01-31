@@ -45,7 +45,7 @@ export class HelloNear {
       return c.charCodeAt(0).toString(16)
     }).join('');
 
-    const now = new Date();
+    const now = new Date(Number(near.blockTimestamp()) / 1000000)
 
     const event = <Event>{
       ...createEvent,
@@ -151,13 +151,15 @@ export class HelloNear {
     // We keep track of used storage again.
     const oldStorageUsage = near.storageUsage();
 
+    const now = new Date(Number(near.blockTimestamp()) / 1000000)
+
     // We update the storage to reflect the update.
     this.events.set(event_id, {
       ...existingEvent,
       ...event,
       start_date: new Date(event.start_date || existingEvent.start_date),
       end_date: new Date(event.end_date || existingEvent.end_date),
-      last_updated_at: new Date(),
+      last_updated_at: now,
     });
 
     // Then we get the storage change - in this case it might be negative as the update
