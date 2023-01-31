@@ -7,6 +7,23 @@ const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';
 const APP_OWNER = '{{ env.APP_OWNER }}';
 const APP_NAME = '{{ env.APP_NAME }}';
 
+const latestEvent = Near.view(EVENTS_CONTRACT, 'get_latest_event', {
+  account_id: props.__engine.accountId,
+});
+if (!latestEvent) {
+  return 'Loading';
+}
+
+const SECONDS_8 = 8000;
+// if event was just created, pop the stack and return
+if (
+  latestEvent &&
+  new Date().getTime() - new Date(latestEvent.created_at).getTime() < SECONDS_8
+) {
+  props.__engine.pop();
+  return 'Event created';
+}
+
 function createEvent(data) {
   const {
     name,

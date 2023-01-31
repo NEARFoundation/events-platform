@@ -31,8 +31,18 @@ export class HelloNear {
   }
 
   /**
- * Check if an event exists.
- */
+   * Get the latest event for an account.
+   */
+  @view({})
+  get_latest_event({ account_id }: { account_id: string }): Event {
+    return this.get_all_events_by_account({ account_id }).sort((a, b) => {
+      return Number(b.created_at) - Number(a.created_at)
+    })[0];
+  }
+
+  /**
+   * Check if an event exists.
+   */
   @view({})
   has_event({ event_id }: { event_id: string }): Boolean {
     return this.events.get(event_id) !== null;
