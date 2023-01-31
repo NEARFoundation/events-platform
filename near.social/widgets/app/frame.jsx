@@ -1,3 +1,5 @@
+/* eslint no-magic-numbers: 0 */
+
 const VERSION = '{{ env.VERSION }}';
 
 /**
@@ -67,6 +69,7 @@ const VERSION = '{{ env.VERSION }}';
  * Adjust these:
  * */
 
+const NEAR_STORAGE_BYTES_SAFTY_OFFSET = 42;
 const PROP_IS_REQUIRED_MESSAGE = 'props.{prop} is required';
 const PLEASE_CONNECT_WALLET_MESSAGE =
   'Please connect your NEAR wallet to continue.';
@@ -232,6 +235,9 @@ const env = {
   VERSION,
 };
 
+const COST_NEAR_PER_BYTE = Math.pow(10, 20);
+const TGAS_300 = '300000000000000';
+
 const AppState = {
   _state: {},
   set: (prop, value) => {
@@ -364,6 +370,42 @@ function dirtyEval(args) {
   }
 }
 
+// https://stackoverflow.com/questions/5515869/string-length-in-bytes-in-javascript
+function byteLength(str) {
+  // returns the byte length of an utf8 string
+  var s = str.length;
+  for (let i = str.length - 1; i >= 0; i--) {
+    let code = str.charCodeAt(i);
+    if (code > 0x7f && code <= 0x7ff) {
+      s++;
+    } else if (code > 0x7ff && code <= 0xffff) {
+      s += 2;
+    }
+    if (code >= 0xdc00 && code <= 0xdfff) {
+      i--;
+    } //trail surrogate
+  }
+  return s;
+}
+
+function calculateStorageCost(value) {
+  // get number of bytes without TextEncoder or Blob
+  const bytes = byteLength(JSON.stringify(value));
+  const estimated =
+    COST_NEAR_PER_BYTE * (bytes + NEAR_STORAGE_BYTES_SAFTY_OFFSET);
+  console.log('calculateStorageCost', {
+    bytes,
+    estimated,
+    const: NEAR_STORAGE_BYTES_SAFTY_OFFSET,
+  });
+  return COST_NEAR_PER_BYTE * (bytes + NEAR_STORAGE_BYTES_SAFTY_OFFSET);
+}
+
+function contractCall(contractName, methodName, args) {
+  const cost = calculateStorageCost(args);
+  Near.call(contractName, methodName, args, TGAS_300, cost);
+}
+
 function renderComponent(name, props) {
   const engine = {
     env,
@@ -398,10 +440,17 @@ function renderComponent(name, props) {
 
     helpers: {
       propIsRequiredMessage,
+      calculateStorageCost,
     },
 
     hacks: {
       dirtyEval,
+    },
+
+    TGAS_300,
+
+    contract: {
+      call: contractCall,
     },
   };
 

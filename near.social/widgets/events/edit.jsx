@@ -16,10 +16,6 @@ if (!event) {
   return 'Loading';
 }
 
-const TGAS_300 = '300000000000000';
-// const ONE_NEAR = '1000000000000000000000000';
-const ONE_HALF_NEAR = '500000000000000000000000';
-
 function callContract(data) {
   const {
     name,
@@ -33,28 +29,23 @@ function callContract(data) {
     links,
     description,
   } = data;
-  Near.call(
-    EVENTS_CONTRACT,
-    'update_event',
-    {
-      event_id: eventId,
-      event: {
-        account_id: props.__engine.accountId,
-        name,
-        type,
-        category,
-        status,
-        start_date,
-        end_date,
-        location,
-        images,
-        links,
-        description,
-      },
+
+  props.__engine.contract.call(EVENTS_CONTRACT, 'update_event', {
+    event_id: eventId,
+    event: {
+      account_id: props.__engine.accountId,
+      name,
+      type,
+      category,
+      status,
+      start_date,
+      end_date,
+      location,
+      images,
+      links,
+      description,
     },
-    TGAS_300,
-    ONE_HALF_NEAR
-  );
+  });
 }
 
 function onSave(data) {

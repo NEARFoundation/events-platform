@@ -7,9 +7,6 @@ const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';
 const APP_OWNER = '{{ env.APP_OWNER }}';
 const APP_NAME = '{{ env.APP_NAME }}';
 
-const TGAS_300 = '300000000000000';
-const ONE_NEAR = '1000000000000000000000000';
-
 function createEvent(data) {
   const {
     name,
@@ -24,25 +21,19 @@ function createEvent(data) {
     description,
   } = data;
 
-  Near.call(
-    EVENTS_CONTRACT,
-    'create_event',
-    {
-      account_id: props.__engine.accountId,
-      name,
-      type,
-      category,
-      status,
-      start_date,
-      end_date,
-      location,
-      images,
-      links,
-      description,
-    },
-    TGAS_300,
-    ONE_NEAR
-  );
+  props.__engine.contract.call(EVENTS_CONTRACT, 'create_event', {
+    account_id: props.__engine.accountId,
+    name,
+    type,
+    category,
+    status,
+    start_date,
+    end_date,
+    location,
+    images,
+    links,
+    description,
+  });
 }
 
 function onSave(data) {
