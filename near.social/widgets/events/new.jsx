@@ -19,12 +19,12 @@ function createEvent(data) {
     start_date,
     end_date,
     location,
-    image,
+    images,
     links,
     description,
   } = data;
 
-  const event = Near.call(
+  Near.call(
     EVENTS_CONTRACT,
     'create_event',
     {
@@ -36,15 +36,13 @@ function createEvent(data) {
       start_date,
       end_date,
       location,
-      image,
+      images,
       links,
       description,
     },
     TGAS_300,
     ONE_NEAR
   );
-
-  console.log('event', { event });
 }
 
 function onSave(data) {
