@@ -305,6 +305,83 @@ export class HelloNear {
   has_event_list({ event_list_id }: { event_list_id: string }): boolean {
     return this.event_lists.has(event_list_id);
   }
+
+  /**
+   * Create a new event list.
+   * @param createEventList
+   * @returns NearPromise
+   */
+  @call({ payableFunction: true })
+  create_event_list(createEventList: CreateEventList): NearPromise {
+    // We want to charge the user for storing an event in our contract.
+    // This means we need to calculate how much they have to pay, so we
+    // keep track of our current storage usage.
+    const oldStorageUsage = near.storageUsage();
+    const owner_account_id = near.signerAccountId();
+
+    const uuid = genUUID();
+
+    const eventList = <EventList>{
+      ...createEventList,
+      id: uuid,
+      owner_account_id,
+      created_at: now(),
+      last_updated_at: now(),
+      permissions: new UnorderedMap("p"),
+      events: <EventListEventEntry>new Vector("v"),
+    };
+
+    // Store the event in the events map.
+    this.event_lists.set(uuid, eventList);
+
+    // We check how much storage was taken up by the creation and how
+    // much NEAR was deposited.
+    const newStorageUsage = near.storageUsage();
+    const storageUsedByCall = newStorageUsage - oldStorageUsage;
+    const priceOfUsedStorage = storageUsedByCall * near.storageByteCost();
+    const attachedDeposit = near.attachedDeposit();
+
+    // If there wasn't enough NEAR deposited we remove the change and
+    // throw an error.
+    if (attachedDeposit < priceOfUsedStorage) {
+      this.event_lists.remove(uuid);
+
+      throw new Error(
+        "You haven't attached enough NEAR to pay for the cost of the event list you are storing.\n" +
+        `You attached: ${near.attachedDeposit()}\n` +
+        `The cost was: ${priceOfUsedStorage}`
+      );
+    }
+
+    // If there was a sufficient amount deposited, we refund any surplus.
+    const refundAmount = attachedDeposit - priceOfUsedStorage;
+
+    // We return a promise that will return the event to the user.
+    const returnEventListPromise = NearPromise.new(
+      near.currentAccountId()
+    ).functionCall(
+      "return_event_list",
+      JSON.stringify({ event_list_id: uuid }),
+      NO_DEPOSIT,
+      TWENTY_TGAS
+    );
+
+    if (refundAmount > 0) {
+      return NearPromise.new(owner_account_id)
+        .transfer(refundAmount)
+        .then(returnEventListPromise);
+    }
+    return returnEventListPromise;
+  }
+
+  /**
+   * private function to return an event list.
+   * used as private callback
+   */
+  @call({ privateFunction: true })
+  return_event_list(args: { event_list_id: string }): EventList {
+    return this.event_lists.get(args.event_list_id);
+  }
 }
 
 
