@@ -1,4 +1,4 @@
-import { Vector } from "near-sdk-js";
+import { Vector, UnorderedMap } from "near-sdk-js";
 import { AccountId } from "near-sdk-js/lib/types";
 
 type ObjectValues<Object> = Object[keyof Object];
@@ -99,13 +99,21 @@ export type UpdateEvent = Partial<CreateEvent>;
 export const PermissionTypes = {
   add_list_entry: "add_list_entry",
   remove_list_entry: "remove_list_entry",
-  chaneg_list: "chaneg_list",
+  change_list: "change_list",
 } as const;
 
 /**
  * Type of permission.
  */
 export type PermissionType = ObjectValues<typeof PermissionTypes>;
+
+export type EventListEventEntry = Vector<{
+  event_id: string;
+  last_updated_at: Date;
+  added_by: AccountId;
+  position: number;
+  last_updated_by: AccountId;
+}>;
 
 /**
  * An object representing an EventList and all its details.
@@ -117,9 +125,17 @@ export type EventList = {
   description: string;
   created_at: Date;
   last_updated_at: Date;
-  permissions: Vector<{
-    account_id: string;
-    permissions: PermissionType[];
-  }>;
-  events: Vector<{ event_id: string; last_updated_at: Date }>;
+
+  permissions: UnorderedMap<{ permissions: PermissionType[] }>;
+  events: EventListEventEntry;
 };
+
+/**
+ * Data needed for event list creation.
+ */
+export type CreateEventList = Pick<EventList, "name" | "description">;
+
+/**
+ * Data accepted for event update.
+ */
+export type UpdateEventList = Partial<CreateEventList>;
