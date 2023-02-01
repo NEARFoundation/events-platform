@@ -107,7 +107,7 @@ export class EventListsMap {
    * @param value - The value to store in the collection.
    */
   set(key: string, value: EventList): EventList {
-    return this.map.set(key, value, { reconstructor: eventListReconstructor });
+    return this.map.set(key, value);
   }
 
   /**
