@@ -4,8 +4,6 @@ props.controller.setLayout('modal', {
 });
 
 const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';
-const APP_OWNER = '{{ env.APP_OWNER }}';
-const APP_NAME = '{{ env.APP_NAME }}';
 
 const latestEvent = Near.view(EVENTS_CONTRACT, 'get_latest_event', {
   account_id: props.__engine.accountId,
@@ -57,14 +55,7 @@ function onSave(data) {
   createEvent(data);
 }
 
-return (
-  <div>
-    <Widget
-      src={`${APP_OWNER}/widget/${APP_NAME}___form`}
-      props={{
-        onSave,
-        buttonText: 'Create event',
-      }}
-    />
-  </div>
-);
+return props.__engine.renderComponent('_form', {
+  onSave,
+  buttonText: 'Create event',
+});
