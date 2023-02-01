@@ -462,6 +462,46 @@ export class HelloNear {
     }
     return returnEventListPromise;
   }
+
+  /**
+   * Remove an event list.
+   * @param event_list_id The ID of the event list to delete.
+   */
+  @call({ payableFunction: true })
+  remove_event_list({ event_list_id }: { event_list_id: string }): NearPromise {
+    // First we check if there is an event_list with the specified ID.
+    const currentEventList = this.event_lists.get(event_list_id);
+
+    assert(
+      currentEventList,
+      `The event_list with id: ${event_list_id} does not exist!`
+    );
+
+    // Temporary: We check if the signer of the transaction is the owner of the event_list.
+    const signerAccountId = near.signerAccountId();
+
+    // TODO: check if signer is owner or has permission to edit instead
+    assert(
+      signerAccountId === currentEventList.owner_account_id,
+      "You do not have permission to delete this event_list!"
+    );
+
+    // We keep track of used storage again.
+    const oldStorageUsage = near.storageUsage();
+
+    // We delete the event list.
+    this.event_lists.remove(event_list_id);
+
+    // Finally we refund the signer with the amount of freed up space for
+    // removing the event from storage.
+    const newStorageUsage = near.storageUsage();
+    const storageFreedByCall = newStorageUsage - oldStorageUsage;
+    const priceOfFreedStorage = storageFreedByCall * near.storageByteCost();
+
+    if (priceOfFreedStorage > 0) {
+      return NearPromise.new(signerAccountId).transfer(priceOfFreedStorage);
+    }
+  }
 }
 
 
