@@ -295,6 +295,16 @@ export class HelloNear {
   get_event_list({ event_list_id }: { event_list_id: string }): EventList {
     return this.event_lists.get(event_list_id);
   }
+
+  /**
+   * Get if the event list exists.
+   * @param event_list_id the event list id
+   * @returns boolean
+   */
+  @view({})
+  has_event_list({ event_list_id }: { event_list_id: string }): boolean {
+    return this.event_lists.has(event_list_id);
+  }
 }
 
 
