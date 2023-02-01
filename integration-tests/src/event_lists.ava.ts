@@ -148,11 +148,15 @@ test("create a event_list and get it from the contract", async (t) => {
   const comparable = { ...event_list };
   delete (comparable as any).created_at;
   delete (comparable as any).last_updated_at;
+  delete (comparable as any).permissions;
+  delete (comparable as any).events;
 
   // this will for now fail
   t.deepEqual(comparable, {
     name: "test",
     description: "test 2",
+    id: event_list_id,
+    owner_account_id: contract.accountId,
   });
 
   // compare created_at and last_updated_at are in range of +- 10 seconds
@@ -172,15 +176,15 @@ test("create a event_list and add event to it", async (t) => {
     await createEventAndList(contract)
   );
 
+  const events = event_list.events as unknown as Array<{
+    event_id: string;
+    added_by: string;
+    last_updated_by: string;
+    last_updated_at: string;
+  }>;
+
   const comparable = {
-    ...(
-      event_list as unknown as Array<{
-        event_id: string;
-        added_by: string;
-        last_updated_by: string;
-        last_updated_at: string;
-      }>
-    )[0],
+    ...events[0],
   };
 
   delete (comparable as any).last_updated_at;
@@ -217,19 +221,19 @@ test("can get eventList by any user", async (t) => {
   const { contract: listOwner, root } = t.context.accounts;
   const otherAccount = await createAccount(root, "other");
 
-  const { event, event_list } = await createEventAndList(listOwner);
+  const { event, event_list: el } = await createEventAndList(listOwner);
 
-  const { events } = await getEventList(otherAccount, event_list.id);
+  const event_list = await getEventList(otherAccount, el.id);
+
+  const events = event_list.events as unknown as Array<{
+    event_id: string;
+    added_by: string;
+    last_updated_by: string;
+    last_updated_at: string;
+  }>;
 
   const comparable = {
-    ...(
-      events as unknown as Array<{
-        event_id: string;
-        added_by: string;
-        last_updated_by: string;
-        last_updated_at: string;
-      }>
-    )[0],
+    ...events[0],
   };
 
   delete (comparable as any).last_updated_at;
@@ -322,21 +326,21 @@ test("can add events created by any user", async (t) => {
   const { contract: listOwner, root } = t.context.accounts;
   const otherAccount = await createAccount(root, "other");
   const event = await createEvent(listOwner, otherAccount);
-  const event_list = await createEventList(listOwner);
+  const el = await createEventList(listOwner);
 
-  await addEventToEventList(listOwner, event.id, event_list.id);
+  await addEventToEventList(listOwner, event.id, el.id);
 
-  const { events } = await getEventList(listOwner, event_list.id);
+  const event_list = await getEventList(otherAccount, el.id);
+
+  const events = event_list.events as unknown as Array<{
+    event_id: string;
+    added_by: string;
+    last_updated_by: string;
+    last_updated_at: string;
+  }>;
 
   const comparable = {
-    ...(
-      events as unknown as Array<{
-        event_id: string;
-        added_by: string;
-        last_updated_by: string;
-        last_updated_at: string;
-      }>
-    )[0],
+    ...events[0],
   };
 
   delete (comparable as any).last_updated_at;
