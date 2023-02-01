@@ -285,6 +285,16 @@ export class HelloNear {
       (event_list) => event_list.owner_account_id === account_id
     );
   }
+
+  /**
+   * Get a single event list.
+   * @param event_list_id the event list id
+   * @returns EventList | undefined
+   */
+  @view({})
+  get_event_list({ event_list_id }: { event_list_id: string }): EventList {
+    return this.event_lists.get(event_list_id);
+  }
 }
 
 
