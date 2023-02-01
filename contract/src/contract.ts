@@ -17,6 +17,7 @@ import {
   type CreateEvent,
   type UpdateEvent,
   type EventListEventEntry,
+  type PermissionType,
 } from "./types";
 import {
   type EventList,
@@ -327,7 +328,9 @@ export class HelloNear {
       owner_account_id,
       created_at: now(),
       last_updated_at: now(),
-      permissions: new UnorderedMap("p"),
+      permissions: <UnorderedMap<{ permissions: PermissionType[] }>>(
+        new UnorderedMap("p")
+      ),
       events: <EventListEventEntry>new Vector("v"),
     };
 
@@ -670,7 +673,6 @@ function genUUID(): string {
     })
     .join("");
 }
-
 
 /**
  * @returns {Date} The current date.
