@@ -269,6 +269,22 @@ export class HelloNear {
   get_all_event_lists(): EventList[] {
     return this.event_lists.toArray().map(([, event_list]) => event_list);
   }
+
+  /**
+   * Get all event lists for a given account.
+   * @param account_id the account id
+   * @returns EventList[]
+   */
+  @view({})
+  get_all_event_lists_by_account({
+    account_id,
+  }: {
+    account_id: AccountId;
+  }): EventList[] {
+    return this.get_all_event_lists().filter(
+      (event_list) => event_list.owner_account_id === account_id
+    );
+  }
 }
 
 
