@@ -1,4 +1,4 @@
-import { assert, UnorderedMap, Vector } from "near-sdk-js";
+import { assert, near, UnorderedMap, Vector } from "near-sdk-js";
 import {
   type EventList,
   type PermissionType,
@@ -49,6 +49,12 @@ export const eventListReconstructor = (value: unknown): EventList => {
     checkIsEventList(value),
     `Value: ${value} cannot be reconstructed into EventList`
   );
+
+  near.log("Reconstructing EventList: " + JSON.stringify(value));
+  near.log("STATE " + JSON.stringify(near.storageRead("STATE")));
+
+
+
 
   return {
     id: value.id,
