@@ -382,6 +382,86 @@ export class HelloNear {
   return_event_list(args: { event_list_id: string }): EventList {
     return this.event_lists.get(args.event_list_id);
   }
+
+  /**
+   * Update an event list.
+   * @param event_list_id The ID of the event list to update.
+   * @param event_list The new event list data.
+   * @returns The updated event list.
+   */
+  @call({ payableFunction: true })
+  update_event_list({
+    event_list_id,
+    event_list,
+  }: {
+    event_list_id: string;
+    event_list: Partial<UpdateEventList>;
+  }): NearPromise {
+    // First we check if there is an event_list with the specified ID.
+    const currentEventList = this.event_lists.get(event_list_id);
+
+    assert(
+      currentEventList,
+      `The event_list with id: ${event_list_id} does not exist!`
+    );
+
+    // Temporary: We check if the signer of the transaction is the owner of the event_list.
+    const signerAccountId = near.signerAccountId();
+
+    // TODO: check if signer is owner or has permission to edit instead
+    assert(
+      signerAccountId === currentEventList.owner_account_id,
+      "You do not have permission to edit this event_list!"
+    );
+
+    // We keep track of used storage again.
+    const oldStorageUsage = near.storageUsage();
+
+    // We update the storage to reflect the update.
+    this.event_lists.set(event_list_id, {
+      ...currentEventList,
+      ...event_list,
+      last_updated_at: now(),
+    });
+
+    // Then we get the storage change - in this case it might be negative as the update
+    // might take up less bytes then the previous version.
+    const newStorageUsage = near.storageUsage();
+    const storageUsedByCall = newStorageUsage - oldStorageUsage;
+    const priceOfUsedStorage = storageUsedByCall * near.storageByteCost();
+    const attachedDeposit = near.attachedDeposit();
+
+    // If the attached deposit wasn't enough to cover for the change, we revert
+    // the change and throw an error.
+    if (attachedDeposit < priceOfUsedStorage) {
+      this.event_lists.set(event_list_id, currentEventList);
+
+      throw new Error(
+        "You haven't attached enough NEAR to pay for the cost of the event_list you are storing.\n" +
+        `You attached: ${near.attachedDeposit()}\n` +
+        `The cost was: ${priceOfUsedStorage}`
+      );
+    }
+
+    // We refund the signer if need be.
+    const refundAmount = attachedDeposit - priceOfUsedStorage;
+
+    const returnEventListPromise = NearPromise.new(
+      near.currentAccountId()
+    ).functionCall(
+      "return_event_list",
+      JSON.stringify({ event_list_id }),
+      NO_DEPOSIT,
+      TWENTY_TGAS
+    );
+
+    if (refundAmount > 0) {
+      return NearPromise.new(signerAccountId)
+        .transfer(refundAmount)
+        .then(returnEventListPromise);
+    }
+    return returnEventListPromise;
+  }
 }
 
 
