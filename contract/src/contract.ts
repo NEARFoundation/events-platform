@@ -97,11 +97,7 @@ export class HelloNear {
     if (attachedDeposit < priceOfUsedStorage) {
       this.events.remove(uuid);
 
-      throw new Error(
-        "You haven't attached enough NEAR to pay for the cost of the event you are storing.\n" +
-        `You attached: ${near.attachedDeposit()}\n` +
-        `The cost was: ${priceOfUsedStorage}`
-      );
+      depositMissingError("event", priceOfUsedStorage);
     }
 
     // If there was a sufficient amount deposited, we refund any surplus.
@@ -200,11 +196,7 @@ export class HelloNear {
     if (attachedDeposit < priceOfUsedStorage) {
       this.events.set(event_id, currentEvent);
 
-      throw new Error(
-        "You haven't attached enough NEAR to pay for the cost of the event you are storing.\n" +
-        `You attached: ${near.attachedDeposit()}\n` +
-        `The cost was: ${priceOfUsedStorage}`
-      );
+      depositMissingError("event", priceOfUsedStorage);
     }
 
     // We refund the signer if need be.
@@ -257,9 +249,8 @@ export class HelloNear {
     const storageFreedByCall = newStorageUsage - oldStorageUsage;
     const priceOfFreedStorage = storageFreedByCall * near.storageByteCost();
 
-    if (priceOfFreedStorage > 0) {
-      return NearPromise.new(signerAccountId).transfer(priceOfFreedStorage);
-    }
+    // Note: the params are swapped
+    return refundDifference(priceOfFreedStorage, BigInt(0));
   }
 
   /**
@@ -331,7 +322,7 @@ export class HelloNear {
       permissions: <UnorderedMap<{ permissions: PermissionType[] }>>(
         new UnorderedMap("p")
       ),
-      events: <EventListEventEntry>new Vector("v"),
+      events: <Vector<EventListEventEntry>>new Vector("v"),
     };
 
     // Store the event in the events map.
@@ -349,11 +340,7 @@ export class HelloNear {
     if (attachedDeposit < priceOfUsedStorage) {
       this.event_lists.remove(uuid);
 
-      throw new Error(
-        "You haven't attached enough NEAR to pay for the cost of the event list you are storing.\n" +
-        `You attached: ${near.attachedDeposit()}\n` +
-        `The cost was: ${priceOfUsedStorage}`
-      );
+      depositMissingError("event_list", priceOfUsedStorage);
     }
 
     // If there was a sufficient amount deposited, we refund any surplus.
@@ -439,11 +426,7 @@ export class HelloNear {
     if (attachedDeposit < priceOfUsedStorage) {
       this.event_lists.set(event_list_id, currentEventList);
 
-      throw new Error(
-        "You haven't attached enough NEAR to pay for the cost of the event_list you are storing.\n" +
-        `You attached: ${near.attachedDeposit()}\n` +
-        `The cost was: ${priceOfUsedStorage}`
-      );
+      depositMissingError("event_list", priceOfUsedStorage);
     }
 
     // We refund the signer if need be.
@@ -501,9 +484,8 @@ export class HelloNear {
     const storageFreedByCall = newStorageUsage - oldStorageUsage;
     const priceOfFreedStorage = storageFreedByCall * near.storageByteCost();
 
-    if (priceOfFreedStorage > 0) {
-      return NearPromise.new(signerAccountId).transfer(priceOfFreedStorage);
-    }
+    // Note: the params are swapped
+    return refundDifference(priceOfFreedStorage, BigInt(0));
   }
 
   /**
@@ -520,7 +502,7 @@ export class HelloNear {
     event_list_id: string;
     event_id: string;
     position: number;
-  }): void {
+  }): NearPromise {
     // First we check if there is an event_list with the specified ID.
     const currentEventList = this.event_lists.get(event_list_id);
     assert(
@@ -557,7 +539,7 @@ export class HelloNear {
     // `events.push()` manipulates the original vector
     // so we need to create a copy of the vector first.
     // clone Vector
-    const newEvents = <EventListEventEntry>(
+    const newEvents = <Vector<EventListEventEntry>>(
       new Vector(currentEventList.events.prefix)
     );
     const reorderedEvents = buildOrderedEventEntryList(
@@ -597,13 +579,171 @@ export class HelloNear {
         events: currentEventList.events,
       });
 
-      throw new Error(
-        "You haven't attached enough NEAR to pay for the cost of the event_list you are storing.\n" +
-        `You attached: ${near.attachedDeposit()}\n` +
-        `The cost was: ${priceOfUsedStorage}`
-      );
+      depositMissingError("new event in the event_list", priceOfUsedStorage);
     }
+
+    return refundDifference(attachedDeposit, priceOfUsedStorage);
   }
+
+  /**
+   * Check if an event is in an event list.
+   * @param event_list_id The ID of the event list to check.
+   * @param event_id The ID of the event to check.
+   * @returns True if the event is in the event list, false otherwise.
+   */
+  @view({})
+  is_event_in_event_list({
+    event_list_id,
+    event_id,
+  }: {
+    event_list_id: string;
+    event_id: string;
+  }): boolean {
+    // Then we check if there is an event with the specified ID.
+    if (!this.has_event({ event_id })) {
+      return false;
+    }
+    // First we check if there is an event_list with the specified ID.
+    const currentEventList = this.event_lists.get(event_list_id);
+    if (!currentEventList) {
+      return false;
+    }
+
+    // check
+    return currentEventList.events.toArray().some((event) => {
+      return event.event_id === event_id;
+    });
+  }
+
+  /**
+   * Remove an event from an event list.
+   * @param event_list_id The ID of the event list to remove the event from.
+   * @param event_id The ID of the event to remove.
+   */
+  @call({ payableFunction: true })
+  remove_event_from_event_list({
+    event_list_id,
+    event_id,
+  }: {
+    event_list_id: string;
+    event_id: string;
+  }): NearPromise {
+    // First we check if there is an event_list with the specified ID.
+    const currentEventList = this.event_lists.get(event_list_id);
+    assert(
+      currentEventList,
+      `The event_list with id: ${event_list_id} does not exist!`
+    );
+
+    // Then we check if there is an event with the specified ID.
+    const currentEvent = this.events.get(event_id);
+    assert(currentEvent, `The event with id: ${event_id} does not exist!`);
+
+    // Temporary: We check if the signer of the transaction is the owner of the event_list.
+    const signerAccountId = near.signerAccountId();
+
+    // TODO: check if signer is owner or has permission to add events instead
+    assert(
+      signerAccountId === currentEventList.owner_account_id,
+      "You do not have permission to add events to this event_list!"
+    );
+
+    // check if event is in event list
+    const isEventInEventList = this.is_event_in_event_list({
+      event_list_id,
+      event_id,
+    });
+    assert(
+      isEventInEventList,
+      `The event with id: ${event_id} is not in the event list with id: ${event_list_id}!`
+    );
+
+    // We keep track of used storage again.
+    const oldStorageUsage = near.storageUsage();
+
+    // We remove the event from the event list.
+    // `events.splice()` manipulates the original vector
+    // so we need to create a copy of the vector first.
+    // clone Vector
+    const newEvents = <Vector<EventListEventEntry>>(
+      new Vector(currentEventList.events.prefix)
+    );
+
+    // find event position in event list, remove it and fill gaps in positions
+    const oldEvents = currentEventList.events.toArray();
+    const position = oldEvents.findIndex(
+      (event) => event.event_id === event_id
+    );
+    oldEvents.splice(position, 1);
+    newEvents.extend(fillGapsInEventEntryList(oldEvents, signerAccountId));
+
+    // We update the event_list in storage.
+    this.event_lists.set(event_list_id, {
+      ...currentEventList,
+      events: newEvents,
+    });
+
+    // Then we get the storage change - in this case it might be negative as the update
+    // might take up less bytes then the previous version.
+    const newStorageUsage = near.storageUsage();
+
+    const storageUsedByCall = newStorageUsage - oldStorageUsage;
+    const priceOfUsedStorage = storageUsedByCall * near.storageByteCost();
+    const attachedDeposit = near.attachedDeposit();
+
+    // If the attached deposit wasn't enough to cover for the change, we revert
+    // the change and throw an error. This can happen if the event_list is very large and
+    // the accountId is a long string and is removing an event from the event_list in front
+    // as it updates the last_updated_by field when reordering the events.
+    if (attachedDeposit < priceOfUsedStorage) {
+      this.event_lists.set(event_list_id, {
+        ...currentEventList,
+        // set to original value
+        events: currentEventList.events,
+      });
+
+      depositMissingError("event_list", priceOfUsedStorage);
+    }
+
+    return refundDifference(attachedDeposit, priceOfUsedStorage);
+  }
+}
+
+/**
+ * Helper function to refund the difference between the attached deposit and the cost of the entity.
+ * @param attachedDeposit The attached deposit.
+ * @param priceOfUsedStorage The cost of the entity.
+ * @returns A promise that resolves to the refund.
+ */
+function refundDifference(
+  attachedDeposit: bigint,
+  priceOfUsedStorage: bigint
+): NearPromise {
+  if (attachedDeposit > priceOfUsedStorage) {
+    const signerAccountId = near.signerAccountId();
+    return NearPromise.new(signerAccountId).transfer(
+      attachedDeposit - priceOfUsedStorage
+    );
+  }
+}
+
+/**
+ * Helper function to throw an error if the attached deposit is not enough to cover for the cost of the entity.
+ * @param entity The entity that is being stored.
+ * @param cost The cost of the entity.
+ * throws Error
+ */
+function depositMissingError(entity: string, cost: bigint) {
+  const attachedDeposit = near.attachedDeposit();
+  assert(
+    false,
+    `
+You haven't attached enough NEAR to pay for the cost of the ${entity} you are storing.
+You attached: ${attachedDeposit}
+The cost was: ${cost}
+You must attach an additional: ${attachedDeposit - cost} YoctoNEAR
+`
+  );
 }
 
 /**
@@ -616,20 +756,8 @@ export class HelloNear {
  */
 
 function buildOrderedEventEntryList(
-  arr: Array<{
-    position: number;
-    last_updated_at: Date;
-    last_updated_by: AccountId;
-    added_by: AccountId;
-    event_id: string;
-  }>,
-  newEvent: {
-    position: number;
-    last_updated_at: Date;
-    last_updated_by: AccountId;
-    added_by: AccountId;
-    event_id: string;
-  },
+  arr: Array<EventListEventEntry>,
+  newEvent: EventListEventEntry,
   signerAccountId: AccountId,
   position: number
 ) {
@@ -647,19 +775,34 @@ function buildOrderedEventEntryList(
     return { ...event };
   });
 
-  // then we add the new event
   newEvents.push(newEvent);
 
-  // and fill the gaps in the positions
-  for (let i = 0; i < newEvents.length; i++) {
-    if (newEvents[i].position !== i) {
-      newEvents[i].position = i;
-      newEvents[i].last_updated_at = now();
-      newEvents[i].last_updated_by = signerAccountId;
-    }
-  }
+  return fillGapsInEventEntryList(newEvents, signerAccountId);
+}
 
-  return newEvents;
+/**
+ * Helper function to fill the gaps in the positions of the events.
+ * @param arr The array of events.
+ * @param signerAccountId The accountId of the signer.
+ * @returns Array of events with updated positions.
+ */
+function fillGapsInEventEntryList(
+  arr: Array<EventListEventEntry>,
+  signerAccountId: AccountId
+): Array<EventListEventEntry> {
+  return arr
+    .sort((a, b) => a.position - b.position)
+    .map((event, index) => {
+      if (event.position !== index) {
+        return {
+          ...event,
+          position: index,
+          last_updated_at: now(),
+          last_updated_by: signerAccountId,
+        };
+      }
+      return { ...event };
+    });
 }
 
 /**

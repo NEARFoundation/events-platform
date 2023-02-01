@@ -107,13 +107,13 @@ export const PermissionTypes = {
  */
 export type PermissionType = ObjectValues<typeof PermissionTypes>;
 
-export type EventListEventEntry = Vector<{
+export type EventListEventEntry = {
   event_id: string;
   last_updated_at: Date;
   added_by: AccountId;
   position: number;
   last_updated_by: AccountId;
-}>;
+};
 
 /**
  * An object representing an EventList and all its details.
@@ -127,7 +127,7 @@ export type EventList = {
   last_updated_at: Date;
 
   permissions: UnorderedMap<{ permissions: PermissionType[] }>;
-  events: EventListEventEntry;
+  events: Vector<EventListEventEntry>;
 };
 
 /**
