@@ -160,7 +160,7 @@ export class HelloNear {
     event,
   }: {
     event_id: string;
-    event: Partial<UpdateEvent>;
+    event: UpdateEvent;
   }): NearPromise {
     // First we check if there is an event with the specified ID.
     const currentEvent = this.events.get(event_id);

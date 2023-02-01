@@ -19,6 +19,29 @@ const dummyEventList = {
 } satisfies EventList;
 
 /**
+ * Check if given value implements the Partial<EventList> type.
+ * @param value - A value to be checked for compatibility with the Partial<EventList> type.
+ */
+export const checkIsPartialEventList = (value: unknown): value is Partial<EventList> => {
+  if (typeof value !== "object") {
+    return false;
+  }
+
+  if (Object.keys(value).length === 0) {
+    return true;
+  }
+
+  const all_keys_present = Object.keys(value).every((key) => key in dummyEventList);
+
+  if (!all_keys_present) {
+    return false;
+  }
+
+  return true;
+};
+
+
+/**
  * Check if given value implements the EventList type.
  *
  * @param value - A value to be checked for compatibility with the EventList type.

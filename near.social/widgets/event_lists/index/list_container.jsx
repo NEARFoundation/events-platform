@@ -1,23 +1,26 @@
 const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';
 
-// accountID is used to determine for whom the events are displayed
-// if no accountID is provided, all events are displayed
+// accountID is used to determine for whom the event_lists are displayed
+// if no accountID is provided, all event_lists are displayed
 const forAccountId = props.forAccountId;
 
-let events = [];
+let event_lists = [];
 if (forAccountId === undefined) {
-  events = props.__engine.contract.view(EVENTS_CONTRACT, 'get_all_events');
-} else {
-  events = props.__engine.contract.view(
+  event_lists = props.__engine.contract.view(
     EVENTS_CONTRACT,
-    'get_all_events_by_account',
+    'get_all_event_lists'
+  );
+} else {
+  event_lists = props.__engine.contract.view(
+    EVENTS_CONTRACT,
+    'get_all_event_lists_by_account',
     {
       account_id: forAccountId,
     }
   );
 }
 
-if (!events) {
+if (!event_lists) {
   return props.__engine.loading();
 }
 
@@ -26,6 +29,6 @@ const header = props.header;
 return (
   <>
     {header ? <ContainerHeader>{header}</ContainerHeader> : null}
-    {props.__engine.renderComponent('index.list', { events })}
+    {props.__engine.renderComponent('index.list', { event_lists })}
   </>
 );
