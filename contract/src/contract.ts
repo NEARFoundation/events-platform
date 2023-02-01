@@ -502,9 +502,162 @@ export class HelloNear {
       return NearPromise.new(signerAccountId).transfer(priceOfFreedStorage);
     }
   }
+
+  /**
+   * Add an event to an event list.
+   * @param event_list_id The ID of the event list to add the event to.
+   * @param event_id The ID of the event to add.
+   */
+  @call({ payableFunction: true })
+  add_event_to_event_list({
+    event_list_id,
+    event_id,
+    position,
+  }: {
+    event_list_id: string;
+    event_id: string;
+    position: number;
+  }): void {
+    // First we check if there is an event_list with the specified ID.
+    const currentEventList = this.event_lists.get(event_list_id);
+    assert(
+      currentEventList,
+      `The event_list with id: ${event_list_id} does not exist!`
+    );
+
+    // Then we check if there is an event with the specified ID.
+    const currentEvent = this.events.get(event_id);
+    assert(currentEvent, `The event with id: ${event_id} does not exist!`);
+
+    // Temporary: We check if the signer of the transaction is the owner of the event_list.
+    const signerAccountId = near.signerAccountId();
+
+    // TODO: check if signer is owner or has permission to add events instead
+    assert(
+      signerAccountId === currentEventList.owner_account_id,
+      "You do not have permission to add events to this event_list!"
+    );
+
+    // check if event is already in event list
+    const eventInEventList = currentEventList.events.toArray().find((event) => {
+      return event.event_id === event_id;
+    });
+    assert(
+      !eventInEventList,
+      `The event with id: ${event_id} is already in the event list with id: ${event_list_id}!`
+    );
+
+    // We keep track of used storage again.
+    const oldStorageUsage = near.storageUsage();
+
+    // We add the event to the event list.
+    // `events.push()` manipulates the original vector
+    // so we need to create a copy of the vector first.
+    // clone Vector
+    const newEvents = <EventListEventEntry>(
+      new Vector(currentEventList.events.prefix)
+    );
+    const reorderedEvents = buildOrderedEventEntryList(
+      currentEventList.events.toArray(),
+      {
+        event_id,
+        position,
+        last_updated_at: now(),
+        added_by: signerAccountId,
+        last_updated_by: signerAccountId,
+      },
+      signerAccountId,
+      position
+    );
+    newEvents.extend(reorderedEvents);
+
+    // We update the event_list in storage.
+    this.event_lists.set(event_list_id, {
+      ...currentEventList,
+      events: newEvents,
+    });
+
+    // Then we get the storage change - in this case it might be negative as the update
+    // might take up less bytes then the previous version.
+    const newStorageUsage = near.storageUsage();
+
+    const storageUsedByCall = newStorageUsage - oldStorageUsage;
+    const priceOfUsedStorage = storageUsedByCall * near.storageByteCost();
+    const attachedDeposit = near.attachedDeposit();
+
+    // If the attached deposit wasn't enough to cover for the change, we revert
+    // the change and throw an error.
+    if (attachedDeposit < priceOfUsedStorage) {
+      this.event_lists.set(event_list_id, {
+        ...currentEventList,
+        // set to original value
+        events: currentEventList.events,
+      });
+
+      throw new Error(
+        "You haven't attached enough NEAR to pay for the cost of the event_list you are storing.\n" +
+        `You attached: ${near.attachedDeposit()}\n` +
+        `The cost was: ${priceOfUsedStorage}`
+      );
+    }
+  }
 }
 
+/**
+ *
+ * @param arr
+ * @param newEvent
+ * @param signerAccountId
+ * @param position
+ * @returns Array of events with updated positions and new event added
+ */
 
+function buildOrderedEventEntryList(
+  arr: Array<{
+    position: number;
+    last_updated_at: Date;
+    last_updated_by: AccountId;
+    added_by: AccountId;
+    event_id: string;
+  }>,
+  newEvent: {
+    position: number;
+    last_updated_at: Date;
+    last_updated_by: AccountId;
+    added_by: AccountId;
+    event_id: string;
+  },
+  signerAccountId: AccountId,
+  position: number
+) {
+  // we need to update the position of all events after the new event
+  // and update who and when updated the event
+  const newEvents = arr.map((event) => {
+    if (event.position >= position) {
+      return {
+        ...event,
+        position: event.position + 1,
+        last_updated_at: now(),
+        last_updated_by: signerAccountId,
+      };
+    }
+    return { ...event };
+  });
+
+  // then we add the new event
+  newEvents.push(newEvent);
+
+  // and fill the gaps in the positions
+  for (let i = 0; i < newEvents.length; i++) {
+    if (newEvents[i].position !== i) {
+      newEvents[i].position = i;
+      newEvents[i].last_updated_at = now();
+      newEvents[i].last_updated_by = signerAccountId;
+    }
+  }
+
+  return newEvents;
+}
 
 /**
  * @returns {string} A random string.
