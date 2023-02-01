@@ -260,6 +260,15 @@ export class HelloNear {
       return NearPromise.new(signerAccountId).transfer(priceOfFreedStorage);
     }
   }
+
+  /**
+   * Get all event lists.
+   * @returns EventList[]
+   */
+  @view({})
+  get_all_event_lists(): EventList[] {
+    return this.event_lists.toArray().map(([, event_list]) => event_list);
+  }
 }
 
 
