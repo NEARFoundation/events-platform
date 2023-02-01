@@ -6,12 +6,23 @@ import {
   bytes,
   view,
   UnorderedMap,
+  Vector,
   NearPromise,
-  assert
+  assert,
 } from "near-sdk-js";
 import { AccountId } from "near-sdk-js/lib/types";
 import { EventListsMap } from "./helpers";
-import { type Event, type CreateEvent, type UpdateEvent } from "./types";
+import {
+  type Event,
+  type CreateEvent,
+  type UpdateEvent,
+  type EventListEventEntry,
+} from "./types";
+import {
+  type EventList,
+  type CreateEventList,
+  type UpdateEventList,
+} from "./types";
 
 const TWENTY_TGAS = BigInt("200000000000000");
 const NO_DEPOSIT = BigInt(0);
