@@ -15,7 +15,6 @@ import { type Event, type CreateEvent, type UpdateEvent } from "./types";
 
 const TWENTY_TGAS = BigInt("200000000000000");
 const NO_DEPOSIT = BigInt(0);
-// const NO_ARGS = bytes(JSON.stringify({}));
 
 @NearBindgen({})
 export class HelloNear {
@@ -36,7 +35,7 @@ export class HelloNear {
   @view({})
   get_latest_event({ account_id }: { account_id: string }): Event {
     return this.get_all_events_by_account({ account_id }).sort((a, b) => {
-      return Number(b.created_at) - Number(a.created_at)
+      return Number(b.created_at) - Number(a.created_at);
     })[0];
   }
 
@@ -59,21 +58,17 @@ export class HelloNear {
     const oldStorageUsage = near.storageUsage();
     const owner_account_id = near.signerAccountId();
 
-    const uuid = bytes(near.randomSeed()).split('').map((c) => {
-      return c.charCodeAt(0).toString(16)
-    }).join('');
-
-    const now = new Date(Number(near.blockTimestamp()) / 1000000)
+    const uuid = genUUID();
 
     const event = <Event>{
       ...createEvent,
       id: uuid,
       owner_account_id,
-      created_at: now,
-      last_updated_at: now,
+      created_at: now(),
+      last_updated_at: now(),
       start_date: new Date(createEvent.start_date),
       end_date: new Date(createEvent.end_date),
-    }
+    };
 
     // Store the event in the events map.
     this.events.set(uuid, event);
@@ -100,25 +95,28 @@ export class HelloNear {
     // If there was a sufficient amount deposited, we refund any surplus.
     const refundAmount = attachedDeposit - priceOfUsedStorage;
 
-
     // We return a promise that will return the event to the user.
-    const eventId = JSON.stringify({ event_id: uuid })
-    const returnEventPromise = NearPromise
-      .new(near.currentAccountId())
-      .functionCall("return_event", eventId, NO_DEPOSIT, TWENTY_TGAS)
+    const returnEventPromise = NearPromise.new(
+      near.currentAccountId()
+    ).functionCall(
+      "return_event",
+      JSON.stringify({ event_id: uuid }),
+      NO_DEPOSIT,
+      TWENTY_TGAS
+    );
 
     if (refundAmount > 0) {
-      return NearPromise.new(owner_account_id).transfer(refundAmount)
-        .then(returnEventPromise)
+      return NearPromise.new(owner_account_id)
+        .transfer(refundAmount)
+        .then(returnEventPromise);
     }
-    return returnEventPromise
+    return returnEventPromise;
   }
 
   @call({ privateFunction: true })
   return_event(args: { event_id: string }): Event {
     return this.events.get(args.event_id);
   }
-
 
   /**
    * Get event details for all events.
@@ -154,30 +152,28 @@ export class HelloNear {
     event: Partial<UpdateEvent>;
   }): NearPromise {
     // First we check if there is an event with the specified ID.
-    const existingEvent = this.events.get(event_id);
+    const currentEvent = this.events.get(event_id);
 
-    assert(existingEvent, `The event with id: ${event_id} does not exist!`);
+    assert(currentEvent, `The event with id: ${event_id} does not exist!`);
 
     // Then we check if the signer of the transaction is the owner of the event.
     const signerAccountId = near.signerAccountId();
 
     assert(
-      signerAccountId === existingEvent.owner_account_id,
+      signerAccountId === currentEvent.owner_account_id,
       "You do not have permission to edit this event!"
     );
 
     // We keep track of used storage again.
     const oldStorageUsage = near.storageUsage();
 
-    const now = new Date(Number(near.blockTimestamp()) / 1000000)
-
     // We update the storage to reflect the update.
     this.events.set(event_id, {
-      ...existingEvent,
+      ...currentEvent,
       ...event,
-      start_date: new Date(event.start_date || existingEvent.start_date),
-      end_date: new Date(event.end_date || existingEvent.end_date),
-      last_updated_at: now,
+      start_date: new Date(event.start_date || currentEvent.start_date),
+      end_date: new Date(event.end_date || currentEvent.end_date),
+      last_updated_at: now(),
     });
 
     // Then we get the storage change - in this case it might be negative as the update
@@ -190,7 +186,7 @@ export class HelloNear {
     // If the attached deposit wasn't enough to cover for the change, we revert
     // the change and throw an error.
     if (attachedDeposit < priceOfUsedStorage) {
-      this.events.set(event_id, existingEvent);
+      this.events.set(event_id, currentEvent);
 
       throw new Error(
         "You haven't attached enough NEAR to pay for the cost of the event you are storing.\n" +
@@ -202,15 +198,21 @@ export class HelloNear {
     // We refund the signer if need be.
     const refundAmount = attachedDeposit - priceOfUsedStorage;
 
-    const eventId = JSON.stringify({ event_id })
-    const returnEventPromise = NearPromise
-      .new(near.currentAccountId())
-      .functionCall("return_event", eventId, NO_DEPOSIT, TWENTY_TGAS)
+    const returnEventPromise = NearPromise.new(
+      near.currentAccountId()
+    ).functionCall(
+      "return_event",
+      JSON.stringify({ event_id }),
+      NO_DEPOSIT,
+      TWENTY_TGAS
+    );
 
     if (refundAmount > 0) {
-      return NearPromise.new(signerAccountId).transfer(refundAmount).then(returnEventPromise)
+      return NearPromise.new(signerAccountId)
+        .transfer(refundAmount)
+        .then(returnEventPromise);
     }
-    return returnEventPromise
+    return returnEventPromise;
   }
 
   /**
@@ -219,15 +221,15 @@ export class HelloNear {
   @call({})
   remove_event({ event_id }: { event_id: string }): NearPromise {
     // We check if the event exists.
-    const existingEvent = this.events.get(event_id);
+    const currentEvent = this.events.get(event_id);
 
-    assert(existingEvent, `The event with id: ${event_id} does not exist!`);
+    assert(currentEvent, `The event with id: ${event_id} does not exist!`);
 
     // We check that the signer is the owner of the event.
     const signerAccountId = near.signerAccountId();
 
     assert(
-      signerAccountId === existingEvent.owner_account_id,
+      signerAccountId === currentEvent.owner_account_id,
       "You do not have permission to edit this event!"
     );
 
@@ -240,22 +242,33 @@ export class HelloNear {
     // Finally we refund the signer with the amount of freed up space for
     // removing the event from storage.
     const newStorageUsage = near.storageUsage();
-    const storageUsedByCall = newStorageUsage - oldStorageUsage;
-    const priceOfUsedStorage = storageUsedByCall * near.storageByteCost();
+    const storageFreedByCall = newStorageUsage - oldStorageUsage;
+    const priceOfFreedStorage = storageFreedByCall * near.storageByteCost();
 
-    if (priceOfUsedStorage > 0) {
-      return NearPromise.new(signerAccountId).transfer(priceOfUsedStorage)
+    if (priceOfFreedStorage > 0) {
+      return NearPromise.new(signerAccountId).transfer(priceOfFreedStorage);
     }
   }
 }
 
 
 
-function promiseResult(): { result: string, success: boolean } {
-  let result, success;
+/**
+ * @returns {string} A random string.
+ */
+function genUUID(): string {
+  return bytes(near.randomSeed())
+    .split("")
+    .map((c) => {
+      return c.charCodeAt(0).toString(16);
+    })
+    .join("");
+}
 
-  try { result = near.promiseResult(0); success = true }
-  catch { result = undefined; success = false }
 
-  return { result, success }
+/**
+ * @returns {Date} The current date.
+ */
+function now() {
+  return new Date(Number(near.blockTimestamp()) / 1000000);
 }
