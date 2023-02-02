@@ -12,12 +12,15 @@ import {
 } from "near-sdk-js";
 import { AccountId } from "near-sdk-js/lib/types";
 import { EventListsMap } from "./helpers";
+import { NotRequested } from "./types";
 import {
   type Event,
   type CreateEvent,
   type UpdateEvent,
   type EventListEventEntry,
   type PermissionType,
+  type EventListApiResponse,
+  type EventListEventEntryApiResponse,
 } from "./types";
 import {
   type EventList,
@@ -25,7 +28,7 @@ import {
   type UpdateEventList,
 } from "./types";
 
-const TWENTY_TGAS = BigInt("200000000000000");
+const THIRTY_TGAS = BigInt("300000000000000");
 const NO_DEPOSIT = BigInt(0);
 
 @NearBindgen({})
@@ -110,7 +113,7 @@ export class HelloNear {
       "return_event",
       JSON.stringify({ event_id: uuid }),
       NO_DEPOSIT,
-      TWENTY_TGAS
+      THIRTY_TGAS
     );
 
     if (refundAmount > 0) {
@@ -208,7 +211,7 @@ export class HelloNear {
       "return_event",
       JSON.stringify({ event_id }),
       NO_DEPOSIT,
-      TWENTY_TGAS
+      THIRTY_TGAS
     );
 
     if (refundAmount > 0) {
@@ -258,8 +261,19 @@ export class HelloNear {
    * @returns EventList[]
    */
   @view({})
-  get_all_event_lists(): EventList[] {
-    return this.event_lists.toArray().map(([, event_list]) => event_list);
+  get_all_event_lists(): EventListApiResponse[] {
+    return this.event_lists
+      .toArray()
+      .map(([, event_list]) => event_list)
+      .map(
+        (event_list) =>
+          <EventListApiResponse>{
+            ...event_list,
+            has_events: event_list.events.length > 0,
+            event_count: event_list.events.length,
+            events: { too_expensive: true },
+          }
+      );
   }
 
   /**
@@ -272,7 +286,7 @@ export class HelloNear {
     account_id,
   }: {
     account_id: AccountId;
-  }): EventList[] {
+  }): EventListApiResponse[] {
     return this.get_all_event_lists().filter(
       (event_list) => event_list.owner_account_id === account_id
     );
@@ -284,8 +298,25 @@ export class HelloNear {
    * @returns EventList | undefined
    */
   @view({})
-  get_event_list({ event_list_id }: { event_list_id: string }): EventList {
-    return this.event_lists.get(event_list_id);
+  get_event_list({
+    event_list_id,
+    include_events,
+  }: {
+    event_list_id: string;
+    include_events?: boolean;
+  }): EventListApiResponse {
+    const event_list = this.event_lists.get(event_list_id);
+    if (!event_list) {
+      return null;
+    }
+    return <EventListApiResponse>{
+      ...event_list,
+      has_events: event_list.events.length > 0,
+      event_count: event_list.events.length,
+      events: include_events
+        ? this.get_events_in_event_list({ event_list_id })
+        : <NotRequested>{},
+    };
   }
 
   /**
@@ -350,10 +381,10 @@ export class HelloNear {
     const returnEventListPromise = NearPromise.new(
       near.currentAccountId()
     ).functionCall(
-      "return_event_list",
+      "return_event_list_api_response",
       JSON.stringify({ event_list_id: uuid }),
       NO_DEPOSIT,
-      TWENTY_TGAS
+      THIRTY_TGAS
     );
 
     if (refundAmount > 0) {
@@ -369,8 +400,21 @@ export class HelloNear {
    * used as private callback
    */
   @call({ privateFunction: true })
-  return_event_list(args: { event_list_id: string }): EventList {
-    return this.event_lists.get(args.event_list_id);
+  return_event_list_api_response(args: {
+    event_list_id: string;
+  }): EventListApiResponse {
+    const list = this.event_lists.get(args.event_list_id);
+
+    return <EventListApiResponse>{
+      id: list.id,
+      name: list.name,
+      description: list.description,
+      owner_account_id: list.owner_account_id,
+      created_at: list.created_at,
+      last_updated_at: list.last_updated_at,
+      has_events: list.events.length > 0,
+      event_count: list.events.length,
+    };
   }
 
   /**
@@ -435,10 +479,10 @@ export class HelloNear {
     const returnEventListPromise = NearPromise.new(
       near.currentAccountId()
     ).functionCall(
-      "return_event_list",
+      "return_event_list_api_response",
       JSON.stringify({ event_list_id }),
       NO_DEPOSIT,
-      TWENTY_TGAS
+      THIRTY_TGAS
     );
 
     if (refundAmount > 0) {
@@ -612,6 +656,75 @@ export class HelloNear {
     // check
     return currentEventList.events.toArray().some((event) => {
       return event.event_id === event_id;
+    });
+  }
+
+  /**
+   * Get the position of an event in an event list.
+   * @param event_list_id The ID of the event list to check.
+   * @param event_id The ID of the event to check.
+   * @returns The position of the event in the event list.
+   */
+  @view({})
+  get_event_position_in_event_list({
+    event_list_id,
+    event_id,
+  }: {
+    event_list_id: string;
+    event_id: string;
+  }): number {
+    // First we check if there is an event_list with the specified ID.
+    const currentEventList = this.event_lists.get(event_list_id);
+    assert(
+      currentEventList,
+      `The event_list with id: ${event_list_id} does not exist!`
+    );
+
+    // Then we check if there is an event with the specified ID.
+    const currentEvent = this.events.get(event_id);
+    assert(currentEvent, `The event with id: ${event_id} does not exist!`);
+
+    // check
+    const eventInEventList = currentEventList.events.toArray().find((event) => {
+      return event.event_id === event_id;
+    });
+    assert(
+      eventInEventList,
+      `The event with id: ${event_id} is not in the event list with id: ${event_list_id}!`
+    );
+
+    return eventInEventList.position;
+  }
+
+  /**
+   * Get the events in an event list.
+   * @param event_list_id The ID of the event list to get the events from.
+   * @returns The events in the event list.
+   * @note This method is not paginated.
+   * @note This method is not sorted.
+   */
+  @view({})
+  get_events_in_event_list({
+    event_list_id,
+  }: {
+    event_list_id: string;
+  }): EventListEventEntryApiResponse[] {
+    // First we check if there is an event_list with the specified ID.
+    const currentEventList = this.event_lists.get(event_list_id);
+    assert(
+      currentEventList,
+      `The event_list with id: ${event_list_id} does not exist!`
+    );
+
+    // @petar
+    // not sure about this method of getting the events.
+    // this.events.get() in a loop may be expensive since it performs
+    // multiple storage reads?
+    return currentEventList.events.toArray().map((eventEntry) => {
+      return <EventListEventEntryApiResponse>{
+        ...eventEntry,
+        event: { ...this.events.get(eventEntry.event_id) },
+      };
     });
   }
 

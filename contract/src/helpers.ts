@@ -12,7 +12,7 @@ const dummyEventList = {
   description: "",
   created_at: new Date(),
   last_updated_at: new Date(),
-  events: [] as unknown as EventListEventEntry,
+  events: new Vector("") as unknown as Vector<EventListEventEntry>,
   permissions: new UnorderedMap("perms") as unknown as UnorderedMap<{
     permissions: PermissionType[];
   }>,

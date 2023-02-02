@@ -139,3 +139,26 @@ export type CreateEventList = Pick<EventList, "name" | "description">;
  * Data accepted for event update.
  */
 export type UpdateEventList = Partial<CreateEventList>;
+
+export type EventListApiResponse = {
+  id: string;
+  name: string;
+  description: string;
+  created_at: Date;
+  last_updated_at: Date;
+  owner_account_id: AccountId;
+  has_events: boolean;
+  event_count: number;
+  events: EventListEventEntryApiResponse[] | NotRequested | TooExpensive;
+};
+
+export type NotRequested = { not_requested: true };
+export type TooExpensive = { too_expensive: true };
+
+export type EventListEventEntryApiResponse = {
+  event: Event;
+  last_updated_at: Date;
+  added_by: AccountId;
+  position: number;
+  last_updated_by: AccountId;
+};
