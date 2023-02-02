@@ -50,9 +50,6 @@ export const eventListReconstructor = (value: unknown): EventList => {
     `Value: ${value} cannot be reconstructed into EventList`
   );
 
-  near.log("Reconstructing EventList: " + JSON.stringify(value));
-  near.log("STATE " + JSON.stringify(near.storageRead("STATE")));
-
   return {
     id: value.id,
     owner_account_id: value.owner_account_id,

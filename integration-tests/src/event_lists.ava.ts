@@ -1,7 +1,13 @@
 import { NearAccount } from "near-workspaces";
 
-import { Event, EventList, CreateEvent } from "../../contract/src/types";
+import {
+  Event,
+  EventList,
+  CreateEvent,
+  EventListApiResponse,
+} from "../../contract/src/types";
 import { test, THREE_HUNDRED_TGAS, ONE_NEAR } from "./_setup";
+import { EventListEventEntryApiResponse } from "../../contract/src/types";
 
 async function createEvent(
   contract: NearAccount,
@@ -74,8 +80,8 @@ async function addEventToEventList(
 async function getEventList(
   contract: NearAccount,
   event_list_id: string
-): Promise<EventList> {
-  return <EventList>(
+): Promise<EventList | null> {
+  return <EventList | null>(
     await contract.view("get_event_list", { event_list_id: event_list_id })
   );
 }
@@ -123,12 +129,22 @@ async function createAccount(
   return <NearAccount>await root.createSubAccount(name);
 }
 
+async function getEventsFromList(
+  contract: NearAccount,
+  event_list_id: string
+): Promise<EventListEventEntryApiResponse[]> {
+  return (await (<EventListApiResponse>await contract.view("get_event_list", {
+    event_list_id: event_list_id,
+    include_events: true,
+  }))).events as unknown as EventListEventEntryApiResponse[];
+}
+
 test("create a event_list and get it from the contract", async (t) => {
   const { contract } = t.context.accounts;
 
   const now = new Date().toISOString();
 
-  const { id: event_list_id } = <EventList>await contract.call(
+  const { id: event_list_id } = <EventListApiResponse>await contract.call(
     contract,
     "create_event_list",
     {
@@ -141,7 +157,7 @@ test("create a event_list and get it from the contract", async (t) => {
     }
   );
 
-  const event_list = <EventList>(
+  const event_list = <EventListApiResponse>(
     await contract.view("get_event_list", { event_list_id: event_list_id })
   );
 
@@ -157,6 +173,8 @@ test("create a event_list and get it from the contract", async (t) => {
     description: "test 2",
     id: event_list_id,
     owner_account_id: contract.accountId,
+    event_count: 0,
+    has_events: false,
   });
 
   // compare created_at and last_updated_at are in range of +- 10 seconds
@@ -176,12 +194,7 @@ test("create a event_list and add event to it", async (t) => {
     await createEventAndList(contract)
   );
 
-  const events = event_list.events as unknown as Array<{
-    event_id: string;
-    added_by: string;
-    last_updated_by: string;
-    last_updated_at: string;
-  }>;
+  const events = await getEventsFromList(contract, event_list.id);
 
   const comparable = {
     ...events[0],
@@ -190,17 +203,14 @@ test("create a event_list and add event to it", async (t) => {
   delete (comparable as any).last_updated_at;
 
   t.deepEqual(comparable, {
-    event_id: event.id,
+    event: event,
     added_by: contract.accountId,
     last_updated_by: contract.accountId,
+    position: 0,
   });
 
   // compare  last_updated_at are in range of +- 10 seconds
-  const last_updated_at = new Date(
-    (
-      event_list.events as unknown as Array<{ last_updated_at: string }>
-    )[0].last_updated_at
-  );
+  const last_updated_at = new Date(events[0].last_updated_at);
   const nowTime = new Date(now).getTime();
   t.true(last_updated_at.getTime() - nowTime < 10000);
 });
@@ -212,7 +222,7 @@ test("create a event_list add event and remove event", async (t) => {
 
   await removeEventFromEventList(contract, event.id, event_list.id);
 
-  const { events } = await getEventList(contract, event_list.id);
+  const events = await getEventsFromList(contract, event_list.id);
 
   t.deepEqual(events, []);
 });
@@ -221,16 +231,9 @@ test("can get eventList by any user", async (t) => {
   const { contract: listOwner, root } = t.context.accounts;
   const otherAccount = await createAccount(root, "other");
 
-  const { event, event_list: el } = await createEventAndList(listOwner);
+  const { event, event_list } = await createEventAndList(listOwner);
 
-  const event_list = await getEventList(otherAccount, el.id);
-
-  const events = event_list.events as unknown as Array<{
-    event_id: string;
-    added_by: string;
-    last_updated_by: string;
-    last_updated_at: string;
-  }>;
+  const events = await getEventsFromList(listOwner, event_list.id);
 
   const comparable = {
     ...events[0],
@@ -239,7 +242,8 @@ test("can get eventList by any user", async (t) => {
   delete (comparable as any).last_updated_at;
 
   t.deepEqual(comparable, {
-    event_id: event.id,
+    event: event,
+    position: 0,
     added_by: listOwner.accountId,
     last_updated_by: listOwner.accountId,
   });
@@ -252,7 +256,14 @@ test("cannot add the same event twice", async (t) => {
 
   await t.throwsAsync(
     async () => {
-      await addEventToEventList(contract, event.id, event_list.id);
+      await addEventToEventList(contract, event.id, event_list.id).catch(
+        (e) => {
+          if (e.message.includes("is already in the event list with id")) {
+            throw new Error("ERR_EVENT_ALREADY_IN_EVENT_LIST");
+          }
+          throw e;
+        }
+      );
     },
     {
       message: "ERR_EVENT_ALREADY_IN_EVENT_LIST",
@@ -267,7 +278,14 @@ test("cannot remove event that is not in the event list", async (t) => {
 
   await t.throwsAsync(
     async () => {
-      await removeEventFromEventList(contract, event.id, event_list.id);
+      await removeEventFromEventList(contract, "non_el", event_list.id).catch(
+        (e) => {
+          if (e.message.includes("The event with id: non_el does not exist!")) {
+            throw new Error("ERR_EVENT_NOT_IN_EVENT_LIST");
+          }
+          throw e;
+        }
+      );
     },
     {
       message: "ERR_EVENT_NOT_IN_EVENT_LIST",
@@ -282,7 +300,14 @@ test("cannot add event to non existing event list", async (t) => {
 
   await t.throwsAsync(
     async () => {
-      await addEventToEventList(contract, event.id, "non_existing_event_list");
+      await addEventToEventList(contract, event.id, "non_evl").catch((e) => {
+        if (
+          e.message.includes("The event_list with id: non_evl does not exist!")
+        ) {
+          throw new Error("ERR_EVENT_LIST_NOT_FOUND");
+        }
+        throw e;
+      });
     },
     {
       message: "ERR_EVENT_LIST_NOT_FOUND",
@@ -297,10 +322,15 @@ test("cannot remove event from non existing event list", async (t) => {
 
   await t.throwsAsync(
     async () => {
-      await removeEventFromEventList(
-        contract,
-        event.id,
-        "non_existing_event_list"
+      await removeEventFromEventList(contract, event.id, "non_evl").catch(
+        (e) => {
+          if (
+            e.message.includes("The event_list with id: non_evl does not exist")
+          ) {
+            throw new Error("ERR_EVENT_LIST_NOT_FOUND");
+          }
+          throw e;
+        }
       );
     },
     {
@@ -312,14 +342,9 @@ test("cannot remove event from non existing event list", async (t) => {
 test("cannot get non existing event list", async (t) => {
   const { contract } = t.context.accounts;
 
-  await t.throwsAsync(
-    async () => {
-      await getEventList(contract, "non_existing_event_list");
-    },
-    {
-      message: "ERR_EVENT_LIST_NOT_FOUND",
-    }
-  );
+  const el = await getEventList(contract, "non_evl");
+
+  t.is(el, null);
 });
 
 test("can add events created by any user", async (t) => {
@@ -330,14 +355,7 @@ test("can add events created by any user", async (t) => {
 
   await addEventToEventList(listOwner, event.id, el.id);
 
-  const event_list = await getEventList(otherAccount, el.id);
-
-  const events = event_list.events as unknown as Array<{
-    event_id: string;
-    added_by: string;
-    last_updated_by: string;
-    last_updated_at: string;
-  }>;
+  const events = await getEventsFromList(listOwner, el.id);
 
   const comparable = {
     ...events[0],
@@ -346,7 +364,8 @@ test("can add events created by any user", async (t) => {
   delete (comparable as any).last_updated_at;
 
   t.deepEqual(comparable, {
-    event_id: event.id,
+    event: event,
+    position: 0,
     added_by: listOwner.accountId,
     last_updated_by: listOwner.accountId,
   });
@@ -362,7 +381,7 @@ test("can remove events created by any user", async (t) => {
 
   await removeEventFromEventList(listOwner, event.id, event_list.id);
 
-  const { events } = await getEventList(listOwner, event_list.id);
+  const events = await getEventsFromList(listOwner, event_list.id);
 
   t.deepEqual(events, []);
 });

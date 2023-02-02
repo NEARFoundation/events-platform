@@ -304,7 +304,7 @@ export class HelloNear {
   }: {
     event_list_id: string;
     include_events?: boolean;
-  }): EventListApiResponse {
+  }): EventListApiResponse | null {
     const event_list = this.event_lists.get(event_list_id);
     if (!event_list) {
       return null;
@@ -722,7 +722,10 @@ export class HelloNear {
     // multiple storage reads?
     return currentEventList.events.toArray().map((eventEntry) => {
       return <EventListEventEntryApiResponse>{
-        ...eventEntry,
+        position: eventEntry.position,
+        added_by: eventEntry.added_by,
+        last_updated_by: eventEntry.last_updated_by,
+        last_updated_at: eventEntry.last_updated_at,
         event: { ...this.events.get(eventEntry.event_id) },
       };
     });
