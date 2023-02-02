@@ -28,7 +28,7 @@ import {
   type UpdateEventList,
 } from "./types";
 
-const THIRTY_TGAS = BigInt("300000000000000");
+const FOURTY_TGAS = BigInt("40000000000000");
 const NO_DEPOSIT = BigInt(0);
 
 @NearBindgen({})
@@ -113,7 +113,7 @@ export class HelloNear {
       "return_event",
       JSON.stringify({ event_id: uuid }),
       NO_DEPOSIT,
-      THIRTY_TGAS
+      FOURTY_TGAS
     );
 
     if (refundAmount > 0) {
@@ -211,7 +211,7 @@ export class HelloNear {
       "return_event",
       JSON.stringify({ event_id }),
       NO_DEPOSIT,
-      THIRTY_TGAS
+      FOURTY_TGAS
     );
 
     if (refundAmount > 0) {
@@ -384,7 +384,7 @@ export class HelloNear {
       "return_event_list_api_response",
       JSON.stringify({ event_list_id: uuid }),
       NO_DEPOSIT,
-      THIRTY_TGAS
+      FOURTY_TGAS
     );
 
     if (refundAmount > 0) {
@@ -482,7 +482,7 @@ export class HelloNear {
       "return_event_list_api_response",
       JSON.stringify({ event_list_id }),
       NO_DEPOSIT,
-      THIRTY_TGAS
+      FOURTY_TGAS
     );
 
     if (refundAmount > 0) {
