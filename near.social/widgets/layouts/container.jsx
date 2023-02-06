@@ -32,6 +32,18 @@ const dropdownElement =
     </>
   ) : null;
 
+const Pulse = styled.keyframes`
+  0% {
+    transform: scale(0.975);
+  }
+  50% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.975);
+  }
+`;
+
 const NavPrimaryButton = styled.button`
   background-color: transparent;
   user-select: none;
@@ -41,7 +53,7 @@ const NavPrimaryButton = styled.button`
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  transition: all 0.5s ease;
+  transition: all 1s ease-in-out;
   margin-left: 8px;
   cursor: pointer;
 
@@ -50,9 +62,13 @@ const NavPrimaryButton = styled.button`
   box-shadow: 0 0 2px 1px rgb(0, 0, 0, 0.3),
     0 0 89px 2px rgb(255, 255, 255, 0.4);
 
+  transform: scale(0.975);
+
   &:hover {
     /* darker and transparent */
     background-color: rgba(44, 44, 84, 0.85);
+
+    animation: ${Pulse} 2s infinite;
   }
 `;
 
@@ -128,30 +144,28 @@ const navbar = (
 );
 
 return (
-  <>
+  <div
+    style={{
+      width: '100vw',
+      minHeight: '100%',
+      backgroundColor: 'white',
+      overflow: 'auto',
+    }}
+  >
+    {navbar}
+
     <div
+      className="row"
       style={{
-        width: '100vw',
-        minHeight: '100%',
-        backgroundColor: 'white',
-        overflow: 'auto',
+        marginTop: NAVBAR_HEIGHT,
       }}
     >
-      {navbar}
-
-      <div
-        className="row"
-        style={{
-          marginTop: NAVBAR_HEIGHT,
-        }}
-      >
-        <div className="col-12">
-          {props.__engine.renderComponent(
-            props.component.name,
-            props.component.props
-          )}
-        </div>
+      <div className="col-12">
+        {props.__engine.renderComponent(
+          props.component.name,
+          props.component.props
+        )}
       </div>
     </div>
-  </>
+  </div>
 );

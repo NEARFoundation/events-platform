@@ -1,4 +1,4 @@
-props.controller.setLayout('modal', {
+props.controller.setLayout('layouts:modal', {
   title: 'Edit Event',
 });
 

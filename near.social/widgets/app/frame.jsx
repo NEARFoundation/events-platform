@@ -4,64 +4,7 @@ const VERSION = '{{ env.VERSION }}';
 
 /**
  *  NEAR Social App
- *
- *  This is the main app component that is used to render the app.
- *
- *
- *  WHY?
- *  - DRY: we don't want to have to copy/paste the same code into every app
- *  - Speed: we want to be able to build apps quickly
- *  - Functionality: we want to be able to add functionality to all apps at once
- *
- *
- *  HOW?
- *  this app provides common functionality often needed in apps
- *  - routing
-
- *  - layout management
- *
- *  Requirements:
- *  - Fork the following widgets into your account:
- *    - app__layouts__default
- *    - app__frame (this component)
- *  - You should also take a look at: https://github.com/NEARFoundation/events-platform
- *    as it provides a lot of the functionality you need to build an app, it provides:
- *      - an opinionated way to build apps
- *        - directory structure
- *        - naming conventions
- *      - a way to build apps quickly
- *        - development tools (dev server, deploy script)
- *        - env var injection
- *      - a sample app
- *
- *
- *  This component is responsible for:
- *  - Loading the app's state/environment
- *  - Rendering the app's layouts
- *  - Rendering the app's components
- *
- *  It follows conventions:
- *  - The app's environment is loaded from the props
- *    - props.appOwner
- *    - props.appName
- *  - An app is a collection of widgets
- *  - each widget must be namespaced by the app's owner and name
- *     Widgets are named as follows:
- *       - you choose an app_name like 'my_app'
- *       - you choose a widget like 'my_widget'
- *       - app, widgets and subwidgets are separated by '__'
- *       - In order to use the widget in your app, you must upload it to your account with the name: `my_app__my_widget`
- *     - e.g. app_namecomponent1
- *     - e.g. app_namecomponent1__subcomponent
- *  - Each widget can have a layout
- *    - layouts are also widgets
- *   - layouts are named as follows:
- *    - you choose a layout like 'my_layout'
- *   - In order to use the layout in your app, you must upload it to your account with the name: `my_app__layouts__my_layout`
- *
- *
- *  Functions available to widgets:
- *  - TODO: document
+ *  Docs: https://github.com/NEARFoundation/events-platform
  *
  */
 
@@ -76,113 +19,119 @@ const PLEASE_CONNECT_WALLET_MESSAGE =
 
 const ContainerPaddingHorizontal = 'calc(max(28px, 1.6vw))';
 
-const Select = styled.select`
-  background-color: #4caf50;
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-`;
+/**
+ * Components
+ * */
 
-const Button = styled.button`
-  background-color: #4caf50;
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  transition: all 0.5s ease;
+const Components = {
+  Select: styled.select`
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  `,
 
-  &:hover {
-    background-color: #3e8e41;
-  }
-`;
+  Button: styled.button`
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    transition: all 0.5s ease;
 
-const Loading = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  width: 100%;
-`;
+    &:hover {
+      background-color: #3e8e41;
+    }
+  `,
 
-const PageTitle = styled.h1`
-  font-size: calc(max(32px, 2.5vw));
-  color: black;
-`;
+  Loading: styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  `,
 
-const Container = styled.div`
-  padding-left: ${ContainerPaddingHorizontal};
-  padding-right: ${ContainerPaddingHorizontal};
-  padding-top: 12px;
-  padding-bottom: 12px;
-`;
+  PageTitle: styled.h1`
+    font-size: calc(max(32px, 2.5vw));
+    color: black;
+  `,
 
-const InfoBar = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  padding: 0px ${ContainerPaddingHorizontal};
-  border-bottom: 1px solid #e0e0e0;
-`;
+  Container: styled.div`
+    padding-left: ${ContainerPaddingHorizontal};
+    padding-right: ${ContainerPaddingHorizontal};
+    padding-top: 12px;
+    padding-bottom: 12px;
+  `,
 
-const InfoBarItem = styled.div`
-  display: flex;
-  align-items: center;
-  margin-right: 12px;
-  padding: 8px 0;
-`;
+  InfoBar: styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0px ${ContainerPaddingHorizontal};
+    border-bottom: 1px solid #e0e0e0;
+  `,
 
-const InfoBarLink = styled.a`
-  font-size: 16px;
-  color: #424242;
-  text-decoration: none;
-  margin-right: 12px;
-  padding: 8px 0;
+  InfoBarItem: styled.div`
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+    padding: 8px 0;
+  `,
 
-  &:hover {
-    text-decoration: underline;
-  }
-
-  &:last-child {
-    margin-right: 0;
-  }
-
-  &:visited {
+  InfoBarLink: styled.a`
+    font-size: 16px;
     color: #424242;
-  }
+    text-decoration: none;
+    margin-right: 12px;
+    padding: 8px 0;
 
-  &:active {
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    &:visited {
+      color: #424242;
+    }
+
+    &:active {
+      color: #424242;
+    }
+  `,
+
+  TextHeader: styled.div`
+    font-size: 20px;
     color: #424242;
-  }
-`;
+  `,
 
-const TextHeader = styled.div`
-  font-size: 20px;
-  color: #424242;
-`;
+  InlineTag: styled.div`
+    display: inline-block;
+    background-color: #e0e0e0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-right: 8px;
+    margin-left: 8px;
+  `,
 
-const InlineTag = styled.div`
-  display: inline-block;
-  background-color: #e0e0e0;
-  padding: 4px 8px;
-  border-radius: 4px;
-  margin-right: 8px;
-  margin-left: 8px;
-`;
-
-const Text = styled.div`
-  font-size: 16px;
-  color: #424242;
-  margin-right: 8px;
-`;
+  Text: styled.div`
+    font-size: 16px;
+    color: #424242;
+    margin-right: 8px;
+  `,
+};
 
 /**
  *   I suggest you don't edit anything below this line
@@ -212,6 +161,8 @@ if (!entryRoute) {
   return propIsRequiredMessage('entryRoute');
 }
 
+const DEBUG = props.DEBUG || false;
+
 const entryProps = props.entryProps || {};
 
 const rootRoute = {
@@ -238,22 +189,22 @@ const env = {
 const COST_NEAR_PER_BYTE = Math.pow(10, 20);
 const TGAS_300 = '300000000000000';
 
-const AppState = {
+const SessionState = {
   _state: {},
   set: (prop, value) => {
-    AppState._state[prop] = value;
+    SessionState._state[prop] = value;
     return true;
   },
   get: (prop) => {
-    return AppState._state[prop];
+    return SessionState._state[prop];
   },
 };
 
-function appStateGet(prop, defaultValue) {
-  return AppState.get(`${appOwner}.${appName}.${prop}`) || defaultValue;
+function sessionGet(prop, defaultValue) {
+  return SessionState.get(`${appOwner}.${appName}.${prop}`) || defaultValue;
 }
-function appStateSet(prop, value) {
-  return AppState.set(`${appOwner}.${appName}.${prop}`, value);
+function sessionSet(prop, value) {
+  return SessionState.set(`${appOwner}.${appName}.${prop}`, value);
 }
 
 function storageGet(prop, defaultValue) {
@@ -291,12 +242,39 @@ function slugFromName(name) {
   return name.split('.').join('__').split('-').join('_');
 }
 
-function widgetPathFromName(name) {
-  return `${appOwner}/widget/${appName}__${slugFromName(name)}`;
+function fetchPathOptions(path) {
+  const nameParts = path.split(':');
+  if (nameParts.length === 1) {
+    return {
+      owner: appOwner,
+      name: appName,
+      slug: slugFromName(nameParts[0]),
+    };
+  }
+  if (nameParts.length === 2) {
+    return {
+      owner: appOwner,
+      name: nameParts[0],
+      slug: slugFromName(nameParts[1]),
+    };
+  }
+  if (nameParts.length === 3) {
+    return {
+      owner: nameParts[0],
+      name: nameParts[1],
+      slug: slugFromName(nameParts[2]),
+    };
+  }
+  throw new Error(`Invalid path: ${path}`);
 }
 
-function layoutPathFromName(name) {
-  return widgetPathFromName(`layouts.${name}`);
+function widgetPathFromName(widgetName) {
+  const { owner, name, slug } = fetchPathOptions(widgetName);
+  return `${owner}/widget/${name}__${slug}`;
+}
+
+function layoutPathFromName(layoutName) {
+  return widgetPathFromName(layoutName);
 }
 
 function rerender() {
@@ -453,8 +431,8 @@ function renderComponent(name, props) {
     pop,
     replace,
     rerender,
-    appStateGet,
-    appStateSet,
+    sessionGet,
+    sessionSet,
     storageGet,
     storageSet,
     layoutPathFromName,
@@ -462,19 +440,7 @@ function renderComponent(name, props) {
 
     renderComponent: safeRender,
 
-    Components: {
-      Select,
-      Button,
-      Loading,
-      PageTitle,
-      Container,
-      InfoBar,
-      InfoBarItem,
-      InfoBarLink,
-      TextHeader,
-      InlineTag,
-      Text,
-    },
+    Components,
 
     helpers: {
       propIsRequiredMessage,
@@ -528,52 +494,93 @@ function safeRender(_name, _props) {
   }
 }
 
+const FadeIn = styled.keyframes`
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+`;
+const AppLayer = styled.div`
+  animation: ${FadeIn} 0.3s ease-in-out;
+  animation-fill-mode: forwards;
+  animation-delay: ${(props) => props.delay};
+  animation-duration: ${(props) => props.duration};
+  width: 100vw;
+  min-height: 100vh;
+  background-color: transparent;
+  z-index: ${(props) => props.zIndex};
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  opacity: 0;
+
+  backdrop-filter: ${(props) => {
+    return props.backdropFilter;
+  }};
+  webkit-backdrop-filter: ${(props) => {
+    return props.backdropFilter;
+  }};
+
+  transition: backdrop-filter 0.3s ease-in-out;
+  transition-delay: ${(props) => props.transitionDelay};
+`;
+
+// have to deconstruct Components here because of a bug in the VM.
+// It cannot render <Components.Button /> :(
+const { Button } = Components;
+
 return (
   <>
     <div id="app-state" data-state={JSON.stringify(state)}></div>
 
     {/* state reset button */}
-    <div
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        right: 0,
-        zIndex: 9999,
-        padding: 8,
-        backgroundColor: 'transparent',
-      }}
-    >
-      <Button
-        onClick={() => {
-          storageSet('routing', [rootRoute]);
-          State.update({
-            layers: [rootRoute],
-          });
+    {DEBUG ? (
+      <div
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          right: 0,
+          zIndex: 9999,
+          padding: 8,
+          backgroundColor: 'transparent',
         }}
       >
-        Reset
-      </Button>
-    </div>
-
-    {state.layers.map((layer, index) => {
-      return (
-        <div
-          key={index}
-          style={{
-            width: '100vw',
-            minHeight: '100vh',
-            backgroundColor: 'transparent',
-            zIndex: index,
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            overflow: 'auto',
+        <Button
+          onClick={() => {
+            storageSet('routing', [rootRoute]);
+            State.update({
+              layers: [rootRoute],
+            });
           }}
         >
+          Reset
+        </Button>
+      </div>
+    ) : null}
+
+    {state.layers.map((layer, index) => {
+      const isLast = index === state.layers.length - 1;
+
+      return (
+        <AppLayer
+          key={index}
+          delay={isLast ? '0.0s' : '0.2s'}
+          duration={isLast ? '0.3s' : '1s'}
+          transitionDelay={isLast ? '0s' : '1s'}
+          backdropFilter={
+            isLast
+              ? 'blur(16px) saturate(140%) brightness(80%)'
+              : 'blur(0px) saturate(100%) brightness(100%)'
+          }
+          zIndex={index + 100}
+        >
           {safeRender(layer.name, layer.props)}
-        </div>
+        </AppLayer>
       );
     })}
   </>
