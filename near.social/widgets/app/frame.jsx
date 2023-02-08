@@ -18,6 +18,30 @@ const PLEASE_CONNECT_WALLET_MESSAGE =
   'Please connect your NEAR wallet to continue.';
 
 const ContainerPaddingHorizontal = 'calc(max(28px, 1.6vw))';
+const ContainerPaddingVertical = 'calc(max(12px, 1.2vw))';
+
+/**
+ * Animation
+ * */
+const FadeIn = styled.keyframes`
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+`;
+
+const SlideInLeft = styled.keyframes`
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
 
 /**
  * Components
@@ -53,14 +77,6 @@ const Components = {
     }
   `,
 
-  Loading: styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-  `,
-
   PageTitle: styled.h1`
     font-size: calc(max(32px, 2.5vw));
     color: black;
@@ -69,8 +85,22 @@ const Components = {
   Container: styled.div`
     padding-left: ${ContainerPaddingHorizontal};
     padding-right: ${ContainerPaddingHorizontal};
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding-top: ${ContainerPaddingVertical};
+    padding-bottom: ${ContainerPaddingVertical};
+  `,
+
+  ContainerHeader: styled.div`
+    font-size: 24px;
+    color: #424242;
+    padding: ${ContainerPaddingVertical} 0;
+    @media (max-width: 768px) {
+      font-size: 20px;
+    }
+  `,
+
+  Hr: styled.div`
+    width: 100%;
+    border-bottom: 1px solid #e0e0e0;
   `,
 
   InfoBar: styled.div`
@@ -130,6 +160,125 @@ const Components = {
     font-size: 16px;
     color: #424242;
     margin-right: 8px;
+  `,
+
+  ValidationError: styled.div`
+    color: #c00;
+    font-size: 0.8rem;
+    margin: 0.5rem 0 0 0;
+  `,
+
+  FullActionButton: styled.button`
+    width: 100%;
+    padding: 0.5rem;
+    margin: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #ccc;
+  `,
+
+  FormLabel: styled.label`
+    width: 100%;
+    color: #666;
+    padding: 0.5rem 0;
+    margin: 0.5rem 0 0 0;
+    box-sizing: border-box;
+  `,
+
+  GridContainer: styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: flex-start;
+
+    width: auto;
+    margin-left: -20px;
+    margin-right: -20px;
+
+    & > * {
+      margin: 20px 20px;
+      min-width: 320px;
+      max-width: ${({ itemWidth }) => itemWidth || '540px'};
+      width: 100%;
+      flex-grow: 3;
+      flex-shrink: 3;
+
+      animation: ${SlideInLeft} 0.3s ease-in-out;
+    }
+  `,
+
+  HorizontalScroll: styled.div`
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: flex-start;
+
+    width: auto;
+    margin-left: -20px;
+    margin-right: -20px;
+
+    & > * {
+      margin: 20px 20px;
+      min-width: 20px;
+      max-width: ${({ itemWidth }) => itemWidth || '540px'};
+      width: 100%;
+      flex-grow: 3;
+      flex-shrink: 0;
+
+      animation: ${SlideInLeft} 0.3s ease-in-out;
+    }
+  `,
+
+  Card: styled.div`
+    display: flex;
+    flex-direction: ${(args) => orientation2FlexDirection(args)};
+    flex-wrap: ${(args) => orientation2FlexWrap(args)};
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
+    background-color: #ffffff;
+    border-radius: 4px 4px;
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
+    border: 0.1vw solid #cccccc;
+    cursor: pointer;
+
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    &:hover {
+      box-shadow: 5px 0 15px -2px rgba(0, 0, 0, 0.2);
+    }
+  `,
+
+  CardHeaderImage: styled.div`
+    height: auto;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 2px 2px 0 0;
+    border-bottom: 0.1vw solid #cccccc;
+    flex-shrink: 0;
+    flex-grow: 0;
+  `,
+
+  CardBody: styled.div`
+    width: 100%;
+    height: auto;
+    flex-grow: 100;
+    flex-shrink: 0;
+    padding: 1vw calc(max(0.5rem, 0.5vw));
+  `,
+
+  CardFooter: styled.div`
+    font-size: 0.8vw;
+    font-weight: 400;
+    margin: 0;
+    padding: calc(max(0.5rem, 0.5vw));
+    height: 42px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 100%;
+    border-top: 0.1vw solid #cccccc;
   `,
 };
 
@@ -199,6 +348,28 @@ const SessionState = {
     return SessionState._state[prop];
   },
 };
+
+function orientation2FlexDirection({ orientation }) {
+  switch (orientation) {
+    case 'horizontal':
+      return 'row';
+    case 'vertical':
+      return 'column';
+    default:
+      return 'column';
+  }
+}
+
+function orientation2FlexWrap({ orientation }) {
+  switch (orientation) {
+    case 'horizontal':
+      return 'nowrap';
+    case 'vertical':
+      return 'wrap';
+    default:
+      return 'nowrap';
+  }
+}
 
 function sessionGet(prop, defaultValue) {
   return SessionState.get(`${appOwner}.${appName}.${prop}`) || defaultValue;
@@ -301,7 +472,6 @@ function push(name, props) {
 }
 
 function replace(name, props) {
-  console.log('replace', name, props);
   const layer = {
     name,
     props: props || {},
@@ -363,9 +533,42 @@ function isDate(value) {
   }
 }
 
-function formatDate(date, format) {
-  const properDate = isDate(date) ? date : new Date(date);
+function numberToMonth(number, format) {
+  const month = parseInt(number, 10);
+  const map = [
+    ['Jan', 'January'],
+    ['Feb', 'February'],
+    ['Mar', 'March'],
+    ['Apr', 'April'],
+    ['May', 'May'],
+    ['Jun', 'June'],
+    ['Jul', 'July'],
+    ['Aug', 'August'],
+    ['Sep', 'September'],
+    ['Okt', 'Oktober'],
+    ['Nov', 'November'],
+    ['Dec', 'December'],
+  ];
 
+  if (format === 'long') {
+    return map[month - 1][1];
+  }
+  return map[month - 1][0];
+}
+
+function dayWithSuffix(day) {
+  const suffixes = ['th', 'st', 'nd', 'rd'];
+  const value = parseInt(day, 10);
+  const suffix = suffixes[value % 10 > 3 ? 0 : value % 10];
+  return `${value}${suffix}`;
+}
+
+function formatDate(date, format) {
+  if (date === null || date === undefined) {
+    console.error('formatDate', 'date is null or undefined', date, format);
+    return '';
+  }
+  const properDate = isDate(date) ? date : new Date(date);
   const dateString = properDate.toISOString();
 
   const parts = {
@@ -376,11 +579,14 @@ function formatDate(date, format) {
     hh: dateString.substring(11, 13),
     mm: dateString.substring(14, 16),
     ss: dateString.substring(17, 19),
+    Mshort: numberToMonth(dateString.substring(5, 7)),
+    Mlong: numberToMonth(dateString.substring(5, 7), 'long'),
+    Dst: dayWithSuffix(dateString.substring(8, 10)),
   };
 
   return format.replace(
-    /\{\{\s*(?<part>YYYY|YY|MM|DD|hh|mm|ss)\s*\}\}/gu,
-    (match, part) => {
+    /\{\{\s*(?<part>YYYY|YY|MM|DD|hh|mm|ss|Mshort|Mlong|Dst)\s*\}\}/gu,
+    (_match, part) => {
       return parts[part];
     }
   );
@@ -407,19 +613,22 @@ function byteLength(str) {
 function calculateStorageCost(value) {
   // get number of bytes without TextEncoder or Blob
   const bytes = byteLength(JSON.stringify(value));
-  const estimated =
-    COST_NEAR_PER_BYTE * (bytes + NEAR_STORAGE_BYTES_SAFTY_OFFSET);
-  console.log('calculateStorageCost', {
-    bytes,
-    estimated,
-    const: NEAR_STORAGE_BYTES_SAFTY_OFFSET,
-  });
   return COST_NEAR_PER_BYTE * (bytes + NEAR_STORAGE_BYTES_SAFTY_OFFSET);
 }
 
 function contractCall(contractName, methodName, args) {
   const cost = calculateStorageCost(args);
+  // console.log('contractCall', { contractName, methodName, args, cost });
   Near.call(contractName, methodName, args, TGAS_300, cost);
+}
+
+function contractView(contractName, methodName, args) {
+  // console.log('contractView', { contractName, methodName, args });
+  return Near.view(contractName, methodName, args);
+}
+
+function loading(displayText) {
+  return <>{displayText || '...'}</>;
 }
 
 function renderComponent(name, props) {
@@ -427,6 +636,7 @@ function renderComponent(name, props) {
     env,
     accountId,
 
+    loading,
     push,
     pop,
     replace,
@@ -456,6 +666,7 @@ function renderComponent(name, props) {
 
     contract: {
       call: contractCall,
+      view: contractView,
     },
   };
 
@@ -494,14 +705,6 @@ function safeRender(_name, _props) {
   }
 }
 
-const FadeIn = styled.keyframes`
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-`;
 const AppLayer = styled.div`
   animation: ${FadeIn} 0.3s ease-in-out;
   animation-fill-mode: forwards;

@@ -1,12 +1,11 @@
 const EVENTS_CONTRACT = '{{ env.EVENTS_CONTRACT }}';
-const TGAS_300 = '300000000000000';
 
 const eventId = props.event_id;
 if (!eventId) {
   return props.__engine.helpers.propIsRequiredMessage('event_id');
 }
 
-const hasEvent = Near.view(EVENTS_CONTRACT, 'has_event', {
+const hasEvent = props.__engine.contract.view(EVENTS_CONTRACT, 'has_event', {
   event_id: props.event_id,
 });
 
@@ -22,7 +21,7 @@ if (hasEvent === false) {
   return 'Event not found';
 }
 
-const event = Near.view(EVENTS_CONTRACT, 'get_event', {
+const event = props.__engine.contract.view(EVENTS_CONTRACT, 'get_event', {
   event_id: props.event_id,
 });
 if (!event) {
@@ -54,9 +53,7 @@ function removeEvent() {
   const args = {
     event_id: event.id,
   };
-  const gas = TGAS_300;
-  const deposit = '0';
-  Near.call(contract, method, args, gas, deposit);
+  props.__engine.contract.call(contract, method, args);
 }
 
 const PageTitle = props.__engine.Components.PageTitle;
@@ -177,8 +174,8 @@ return (
             onClick={() => {
               removeEvent();
             }}
-            onKeyDown={() => {
-              if (event.key === 'Enter') {
+            onKeyDown={(evt) => {
+              if (evt.key === 'Enter') {
                 removeEvent();
               }
             }}
