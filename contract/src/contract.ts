@@ -750,8 +750,10 @@ export class HelloNear {
   @view({})
   get_events_in_event_list({
     event_list_id,
+    limit,
   }: {
     event_list_id: string;
+    limit?: number | null;
   }): EventListEventEntryApiResponse[] {
     // First we check if there is an event_list with the specified ID.
     const currentEventList = this.event_lists.get(event_list_id);
@@ -764,7 +766,11 @@ export class HelloNear {
     // not sure about this method of getting the events.
     // this.events.get() in a loop may be expensive since it performs
     // multiple storage reads?
-    return currentEventList.events.toArray().map((eventEntry) => {
+    const events =
+      limit && limit > 0
+        ? currentEventList.events.toArray().slice(0, limit)
+        : currentEventList.events.toArray();
+    return events.map((eventEntry) => {
       return <EventListEventEntryApiResponse>{
         position: eventEntry.position,
         added_by: eventEntry.added_by,
