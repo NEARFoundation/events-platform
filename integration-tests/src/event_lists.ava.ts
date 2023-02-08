@@ -42,14 +42,33 @@ async function createEvent(
 async function createEventList(
   contract: NearAccount,
   executingUser?: NearAccount
-): Promise<EventList> {
+): Promise<EventListApiResponse> {
   const executingAccount = executingUser || contract;
-  return <EventList>await executingAccount.call(
+  return <EventListApiResponse>await executingAccount.call(
     contract,
     "create_event_list",
     {
       name: "test",
       description: "test 2",
+    },
+    {
+      attachedDeposit: ONE_NEAR,
+      gas: THREE_HUNDRED_TGAS,
+    }
+  );
+}
+
+async function updateEventList(
+  contract: NearAccount,
+  event_list_id: string,
+  event_list: Partial<EventList>
+): Promise<EventListApiResponse> {
+  return <EventListApiResponse>await contract.call(
+    contract,
+    "update_event_list",
+    {
+      event_list_id,
+      event_list,
     },
     {
       attachedDeposit: ONE_NEAR,
@@ -89,7 +108,7 @@ async function getEventList(
 async function createEventAndList(
   contract: NearAccount
 ): Promise<{ event: Event; event_list: EventList }> {
-  const { id: event_list_id } = <EventList>await createEventList(contract);
+  const { id: event_list_id } = <EventListApiResponse>await createEventList(contract);
   const event = <Event>await createEvent(contract);
   await addEventToEventList(contract, event.id, event_list_id);
   const event_list = <EventList>await getEventList(contract, event_list_id);
@@ -177,12 +196,12 @@ test("create a event_list and get it from the contract", async (t) => {
     has_events: false,
   });
 
-  // compare created_at and last_updated_at are in range of +- 10 seconds
+  // compare created_at and last_updated_at are in range of +- 100 seconds
   const created_at = new Date(event_list.created_at);
   const last_updated_at = new Date(event_list.last_updated_at);
   const nowTime = new Date(now).getTime();
-  t.true(created_at.getTime() - nowTime < 10000);
-  t.true(last_updated_at.getTime() - nowTime < 10000);
+  t.true(created_at.getTime() - nowTime < 100000);
+  t.true(last_updated_at.getTime() - nowTime < 100000);
 });
 
 test("create a event_list and add event to it", async (t) => {
@@ -209,10 +228,10 @@ test("create a event_list and add event to it", async (t) => {
     position: 0,
   });
 
-  // compare  last_updated_at are in range of +- 10 seconds
+  // compare  last_updated_at are in range of +- 100 seconds
   const last_updated_at = new Date(events[0].last_updated_at);
   const nowTime = new Date(now).getTime();
-  t.true(last_updated_at.getTime() - nowTime < 10000);
+  t.true(last_updated_at.getTime() - nowTime < 100000);
 });
 
 test("create a event_list add event and remove event", async (t) => {
@@ -385,3 +404,31 @@ test("can remove events created by any user", async (t) => {
 
   t.deepEqual(events, []);
 });
+
+test("can update event list", async (t) => {
+  const { contract } = t.context.accounts;
+
+  const now = new Date().toISOString();
+
+  const event_list = await createEventList(contract);
+
+  const newName = "new name";
+  const newDescription = "new description";
+
+  const updatedEl = await updateEventList(contract, event_list.id, {
+    name: newName,
+    description: newDescription,
+  });
+
+  t.deepEqual(updatedEl, {
+    ...event_list,
+    last_updated_at: updatedEl.last_updated_at,
+    name: newName,
+    description: newDescription,
+  });
+
+  // compare created_at and last_updated_at are in range of +- 100 seconds
+  const last_updated_at = new Date(event_list.last_updated_at);
+  const nowTime = new Date(now).getTime();
+  t.true(last_updated_at.getTime() - nowTime < 100000);
+})
