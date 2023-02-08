@@ -12,11 +12,34 @@ const dummyEventList = {
   description: "",
   created_at: new Date(),
   last_updated_at: new Date(),
-  events: new Vector("") as unknown as Vector<EventListEventEntry>,
-  permissions: new UnorderedMap("perms") as unknown as UnorderedMap<{
+  events: new Vector("v") as unknown as Vector<EventListEventEntry>,
+  permissions: new UnorderedMap("p") as unknown as UnorderedMap<{
     permissions: PermissionType[];
   }>,
 } satisfies EventList;
+
+/**
+ * Check if given value implements the Partial<EventList> type.
+ * @param value - A value to be checked for compatibility with the Partial<EventList> type.
+ */
+export const checkIsPartialEventList = (value: unknown): value is Partial<EventList> => {
+  if (typeof value !== "object") {
+    return false;
+  }
+
+  if (Object.keys(value).length === 0) {
+    return true;
+  }
+
+  const all_keys_present = Object.keys(value).every((key) => key in dummyEventList);
+
+  if (!all_keys_present) {
+    return false;
+  }
+
+  return true;
+};
+
 
 /**
  * Check if given value implements the EventList type.

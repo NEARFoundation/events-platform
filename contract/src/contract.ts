@@ -11,7 +11,7 @@ import {
   assert,
 } from "near-sdk-js";
 import { AccountId } from "near-sdk-js/lib/types";
-import { EventListsMap } from "./helpers";
+import { checkIsPartialEventList, EventListsMap } from "./helpers";
 import { NotRequested } from "./types";
 import {
   type Event,
@@ -160,7 +160,7 @@ export class HelloNear {
     event,
   }: {
     event_id: string;
-    event: Partial<UpdateEvent>;
+    event: UpdateEvent;
   }): NearPromise {
     // First we check if there is an event with the specified ID.
     const currentEvent = this.events.get(event_id);
@@ -320,6 +320,32 @@ export class HelloNear {
   }
 
   /**
+   * Get the latest event list by account
+   */
+  @view({})
+  get_latest_event_list({
+    account_id,
+    include_events,
+  }: {
+    account_id: AccountId;
+    include_events?: boolean;
+  }): EventListApiResponse | null {
+    const event_lists = this.get_all_event_lists_by_account({ account_id });
+    if (event_lists.length === 0) {
+      return null;
+    }
+
+    const firs_event_list = event_lists.sort((a, b) => {
+      return Number(b.created_at) - Number(a.created_at);
+    })[0];
+
+    return this.get_event_list({
+      event_list_id: firs_event_list.id,
+      include_events,
+    });
+  }
+
+  /**
    * Get if the event list exists.
    * @param event_list_id the event list id
    * @returns boolean
@@ -429,8 +455,26 @@ export class HelloNear {
     event_list,
   }: {
     event_list_id: string;
-    event_list: Partial<UpdateEventList>;
+    event_list: UpdateEventList;
   }): NearPromise {
+    // check if event_list is well formed and contains no extra fields
+    assert(
+      checkIsPartialEventList(event_list),
+      "The event_list object contains extra fields!"
+    );
+
+    // check if event_list has a non empty name
+    assert(
+      event_list.name && event_list.name.length > 0,
+      "The event_list name cannot be empty!"
+    );
+
+    // check if event_list has a non empty description
+    assert(
+      event_list.description && event_list.description.length > 0,
+      "The event_list description cannot be empty!"
+    );
+
     // First we check if there is an event_list with the specified ID.
     const currentEventList = this.event_lists.get(event_list_id);
 
