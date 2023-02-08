@@ -17,13 +17,38 @@ const PROP_IS_REQUIRED_MESSAGE = 'props.{prop} is required';
 const PLEASE_CONNECT_WALLET_MESSAGE =
   'Please connect your NEAR wallet to continue.';
 
-const ContainerPaddingHorizontal = 'calc(max(28px, 1.6vw))';
-const ContainerPaddingVertical = 'calc(max(12px, 1.2vw))';
+const GRID_PAD_TINY = '4px';
+const GRID_PAD_SMALL = '10px';
+const GRID_PAD = '20px';
+const GRID_PAD_BIG = '30px';
+
+const FONT_SIZE_TINY = 'calc(max(12px, 0.75vw))';
+const FONT_SIZE_SMALL = 'calc(max(16px, 1.25vw))';
+const FONT_SIZE_DEFAULT = 'calc(max(20px, 1.66vw))';
+const FONT_SIZE_GIANT = 'calc(max(32px, 2.5vw))';
+
+const TAG_PADDING = 'calc(max(4px, 0.25vw)) calc(max(8px, 0.5vw))';
+
+const DEFAULT_BORDER_RADIUS = '4px';
+
+const TEXT_COLOR = '#333333';
+const TEXT_COLOR_LIGHT = '#666666';
+
+const BORDER_COLOR = '#e6e6e6';
+
+const ERROR_COLOR = '#cc0000';
+
+// dark purple
+const BUTTON_BG_COLOR = '#4d2c91';
+const BUTTON_BG_HOVER_COLOR = '#3c1f6f';
+const BUTTON_COLOR = '#ffffff';
+const BUTTON_PADDING = `${GRID_PAD_SMALL} ${GRID_PAD}`;
+const BUTTON_BORDER_RADIUS = '8px';
 
 /**
  * Animation
  * */
-const FadeIn = styled.keyframes`
+const AnimationFadeIn = styled.keyframes`
   0% {
     opacity: 0;
   }
@@ -32,7 +57,7 @@ const FadeIn = styled.keyframes`
   }
 `;
 
-const SlideInLeft = styled.keyframes`
+const AnimationSlideInLeft = styled.keyframes`
   0% {
     opacity: 0;
     transform: translateX(-20px);
@@ -49,81 +74,106 @@ const SlideInLeft = styled.keyframes`
 
 const Components = {
   Select: styled.select`
-    background-color: #4caf50;
+    background-color: ${BUTTON_BG_COLOR}
     border: none;
     color: white;
-    padding: 15px 32px;
+    padding: ${GRID_PAD} ${GRID_PAD_BIG};
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: ${FONT_SIZE_DEFAULT};
     margin: 4px 2px;
     cursor: pointer;
   `,
 
   Button: styled.button`
-    background-color: #4caf50;
+    background-color: ${BUTTON_BG_COLOR};
     border: none;
-    color: white;
-    padding: 15px 32px;
+    color: ${BUTTON_COLOR};
+    padding: ${BUTTON_PADDING};
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: ${FONT_SIZE_DEFAULT};
+    transition: all 0.5s ease;
+    cursor: pointer;
+    border-radius: ${BUTTON_BORDER_RADIUS};
+
+    &:hover {
+      background-color: ${BUTTON_BG_HOVER_COLOR};
+    }
+  `,
+
+  FullActionButton: styled.button`
+    width: 100%;
+    padding: ${BUTTON_PADDING};
+    margin: 0;
+    border: none;
+    border-radius: ${DEFAULT_BORDER_RADIUS};
+    box-sizing: border-box;
+    background-color: ${BUTTON_BG_COLOR};
+    color: ${BUTTON_COLOR};
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
     transition: all 0.5s ease;
 
     &:hover {
-      background-color: #3e8e41;
+      background-color: ${BUTTON_BG_HOVER_COLOR};
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
     }
   `,
 
   PageTitle: styled.h1`
-    font-size: calc(max(32px, 2.5vw));
+    font-size: ${FONT_SIZE_GIANT};
     color: black;
+    word-break: break-word;
   `,
 
   Container: styled.div`
-    padding-left: ${ContainerPaddingHorizontal};
-    padding-right: ${ContainerPaddingHorizontal};
-    padding-top: ${ContainerPaddingVertical};
-    padding-bottom: ${ContainerPaddingVertical};
+    padding-left: ${GRID_PAD};
+    padding-right: ${GRID_PAD};
+    padding-top: ${GRID_PAD_SMALL};
+    padding-bottom: ${GRID_PAD_SMALL};
+    width: 100%;
+
+    @media (max-width: 768px) {
+      padding-left: ${GRID_PAD_SMALL};
+      padding-right: ${GRID_PAD_SMALL};
+    }
   `,
 
   ContainerHeader: styled.div`
-    font-size: 24px;
-    color: #424242;
-    padding: ${ContainerPaddingVertical} 0;
+    font-size: ${FONT_SIZE_DEFAULT};
+    color: ${TEXT_COLOR};
+    padding: ${GRID_PAD_SMALL} 0;
     @media (max-width: 768px) {
-      font-size: 20px;
+      font-size: ${FONT_SIZE_SMALL};
     }
   `,
 
   Hr: styled.div`
     width: 100%;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid ${BORDER_COLOR};
   `,
 
   InfoBar: styled.div`
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    padding: 0px ${ContainerPaddingHorizontal};
-    border-bottom: 1px solid #e0e0e0;
+    padding: ${GRID_PAD_SMALL} ${GRID_PAD};
+    border-bottom: 1px solid ${BORDER_COLOR};
   `,
 
   InfoBarItem: styled.div`
     display: flex;
     align-items: center;
-    margin-right: 12px;
-    padding: 8px 0;
+    margin-right: ${GRID_PAD};
   `,
 
   InfoBarLink: styled.a`
-    font-size: 16px;
-    color: #424242;
+    font-size: ${FONT_SIZE_SMALL};
+    color: ${TEXT_COLOR};
     text-decoration: none;
-    margin-right: 12px;
-    padding: 8px 0;
+    margin-right: ${GRID_PAD};
 
     &:hover {
       text-decoration: underline;
@@ -134,55 +184,42 @@ const Components = {
     }
 
     &:visited {
-      color: #424242;
+      color: ${TEXT_COLOR};
     }
 
     &:active {
-      color: #424242;
+      color: ${TEXT_COLOR};
     }
   `,
 
   TextHeader: styled.div`
-    font-size: 20px;
-    color: #424242;
+    font-size: ${FONT_SIZE_DEFAULT};
+    color: ${TEXT_COLOR};
   `,
 
   InlineTag: styled.div`
     display: inline-block;
-    background-color: #e0e0e0;
-    padding: 4px 8px;
-    border-radius: 4px;
-    margin-right: 8px;
-    margin-left: 8px;
+    background-color: ${BORDER_COLOR};
+    padding: ${TAG_PADDING};
+    border-radius: ${DEFAULT_BORDER_RADIUS};
   `,
 
   Text: styled.div`
-    font-size: 16px;
-    color: #424242;
-    margin-right: 8px;
+    font-size: ${FONT_SIZE_SMALL};
+    color: ${TEXT_COLOR};
   `,
 
   ValidationError: styled.div`
-    color: #c00;
-    font-size: 0.8rem;
-    margin: 0.5rem 0 0 0;
-  `,
-
-  FullActionButton: styled.button`
-    width: 100%;
-    padding: 0.5rem;
-    margin: 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    background-color: #ccc;
+    color: ${ERROR_COLOR};
+    font-size: ${FONT_SIZE_TINY};
+    margin-top: ${GRID_PAD_SMALL};
   `,
 
   FormLabel: styled.label`
     width: 100%;
-    color: #666;
-    padding: 0.5rem 0;
-    margin: 0.5rem 0 0 0;
+    color: ${TEXT_COLOR_LIGHT};
+    padding: ${GRID_PAD_SMALL} 0;
+    margin: 0;
     box-sizing: border-box;
   `,
 
@@ -193,18 +230,31 @@ const Components = {
     justify-content: flex-start;
 
     width: auto;
-    margin-left: -20px;
-    margin-right: -20px;
+    margin-left: -${GRID_PAD};
+    margin-right: -${GRID_PAD};
 
     & > * {
-      margin: 20px 20px;
-      min-width: 320px;
-      max-width: ${({ itemWidth }) => itemWidth || '540px'};
-      width: 100%;
-      flex-grow: 3;
-      flex-shrink: 3;
+      padding: ${GRID_PAD};
+      min-width: ${({ itemWidth }) => itemWidth || '540px'};
+      max-width: ${({ itemMaxWidth }) => itemMaxWidth || '540px'};
+      width: 0;
+      flex-grow: 1;
+      flex-shrink: 1;
 
-      animation: ${SlideInLeft} 0.3s ease-in-out;
+      animation: ${AnimationFadeIn} 0.5s ease-in-out;
+    }
+
+    @media (max-width: 768px) {
+      width: 100%;
+      margin-left: -${GRID_PAD_SMALL};
+      margin-right: -${GRID_PAD_SMALL};
+
+      & > * {
+        padding: ${GRID_PAD_SMALL};
+        width: 50%;
+        max-width: 50%;
+        min-width: 0;
+      }
     }
   `,
 
@@ -214,39 +264,57 @@ const Components = {
     align-items: stretch;
     justify-content: flex-start;
 
-    width: auto;
-    margin-left: -20px;
-    margin-right: -20px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
 
     & > * {
-      margin: 20px 20px;
-      min-width: 20px;
+      margin-right: ${GRID_PAD};
       max-width: ${({ itemWidth }) => itemWidth || '540px'};
       width: 100%;
       flex-grow: 3;
       flex-shrink: 0;
 
-      animation: ${SlideInLeft} 0.3s ease-in-out;
+      animation: ${AnimationSlideInLeft} 0.3s ease-in-out;
+    }
+
+    & > *:last-child {
+      margin-right: 0;
+    }
+
+    @media (max-width: 768px) {
+      & > * {
+        width: 45%;
+        max-width: 45%;
+
+        margin-right: ${GRID_PAD_SMALL};
+      }
     }
   `,
 
   Card: styled.div`
     display: flex;
-    flex-direction: ${(args) => orientation2FlexDirection(args)};
-    flex-wrap: ${(args) => orientation2FlexWrap(args)};
+    flex-direction: ${(args) => orientation2FlexDirection(args) || 'column'};
+    flex-wrap: ${(args) => orientation2FlexWrap(args) || 'wrap'};
     align-items: stretch;
     justify-content: stretch;
     padding: 0;
     background-color: #ffffff;
-    border-radius: 4px 4px;
+    border-radius: ${DEFAULT_BORDER_RADIUS};
     box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
-    border: 0.1vw solid #cccccc;
-    cursor: pointer;
+    border: 0.1vw solid ${BORDER_COLOR};
 
     transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
 
+    height: 100%;
+    position: relative;
+
     &:hover {
       box-shadow: 5px 0 15px -2px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column !important;
     }
   `,
 
@@ -256,9 +324,33 @@ const Components = {
     aspect-ratio: 1 / 1;
     overflow: hidden;
     border-radius: 2px 2px 0 0;
-    border-bottom: 0.1vw solid #cccccc;
+    border-bottom: 0.1vw solid ${BORDER_COLOR};
     flex-shrink: 0;
     flex-grow: 0;
+  `,
+
+  CardHeader: styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    width: 33%;
+    border-right: 1px solid ${BORDER_COLOR};
+    min-height: 200px;
+    flex-grow: 1;
+    flex-shrink: 0;
+    height: auto;
+
+    padding: ${({ small }) => (small ? GRID_PAD_SMALL : GRID_PAD)};
+
+    @media (max-width: 768px) {
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid ${BORDER_COLOR};
+      height: auto;
+      min-height: 0px;
+
+      padding: ${GRID_PAD_SMALL};
+    }
   `,
 
   CardBody: styled.div`
@@ -266,19 +358,51 @@ const Components = {
     height: auto;
     flex-grow: 100;
     flex-shrink: 0;
-    padding: 1vw calc(max(0.5rem, 0.5vw));
+    position: relative;
+    padding: ${({ small }) => (small ? GRID_PAD_SMALL : GRID_PAD)};
   `,
 
   CardFooter: styled.div`
-    font-size: 0.8vw;
+    font-size: ${({ small }) => (small ? FONT_SIZE_TINY : FONT_SIZE_SMALL)};
     font-weight: 400;
     margin: 0;
-    padding: calc(max(0.5rem, 0.5vw));
-    height: 42px;
+    padding: ${({ small }) => (small ? GRID_PAD_TINY : GRID_PAD_SMALL)};
+    height: auto;
     flex-grow: 0;
     flex-shrink: 0;
     width: 100%;
     border-top: 0.1vw solid #cccccc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    @media (max-width: 768px) {
+      font-size: ${({ small }) => (small ? FONT_SIZE_TINY : FONT_SIZE_SMALL)};
+    }
+  `,
+
+  CardTitle: styled.div`
+    font-size: ${({ small }) => (small ? FONT_SIZE_TINY : FONT_SIZE_SMALL)};
+    font-weight: 600;
+    margin: 0;
+    height: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 100%;
+    word-break: break-word;
+    margin-bottom: ${({ small }) => (small ? GRID_PAD_TINY : GRID_PAD_SMALL)};
+
+    @media (max-width: 768px) {
+      font-size: ${({ small }) => (small ? FONT_SIZE_TINY : FONT_SIZE_SMALL)};
+    }
+  `,
+
+  FadeIn: styled.div`
+    opacity: 0;
+    animation: ${AnimationFadeIn} 0.3s ease-in-out;
+    animation-fill-mode: forwards;
+    animation-delay: ${({ delay }) => delay || '0s'};
+    animation-duration: ${({ duration }) => duration || '0.3s'};
   `,
 };
 
@@ -324,16 +448,10 @@ if (!state) {
     renderCycles: state ? state.renderCycles + 1 : 1,
     layers: [rootRoute],
   });
-  return 'Loading...';
+  return <></>;
 }
 
-const env = {
-  app: {
-    owner: appOwner,
-    name: appName,
-  },
-  VERSION,
-};
+const ENV = { appOwner, appName, VERSION };
 
 const COST_NEAR_PER_BYTE = Math.pow(10, 20);
 const TGAS_300 = '300000000000000';
@@ -371,22 +489,24 @@ function orientation2FlexWrap({ orientation }) {
   }
 }
 
-function sessionGet(prop, defaultValue) {
-  return SessionState.get(`${appOwner}.${appName}.${prop}`) || defaultValue;
+function sessionGet(env, prop, defaultValue) {
+  return (
+    SessionState.get(`${env.appOwner}.${env.appName}.${prop}`) || defaultValue
+  );
 }
-function sessionSet(prop, value) {
-  return SessionState.set(`${appOwner}.${appName}.${prop}`, value);
+function sessionSet(env, prop, value) {
+  return SessionState.set(`${env.appOwner}.${env.appName}.${prop}`, value);
 }
 
-function storageGet(prop, defaultValue) {
-  return Storage.get(`${appOwner}.${appName}.${prop}`) || defaultValue;
+function storageGet(env, prop, defaultValue) {
+  return Storage.get(`${env.appOwner}.${env.appName}.${prop}`) || defaultValue;
 }
-function storageSet(prop, value) {
-  return Storage.set(`${appOwner}.${appName}.${prop}`, value);
+function storageSet(env, prop, value) {
+  return Storage.set(`${env.appOwner}.${env.appName}.${prop}`, value);
 }
 
 function restoreRoutes() {
-  const info = storageGet('routing', null);
+  const info = storageGet(ENV, 'routing', null);
   if (info === null || info === undefined) {
     return;
   }
@@ -406,25 +526,25 @@ function restoreRoutes() {
 restoreRoutes();
 
 function persistRoutingInformation(newState) {
-  storageSet('routing', newState);
+  storageSet(ENV, 'routing', newState);
 }
 
 function slugFromName(name) {
   return name.split('.').join('__').split('-').join('_');
 }
 
-function fetchPathOptions(path) {
+function fetchPathOptions(env, path) {
   const nameParts = path.split(':');
   if (nameParts.length === 1) {
     return {
-      owner: appOwner,
-      name: appName,
+      owner: env.appOwner,
+      name: env.appName,
       slug: slugFromName(nameParts[0]),
     };
   }
   if (nameParts.length === 2) {
     return {
-      owner: appOwner,
+      owner: env.appOwner,
       name: nameParts[0],
       slug: slugFromName(nameParts[1]),
     };
@@ -439,13 +559,13 @@ function fetchPathOptions(path) {
   throw new Error(`Invalid path: ${path}`);
 }
 
-function widgetPathFromName(widgetName) {
-  const { owner, name, slug } = fetchPathOptions(widgetName);
+function widgetPathFromName(env, widgetName) {
+  const { owner, name, slug } = fetchPathOptions(env, widgetName);
   return `${owner}/widget/${name}__${slug}`;
 }
 
-function layoutPathFromName(layoutName) {
-  return widgetPathFromName(layoutName);
+function layoutPathFromName(env, layoutName) {
+  return widgetPathFromName(env, layoutName);
 }
 
 function rerender() {
@@ -455,10 +575,12 @@ function rerender() {
   });
 }
 
-function push(name, props) {
+function push(env, name, props) {
   const layer = {
     name,
     props: props || {},
+    appOwner: env.appOwner,
+    appName: env.appName,
   };
   const newLayers = [...state.layers, layer];
 
@@ -467,14 +589,14 @@ function push(name, props) {
   State.update({
     layers: newLayers,
   });
-
-  // rerender();
 }
 
-function replace(name, props) {
+function replace(env, name, props) {
   const layer = {
     name,
     props: props || {},
+    appOwner: env.appOwner,
+    appName: env.appName,
   };
   const newLayers = [...state.layers.slice(0, -1), layer];
 
@@ -483,12 +605,10 @@ function replace(name, props) {
   State.update({
     layers: newLayers,
   });
-
-  // rerender();
 }
 
 // pop from the stack, ensure we always have at least one layer
-function pop() {
+function pop(/* env */) {
   const newLayers =
     state.layers.length > 1 ? state.layers.slice(0, -1) : state.layers;
 
@@ -498,21 +618,21 @@ function pop() {
     layers: newLayers,
   });
 
-  rerender();
+  // rerender();
 }
 
-function dirtyEval(args) {
+function dirtyEval(env, args) {
   const method = args[0];
   const key = args[1];
   const mArgs = args.slice(2);
 
   switch (method) {
     case 'push':
-      return push(key, mArgs[0]);
+      return push(env, key, mArgs[0]);
     case 'replace':
-      return replace(key, mArgs[0]);
+      return replace(env, key, mArgs[0]);
     case 'pop':
-      return pop();
+      return pop(env);
     default:
       throw new Error(`Unknown method ${method}`);
   }
@@ -619,36 +739,89 @@ function calculateStorageCost(value) {
 function contractCall(contractName, methodName, args) {
   const cost = calculateStorageCost(args);
   // console.log('contractCall', { contractName, methodName, args, cost });
-  Near.call(contractName, methodName, args, TGAS_300, cost);
+  Near.call(contractName, methodName, args || {}, TGAS_300, cost);
 }
 
 function contractView(contractName, methodName, args) {
   // console.log('contractView', { contractName, methodName, args });
-  return Near.view(contractName, methodName, args);
+  return Near.view(contractName, methodName, args || {});
 }
 
 function loading(displayText) {
   return <>{displayText || '...'}</>;
 }
 
-function renderComponent(name, props) {
+function mergeEnv(env, newEnv) {
+  return {
+    ...env,
+    // add all keys from env which are not null or undefined
+    ...Object.entries(newEnv || {}).reduce((acc, [key, value]) => {
+      if (value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {}),
+  };
+}
+
+function renderComponent(name, props, env) {
+  const widgetEnv = mergeEnv(ENV, env);
+
+  const _sessionGet = (...args) => {
+    return sessionGet(widgetEnv, ...args);
+  };
+  const _sessionSet = (...args) => {
+    return sessionSet(widgetEnv, ...args);
+  };
+  const _storageGet = (...args) => {
+    return storageGet(widgetEnv, ...args);
+  };
+  const _storageSet = (...args) => {
+    return storageSet(widgetEnv, ...args);
+  };
+
+  const _layoutPathFromName = (path) => {
+    return layoutPathFromName(widgetEnv, path);
+  };
+  const _widgetPathFromName = (path) => {
+    return widgetPathFromName(widgetEnv, path);
+  };
+
+  const _push = (_name, _props) => {
+    return push(widgetEnv, _name, _props);
+  };
+  const _pop = () => {
+    return pop(widgetEnv);
+  };
+  const _replace = (_name, _props) => {
+    return replace(widgetEnv, _name, _props);
+  };
+
+  const _renderComponent = (_name, _props, _env) => {
+    return safeRender(_name, _props, mergeEnv(widgetEnv, _env));
+  };
+
+  const _dirtyEval = (args) => {
+    return dirtyEval(widgetEnv, args);
+  };
+
   const engine = {
-    env,
+    env: widgetEnv,
     accountId,
 
     loading,
-    push,
-    pop,
-    replace,
     rerender,
-    sessionGet,
-    sessionSet,
-    storageGet,
-    storageSet,
-    layoutPathFromName,
-    widgetPathFromName,
+    push: _push,
+    pop: _pop,
+    replace: _replace,
+    sessionGet: _sessionGet,
+    sessionSet: _sessionSet,
+    storageGet: _storageGet,
+    storageSet: _storageSet,
+    layoutPathFromName: _layoutPathFromName,
+    widgetPathFromName: _widgetPathFromName,
 
-    renderComponent: safeRender,
+    renderComponent: _renderComponent,
 
     Components,
 
@@ -659,7 +832,7 @@ function renderComponent(name, props) {
     },
 
     hacks: {
-      dirtyEval,
+      dirtyEval: _dirtyEval,
     },
 
     TGAS_300,
@@ -688,9 +861,9 @@ function renderComponent(name, props) {
   );
 }
 
-function safeRender(_name, _props) {
+function safeRender(_name, _props, _customEnv) {
   try {
-    return renderComponent(_name, _props);
+    return renderComponent(_name, _props, _customEnv);
   } catch (err) {
     console.log(err);
     return (
@@ -706,7 +879,7 @@ function safeRender(_name, _props) {
 }
 
 const AppLayer = styled.div`
-  animation: ${FadeIn} 0.3s ease-in-out;
+  animation: ${AnimationFadeIn} 0.3s ease-in-out;
   animation-fill-mode: forwards;
   animation-delay: ${(props) => props.delay};
   animation-duration: ${(props) => props.duration};
@@ -719,7 +892,8 @@ const AppLayer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   opacity: 0;
 
   backdrop-filter: ${(props) => {
@@ -750,12 +924,11 @@ return (
           right: 0,
           zIndex: 9999,
           padding: 8,
-          backgroundColor: 'transparent',
         }}
       >
         <Button
           onClick={() => {
-            storageSet('routing', [rootRoute]);
+            storageSet(ENV, 'routing', [rootRoute]);
             State.update({
               layers: [rootRoute],
             });
@@ -782,7 +955,10 @@ return (
           }
           zIndex={index + 100}
         >
-          {safeRender(layer.name, layer.props)}
+          {safeRender(layer.name, layer.props, {
+            appOwner: layer.appOwner,
+            appName: layer.appName,
+          })}
         </AppLayer>
       );
     })}

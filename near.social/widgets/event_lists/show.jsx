@@ -5,14 +5,6 @@ if (!event_list_id) {
   return props.__engine.helpers.propIsRequiredMessage('event_list_id');
 }
 
-const event_list = props.__engine.contract.view(
-  EVENTS_CONTRACT,
-  'get_event_list',
-  {
-    event_list_id: event_list_id,
-  }
-);
-
 const has_event_list = props.__engine.contract.view(
   EVENTS_CONTRACT,
   'has_event_list',
@@ -31,27 +23,33 @@ if (has_event_list === false) {
   return <></>;
 }
 
-if (!event_list) {
+if (!state) {
+  const event_list = props.__engine.contract.view(
+    EVENTS_CONTRACT,
+    'get_event_list',
+    {
+      event_list_id: event_list_id,
+      include_events: true,
+    }
+  );
+
+  if (!event_list) {
+    return props.__engine.loading();
+  }
+  State.init({ event_list });
   return props.__engine.loading();
 }
 
 const primaryAction = {
   label: 'Edit',
-  // will not work. VM Bug?
-  // onClick: ()=>{props.__engine.push('edit', { event_list_id: event_list_id })}
-  // Yes. sic!. this is a hack. The Viewer VM 'forgets' about functions
-  // When defining a function here, it will exist, the function will not be
-  // undefined, but executing the function will just do nothing. Thats
-  // why we have to use another method of calling functions.
-  // might be related to us rerendering all the time to implement layouting.
   onClick: ['push', 'edit', { event_list_id: event_list_id }],
 };
 
 props.controller.setLayout('layouts:container', {
   back: true,
-  title: event_list.name,
+  title: state.event_list.name,
   primaryAction:
-    props.__engine.accountId === event_list.owner_account_id
+    props.__engine.accountId === state.event_list.owner_account_id
       ? primaryAction
       : null,
 });
@@ -63,6 +61,7 @@ const PageTitle = props.__engine.Components.PageTitle;
 const InfoBar = props.__engine.Components.InfoBar;
 const InfoBarItem = props.__engine.Components.InfoBarItem;
 const InfoBarLink = props.__engine.Components.InfoBarLink;
+const GridContainer = props.__engine.Components.GridContainer;
 
 function removeEventList() {
   const contract = EVENTS_CONTRACT;
@@ -73,12 +72,10 @@ function removeEventList() {
   props.__engine.contract.call(contract, method, args);
 }
 
-console.log('event_list', event_list);
-
 return (
   <>
-    <Container>
-      <PageTitle>{event_list.name}</PageTitle>
+    <Container style={{ marginTop: 86 }}>
+      <PageTitle>{state.event_list.name}</PageTitle>
     </Container>
 
     <Hr></Hr>
@@ -87,41 +84,72 @@ return (
         <Text>
           <strong>Created at: </strong>
           {props.__engine.helpers.formatDate(
-            event_list.created_at,
+            state.event_list.created_at,
             '{{Dst}}. {{Mlong}} {{YYYY}}'
           )}
         </Text>
       </InfoBarItem>
     </InfoBar>
 
-    <InfoBar>
-      {props.__engine.accountId === event_list.owner_account_id ? (
-        <>
-          <InfoBarLink
-            role="button"
-            tabIndex={0}
-            onClick={() => {
+    {props.__engine.accountId === state.event_list.owner_account_id ? (
+      <InfoBar>
+        <InfoBarLink
+          role="button"
+          tabIndex={0}
+          onClick={() => {
+            removeEventList();
+          }}
+          onKeyDown={(evt) => {
+            if (evt.key === 'Enter') {
               removeEventList();
-            }}
-            onKeyDown={(evt) => {
-              if (evt.key === 'Enter') {
-                removeEventList();
-              }
-            }}
-          >
-            Delete event list
-          </InfoBarLink>
-        </>
-      ) : null}
-    </InfoBar>
+            }
+          }}
+        >
+          Delete event list
+        </InfoBarLink>
+
+        <InfoBarLink
+          role="button"
+          tabIndex={0}
+          onClick={() => {
+            props.__engine.push('change-events', {
+              event_list_id: event_list_id,
+            });
+          }}
+          onKeyDown={(evt) => {
+            if (evt.key === 'Enter') {
+              props.__engine.push('change-events', {
+                event_list_id: event_list_id,
+              });
+            }
+          }}
+        >
+          Change events
+        </InfoBarLink>
+      </InfoBar>
+    ) : null}
 
     <Container>
-      <Markdown text={event_list.description} />
+      <Markdown text={state.event_list.description} />
     </Container>
 
     <Hr></Hr>
 
-    {/* TODO: show all event list events via small cards */}
+    <Container>
+      <GridContainer itemWidth={'300px'}>
+        {state.event_list.events.map(({ event }, idx) => {
+          return (
+            <div key={`${idx}-${event.id}`}>
+              {props.__engine.renderComponent(
+                'index.list_item',
+                { event: event },
+                { appName: 'events' }
+              )}
+            </div>
+          );
+        })}
+      </GridContainer>
+    </Container>
 
     <Hr></Hr>
   </>

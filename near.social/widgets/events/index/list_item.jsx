@@ -9,13 +9,9 @@ const Card = props.__engine.Components.Card;
 const CardHeaderImage = props.__engine.Components.CardHeaderImage;
 const CardBody = props.__engine.Components.CardBody;
 const CardFooter = props.__engine.Components.CardFooter;
+const CardTitle = props.__engine.Components.CardTitle;
 
-const EventTitle = styled.h1`
-  font-size: calc(max(1.25rem, 1.25vw));
-  font-weight: 500;
-  margin: 0;
-  width: 100%;
-`;
+const small = props.small || false;
 
 function showEvent() {
   props.__engine.push('show', { event_id: event.id });
@@ -35,18 +31,20 @@ return (
     tabIndex={0}
   >
     <CardHeaderImage>
-      {props.__engine.renderComponent('components.event_image_slider', {
+      {props.__engine.renderComponent('components:event_image_slider', {
         event,
         mode: 'tile',
+        delay: props.delay,
+        duration: props.duration,
       })}
     </CardHeaderImage>
 
-    <CardBody>
-      <EventTitle>{event.name}</EventTitle>
+    <CardBody small={small}>
+      <CardTitle small={small}>{event.name}</CardTitle>
     </CardBody>
 
-    <CardFooter>
-      {props.__engine.renderComponent('components.event_date', { event })}
+    <CardFooter small={small}>
+      {props.__engine.renderComponent('components:event_date', { event })}
     </CardFooter>
   </Card>
 );

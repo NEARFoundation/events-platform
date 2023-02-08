@@ -2,35 +2,6 @@ const NAVBAR_HEIGHT = 64;
 const NAVBAR_OFFSET_TOP = 0;
 
 const title = props.title || '';
-const dropdownItems = props.dropdownItems || [];
-
-const dropdownElement =
-  dropdownItems && dropdownItems.length > 0 ? (
-    <>
-      <button
-        className="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#mainMenuDropdown"
-        aria-controls="mainMenuDropdown"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span className="navbar-toggler-icon"></span>
-      </button>
-
-      <div className="collapse navbar-collapse" id="mainMenuDropdown">
-        <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-          {dropdownItems.map((item, idx) => {
-            return props.__engine.renderComponent(item.name, {
-              ...item.props,
-              key: `dropdown_item_${item.name}_${idx}`,
-            });
-          })}
-        </ul>
-      </div>
-    </>
-  ) : null;
 
 const Pulse = styled.keyframes`
   0% {
@@ -44,6 +15,24 @@ const Pulse = styled.keyframes`
   }
 `;
 
+const Navbar = styled.div`
+  min-height: ${NAVBAR_HEIGHT}px;
+  position: fixed;
+  top: ${NAVBAR_OFFSET_TOP}px;
+  width: 100%;
+  background-color: rgba(44, 44, 84, 0.85);
+  backdrop-filter: blur(32px) saturate(180%);
+  webkitbackdropfilter: blur(32px) saturate(180%);
+  z-index: 99999999;
+  overflow-x: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+  width: 100%;
+  flex-direction: row;
+  flex-wrap: nowrap;
+`;
+
 const NavPrimaryButton = styled.button`
   background-color: transparent;
   user-select: none;
@@ -52,7 +41,7 @@ const NavPrimaryButton = styled.button`
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
+  font-size: 1.25rem;
   transition: all 1s ease-in-out;
   margin-left: 8px;
   cursor: pointer;
@@ -64,95 +53,97 @@ const NavPrimaryButton = styled.button`
 
   transform: scale(0.975);
 
+  margin: 0 12px;
+
   &:hover {
     /* darker and transparent */
     background-color: rgba(44, 44, 84, 0.85);
 
     animation: ${Pulse} 2s infinite;
   }
+
+  @media (max-width: 768px) {
+    font-size: 1.15rem;
+    padding: 6px 14px;
+    margin: 0 8px;
+  }
+`;
+
+const NavbarTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0;
+  padding: 0;
+  color: white;
+  flex-grow: 1;
+  word-break: break-all;
+  margin: 0 12px;
+
+  text-align: ${() => {
+    return props.primaryAction || props.back ? 'left' : 'center';
+  }};
+
+  @media (max-width: 768px) {
+    font-size: 1.15rem;
+
+    margin: 0 8px;
+  }
+`;
+
+const NavbarBackButton = styled.button`
+  background-color: transparent;
+  user-select: none;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  width: ${NAVBAR_HEIGHT}px;
+
+  flex-grow: 0;
+  flex-shrink: 0;
 `;
 
 const navbar = (
-  <div
-    className="navbar navbar-expand-lg navbar-dark"
-    style={{
-      minHeight: NAVBAR_HEIGHT,
-      position: 'fixed',
-      top: NAVBAR_OFFSET_TOP,
-      width: '100%',
-      // dark purple #2c2c54 with backdrop filter blur
-      backgroundColor: 'rgba(44, 44, 84, 0.85)',
-      backdropFilter: 'blur(32px) saturate(180%)',
-      webkitBackdropFilter: 'blur(32px) saturate(180%)',
-      zIndex: 99999999,
-    }}
-  >
-    <div className="container-fluid h-100 flex">
-      <div className="d-flex align-items-center w-100">
-        {props.back ? (
-          <button
-            className=""
-            style={{
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              border: 'none',
-              outline: 'none',
-              background: 'transparent',
-              width: NAVBAR_HEIGHT,
-            }}
-            type="button"
-            tabIndex={0}
-            onClick={() => {
-              props.__engine.pop();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                props.__engine.pop();
-              }
-            }}
-          >
-            <i className="bi bi-chevron-left"></i>
-          </button>
-        ) : null}
+  <Navbar className="navbar">
+    {props.back ? (
+      <NavbarBackButton
+        type="button"
+        tabIndex={0}
+        onClick={() => {
+          props.__engine.pop();
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            props.__engine.pop();
+          }
+        }}
+      >
+        <i className="bi bi-chevron-left"></i>
+      </NavbarBackButton>
+    ) : null}
 
-        <h2
-          style={{
-            color: 'white',
-            margin: 0,
-            padding: 0,
-            marginLeft: 10,
-            marginRight: 'auto',
-            fontSize: 20,
-            display: 'inline-block',
-          }}
-        >
-          {title}
-        </h2>
+    <NavbarTitle>{title}</NavbarTitle>
 
-        {props.primaryAction ? (
-          <NavPrimaryButton
-            type="button"
-            tabIndex={0}
-            onClick={() => {
-              props.__engine.hacks.dirtyEval(props.primaryAction.onClick);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                props.__engine.hacks.dirtyEval(props.primaryAction.onClick);
-              }
-            }}
-          >
-            {props.primaryAction.label}
-          </NavPrimaryButton>
-        ) : null}
-      </div>
-
-      {dropdownItems && dropdownItems.length > 0 ? dropdownElement : null}
-    </div>
-  </div>
+    {props.primaryAction ? (
+      <NavPrimaryButton
+        type="button"
+        tabIndex={0}
+        onClick={() => {
+          props.__engine.hacks.dirtyEval(props.primaryAction.onClick);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            props.__engine.hacks.dirtyEval(props.primaryAction.onClick);
+          }
+        }}
+      >
+        {props.primaryAction.label}
+      </NavPrimaryButton>
+    ) : null}
+  </Navbar>
 );
 
 return (
@@ -167,17 +158,14 @@ return (
     {navbar}
 
     <div
-      className="row"
       style={{
         marginTop: NAVBAR_HEIGHT,
       }}
     >
-      <div className="col-12">
-        {props.__engine.renderComponent(
-          props.component.name,
-          props.component.props
-        )}
-      </div>
+      {props.__engine.renderComponent(
+        props.component.name,
+        props.component.props
+      )}
     </div>
   </div>
 );

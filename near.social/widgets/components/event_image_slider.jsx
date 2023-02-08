@@ -2,11 +2,7 @@ let event = props.event || null;
 
 if (!state) {
   State.init({ index: 0 });
-}
-
-if (!event) {
-  // TODO: return default image
-  return <img src="" alt="Event!" />;
+  return <></>;
 }
 
 const mode = props.mode || 'banner';
@@ -34,26 +30,20 @@ return (
       maxWidth: '100%',
       overflow: 'hidden',
       userSelect: 'none',
+      position: 'relative',
     }}
   >
     {displayImages.map((image) => {
+      const url = `https://ipfs.near.social/ipfs/${image.url.cid}`;
       return (
-        <img
-          src={`https://ipfs.near.social/ipfs/${image.url.cid}`}
-          key={image.cid}
-          alt={image.url.cid}
-          style={{
-            width: '100%',
-            height: '100%',
-            maxWidth: '100%',
-            boxSizing: 'border-box',
-            objectFit: 'cover',
-            transform: `translateX(-${
-              (state.index * 100) / displayImages.length
-            }%)`,
-            transition: 'transform 0.5s',
-          }}
-        />
+        <>
+          {props.__engine.renderComponent('components:image', {
+            url,
+            key: url,
+            delay: props.delay,
+            duration: props.duration,
+          })}
+        </>
       );
     })}
   </div>
