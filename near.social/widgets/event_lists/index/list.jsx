@@ -8,25 +8,21 @@ if (event_lists.length === 0) {
   return 'No results';
 }
 
-const GridContainer = props.__engine.Components.GridContainer;
-const Container = props.__engine.Components.Container;
+const GRID_PAD = props.__engine.Constants.GRID_PAD;
+
+const ListWrapper = styled.div`
+  margin-bottom: ${GRID_PAD};
+  width: 100%;
+`;
 
 return (
-  <Container>
-    <GridContainer itemWidth={'100vw'}>
-      {event_lists.map((event_list) => {
-        return (
-          <>
-            {props.__engine.renderComponent('index.list_item', {
-              event_list,
-              key: event_list.event_list_id,
-            })}
-          </>
-        );
-      })}
-
-      <div>{/* spacer */}</div>
-      <div>{/* spacer */}</div>
-    </GridContainer>
-  </Container>
+  <>
+    {event_lists.map((event_list, idx) => {
+      return (
+        <ListWrapper key={`${idx}-${event_list.event_list_id}`}>
+          {props.__engine.renderComponent('index.list_item', { event_list })}
+        </ListWrapper>
+      );
+    })}
+  </>
 );

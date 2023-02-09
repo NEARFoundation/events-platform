@@ -28,6 +28,8 @@ return (
       }
     }}
     role="button"
+    border={props.border === undefined ? true : props.border}
+    shadow={props.shadow === undefined ? true : props.shadow}
     tabIndex={0}
   >
     <CardHeaderImage>

@@ -22,29 +22,63 @@ const GRID_PAD_SMALL = '10px';
 const GRID_PAD = '20px';
 const GRID_PAD_BIG = '30px';
 
-const FONT_SIZE_TINY = 'calc(max(12px, 0.75vw))';
-const FONT_SIZE_SMALL = 'calc(max(16px, 1.25vw))';
-const FONT_SIZE_DEFAULT = 'calc(max(20px, 1.66vw))';
+const FONT_SIZE_TINY = 'calc(max(12px, 1.05vw))';
+const FONT_SIZE_SMALL = 'calc(max(16px, 1.13vw))';
+const FONT_SIZE_DEFAULT = 'calc(max(20px, 1.2vw))';
 const FONT_SIZE_GIANT = 'calc(max(32px, 2.5vw))';
 
 const TAG_PADDING = 'calc(max(4px, 0.25vw)) calc(max(8px, 0.5vw))';
 
-const DEFAULT_BORDER_RADIUS = '4px';
-
 const TEXT_COLOR = '#333333';
 const TEXT_COLOR_LIGHT = '#666666';
 
+const BORDER_RADIUS_DEFAULT = '4px';
 const BORDER_COLOR = '#e6e6e6';
+const BORDER_THICKNESS = '0.1vw';
+const BORDER_DEFAULT = `${BORDER_THICKNESS} solid ${BORDER_COLOR}`;
 
 const ERROR_COLOR = '#cc0000';
 
-// dark purple
 const BUTTON_BG_COLOR = '#4d2c91';
 const BUTTON_BG_HOVER_COLOR = '#3c1f6f';
 const BUTTON_COLOR = '#ffffff';
 const BUTTON_PADDING = `${GRID_PAD_SMALL} ${GRID_PAD}`;
 const BUTTON_BORDER_RADIUS = '8px';
 
+const BOX_SHADOW_DEFAULT = '0 0 5px 0 rgba(0, 0, 0, 0.2)';
+const BOX_SHADOW_HOVER = '5px 0 15px -2px rgba(0, 0, 0, 0.2)';
+
+const EASE_DEFAULT = 'cubic-bezier(0.4, 0, 0.2, 1)';
+
+const Constants = {
+  NEAR_STORAGE_BYTES_SAFTY_OFFSET,
+  PROP_IS_REQUIRED_MESSAGE,
+  PLEASE_CONNECT_WALLET_MESSAGE,
+  GRID_PAD_TINY,
+  GRID_PAD_SMALL,
+  GRID_PAD,
+  GRID_PAD_BIG,
+  FONT_SIZE_TINY,
+  FONT_SIZE_SMALL,
+  FONT_SIZE_DEFAULT,
+  FONT_SIZE_GIANT,
+  TAG_PADDING,
+  BORDER_RADIUS_DEFAULT,
+  TEXT_COLOR,
+  TEXT_COLOR_LIGHT,
+  BORDER_COLOR,
+  BORDER_THICKNESS,
+  BORDER_DEFAULT,
+  ERROR_COLOR,
+  BUTTON_BG_COLOR,
+  BUTTON_BG_HOVER_COLOR,
+  BUTTON_COLOR,
+  BUTTON_PADDING,
+  BUTTON_BORDER_RADIUS,
+  BOX_SHADOW_DEFAULT,
+  BOX_SHADOW_HOVER,
+  EASE_DEFAULT,
+};
 /**
  * Animation
  * */
@@ -109,7 +143,7 @@ const Components = {
     padding: ${BUTTON_PADDING};
     margin: 0;
     border: none;
-    border-radius: ${DEFAULT_BORDER_RADIUS};
+    border-radius: ${BORDER_RADIUS_DEFAULT};
     box-sizing: border-box;
     background-color: ${BUTTON_BG_COLOR};
     color: ${BUTTON_COLOR};
@@ -201,12 +235,13 @@ const Components = {
     display: inline-block;
     background-color: ${BORDER_COLOR};
     padding: ${TAG_PADDING};
-    border-radius: ${DEFAULT_BORDER_RADIUS};
+    border-radius: ${BORDER_RADIUS_DEFAULT};
   `,
 
   Text: styled.div`
     font-size: ${FONT_SIZE_SMALL};
     color: ${TEXT_COLOR};
+    word-break: break-word;
   `,
 
   ValidationError: styled.div`
@@ -230,6 +265,7 @@ const Components = {
     justify-content: flex-start;
 
     width: auto;
+    height: auto;
     margin-left: -${GRID_PAD};
     margin-right: -${GRID_PAD};
 
@@ -238,10 +274,11 @@ const Components = {
       min-width: ${({ itemWidth }) => itemWidth || '540px'};
       max-width: ${({ itemMaxWidth }) => itemMaxWidth || '540px'};
       width: 0;
+      height: auto;
       flex-grow: 1;
       flex-shrink: 1;
 
-      animation: ${AnimationFadeIn} 0.5s ease-in-out;
+      animation: ${AnimationFadeIn} 0.5s ${EASE_DEFAULT};
     }
 
     @media (max-width: 768px) {
@@ -255,6 +292,14 @@ const Components = {
         max-width: 50%;
         min-width: 0;
       }
+    }
+  `,
+
+  GridItemWrapper: styled.div`
+    height: auto;
+
+    & > * {
+      height: 100% !important;
     }
   `,
 
@@ -275,7 +320,7 @@ const Components = {
       flex-grow: 3;
       flex-shrink: 0;
 
-      animation: ${AnimationSlideInLeft} 0.3s ease-in-out;
+      animation: ${AnimationSlideInLeft} 0.3s ${EASE_DEFAULT};
     }
 
     & > *:last-child {
@@ -300,17 +345,18 @@ const Components = {
     justify-content: stretch;
     padding: 0;
     background-color: #ffffff;
-    border-radius: ${DEFAULT_BORDER_RADIUS};
-    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
-    border: 0.1vw solid ${BORDER_COLOR};
+    border-radius: ${BORDER_RADIUS_DEFAULT};
 
-    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: ${(args) => (args.shadow ? BOX_SHADOW_DEFAULT : 'none')};
+    border: ${(args) => (args.border ? BORDER_DEFAULT : 'none')};
 
-    height: 100%;
+    transition: all 0.5s ${EASE_DEFAULT};
+
+    height: auto;
     position: relative;
 
     &:hover {
-      box-shadow: 5px 0 15px -2px rgba(0, 0, 0, 0.2);
+      box-shadow: ${(args) => (args.shadow ? BOX_SHADOW_HOVER : 'none')};
     }
 
     @media (max-width: 768px) {
@@ -324,7 +370,7 @@ const Components = {
     aspect-ratio: 1 / 1;
     overflow: hidden;
     border-radius: 2px 2px 0 0;
-    border-bottom: 0.1vw solid ${BORDER_COLOR};
+    border-bottom: ${BORDER_THICKNESS} solid ${BORDER_COLOR};
     flex-shrink: 0;
     flex-grow: 0;
   `,
@@ -334,7 +380,8 @@ const Components = {
     flex-direction: column;
     justify-content: stretch;
     width: 33%;
-    border-right: 1px solid ${BORDER_COLOR};
+    min-width: 320px;
+    border-right: ${BORDER_THICKNESS} solid ${BORDER_COLOR};
     min-height: 200px;
     flex-grow: 1;
     flex-shrink: 0;
@@ -345,7 +392,7 @@ const Components = {
     @media (max-width: 768px) {
       width: 100%;
       border-right: none;
-      border-bottom: 1px solid ${BORDER_COLOR};
+      border-bottom: ${BORDER_THICKNESS} solid ${BORDER_COLOR};
       height: auto;
       min-height: 0px;
 
@@ -366,12 +413,12 @@ const Components = {
     font-size: ${({ small }) => (small ? FONT_SIZE_TINY : FONT_SIZE_SMALL)};
     font-weight: 400;
     margin: 0;
-    padding: ${({ small }) => (small ? GRID_PAD_TINY : GRID_PAD_SMALL)};
+    padding: ${({ small }) => (small ? GRID_PAD_SMALL : GRID_PAD)};
     height: auto;
     flex-grow: 0;
     flex-shrink: 0;
     width: 100%;
-    border-top: 0.1vw solid #cccccc;
+    border-top: ${BORDER_THICKNESS} solid ${BORDER_COLOR};
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -382,7 +429,7 @@ const Components = {
   `,
 
   CardTitle: styled.div`
-    font-size: ${({ small }) => (small ? FONT_SIZE_TINY : FONT_SIZE_SMALL)};
+    font-size: ${({ small }) => (small ? FONT_SIZE_SMALL : FONT_SIZE_DEFAULT)};
     font-weight: 600;
     margin: 0;
     height: auto;
@@ -399,7 +446,7 @@ const Components = {
 
   FadeIn: styled.div`
     opacity: 0;
-    animation: ${AnimationFadeIn} 0.3s ease-in-out;
+    animation: ${AnimationFadeIn} 0.3s ${EASE_DEFAULT};
     animation-fill-mode: forwards;
     animation-delay: ${({ delay }) => delay || '0s'};
     animation-duration: ${({ duration }) => duration || '0.3s'};
@@ -824,6 +871,7 @@ function renderComponent(name, props, env) {
     renderComponent: _renderComponent,
 
     Components,
+    Constants,
 
     helpers: {
       propIsRequiredMessage,
@@ -879,7 +927,7 @@ function safeRender(_name, _props, _customEnv) {
 }
 
 const AppLayer = styled.div`
-  animation: ${AnimationFadeIn} 0.3s ease-in-out;
+  animation: ${AnimationFadeIn} 0.3s ${EASE_DEFAULT};
   animation-fill-mode: forwards;
   animation-delay: ${(props) => props.delay};
   animation-duration: ${(props) => props.duration};
@@ -903,7 +951,7 @@ const AppLayer = styled.div`
     return props.backdropFilter;
   }};
 
-  transition: backdrop-filter 0.3s ease-in-out;
+  transition: backdrop-filter 0.3s ${EASE_DEFAULT};
   transition-delay: ${(props) => props.transitionDelay};
 `;
 

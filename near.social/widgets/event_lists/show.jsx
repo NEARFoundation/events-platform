@@ -62,6 +62,7 @@ const InfoBar = props.__engine.Components.InfoBar;
 const InfoBarItem = props.__engine.Components.InfoBarItem;
 const InfoBarLink = props.__engine.Components.InfoBarLink;
 const GridContainer = props.__engine.Components.GridContainer;
+const GridItemWrapper = props.__engine.Components.GridItemWrapper;
 
 function removeEventList() {
   const contract = EVENTS_CONTRACT;
@@ -136,21 +137,19 @@ return (
     <Hr></Hr>
 
     <Container>
-      <GridContainer itemWidth={'300px'}>
+      <GridContainer itemWidth={'300px'} itemMaxWidth={'300px'}>
         {state.event_list.events.map(({ event }, idx) => {
           return (
-            <div key={`${idx}-${event.id}`}>
+            <GridItemWrapper key={`${idx}-${event.id}`}>
               {props.__engine.renderComponent(
                 'index.list_item',
                 { event: event },
                 { appName: 'events' }
               )}
-            </div>
+            </GridItemWrapper>
           );
         })}
       </GridContainer>
     </Container>
-
-    <Hr></Hr>
   </>
 );
