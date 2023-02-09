@@ -1,5 +1,9 @@
-import { assert, UnorderedMap, Vector } from "near-sdk-js";
-import { type EventList, type PermissionType } from "./types";
+import { assert, near, UnorderedMap, Vector } from "near-sdk-js";
+import {
+  type EventList,
+  type PermissionType,
+  type EventListEventEntry,
+} from "./types";
 
 const dummyEventList = {
   id: "",
@@ -8,11 +12,10 @@ const dummyEventList = {
   description: "",
   created_at: new Date(),
   last_updated_at: new Date(),
-  permissions: [] as unknown as Vector<{
-    account_id: string;
+  events: new Vector("") as unknown as Vector<EventListEventEntry>,
+  permissions: new UnorderedMap("perms") as unknown as UnorderedMap<{
     permissions: PermissionType[];
   }>,
-  events: [] as unknown as Vector<{ event_id: string; last_updated_at: Date }>,
 } satisfies EventList;
 
 /**
@@ -54,7 +57,7 @@ export const eventListReconstructor = (value: unknown): EventList => {
     description: value.description,
     created_at: new Date(value.created_at),
     last_updated_at: new Date(value.last_updated_at),
-    permissions: Vector.reconstruct(value.permissions),
+    permissions: UnorderedMap.reconstruct(value.permissions),
     events: Vector.reconstruct(value.events),
   };
 };
@@ -104,7 +107,7 @@ export class EventListsMap {
    * @param value - The value to store in the collection.
    */
   set(key: string, value: EventList): EventList {
-    return this.map.set(key, value, { reconstructor: eventListReconstructor });
+    return this.map.set(key, value);
   }
 
   /**
@@ -114,6 +117,13 @@ export class EventListsMap {
    */
   remove(key: string): EventList {
     return this.map.remove(key, { reconstructor: eventListReconstructor });
+  }
+
+  /**
+   * Determine if the collection contains a value with the provided key.
+   */
+  has(key: string): boolean {
+    return this.map.toArray().some(([k]) => k === key);
   }
 
   /**

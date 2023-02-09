@@ -1,41 +1,10 @@
-import { Worker, NearAccount, ONE_NEAR } from "near-workspaces";
-import anyTest, { TestFn } from "ava";
-
 import { Event } from "../../contract/src/types";
-
-const THREE_HUNDRED_TGAS = "300000000000000";
-
-const test = anyTest as TestFn<{
-  worker: Worker;
-  accounts: Record<string, NearAccount>;
-}>;
-
-test.beforeEach(async (t) => {
-  // Init the worker and start a Sandbox server
-  const worker = await Worker.init();
-
-  // Deploy contract
-  const root = worker.rootAccount;
-  const contract = await root.createSubAccount("test-account");
-  // Get wasm file path from package.json test script in folder above
-  await contract.deploy(process.argv[2]);
-
-  // Save state for test runs, it is unique for each test
-  t.context.worker = worker;
-  t.context.accounts = { root, contract };
-});
-
-test.afterEach.always(async (t) => {
-  // Stop Sandbox server
-  await t.context.worker.tearDown().catch((error) => {
-    console.log("Failed to stop the Sandbox:", error);
-  });
-});
+import { test, ONE_NEAR, THREE_HUNDRED_TGAS } from "./_setup";
 
 test("create a new event and get it from the contract", async (t) => {
   const { contract } = t.context.accounts;
 
-  const now = new Date().toISOString()
+  const now = new Date().toISOString();
 
   const { id: event_id } = <Event>await contract.call(
     contract,
@@ -58,12 +27,11 @@ test("create a new event and get it from the contract", async (t) => {
     }
   );
 
+  const event = <Event>await contract.view("get_event", { event_id: event_id });
 
-  const event = <Event>await contract.view("get_event", { event_id: event_id })
-
-  const comparable = { ...event }
-  delete (comparable as any).created_at
-  delete (comparable as any).last_updated_at
+  const comparable = { ...event };
+  delete (comparable as any).created_at;
+  delete (comparable as any).last_updated_at;
 
   t.deepEqual(comparable, {
     name: "test",
@@ -77,16 +45,16 @@ test("create a new event and get it from the contract", async (t) => {
     id: event_id,
     location: "here",
     images: [],
-    links: []
+    links: [],
   });
 
   // compare created_at and last_updated_at are in range of +- 10 seconds
-  const created_at = new Date(event.created_at)
-  const last_updated_at = new Date(event.last_updated_at)
-  const nowDate = new Date(now)
+  const created_at = new Date(event.created_at);
+  const last_updated_at = new Date(event.last_updated_at);
+  const nowTime = new Date(now).getTime();
 
-  t.true(created_at.getTime() - nowDate.getTime() < 10000)
-  t.true(last_updated_at.getTime() - nowDate.getTime() < 10000)
+  t.true(created_at.getTime() - nowTime < 10000);
+  t.true(last_updated_at.getTime() - nowTime < 10000);
 });
 
 test("create a new event and get all the events from the contract", async (t) => {
@@ -136,7 +104,7 @@ test("create a new event and delete it", async (t) => {
     },
     {
       attachedDeposit: ONE_NEAR,
-      gas: THREE_HUNDRED_TGAS
+      gas: THREE_HUNDRED_TGAS,
     }
   );
 
