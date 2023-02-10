@@ -1,28 +1,11 @@
-let event_lists = props.event_lists || [];
+const event_lists = props.event_lists || [];
 if (!event_lists) {
   return props.__engine.loading();
 }
+const widgetName = `index.list.${props.layout}`;
 
-// if event_lists are empty we want to show an empty list message
-if (event_lists.length === 0) {
-  return 'No results';
-}
+// TODO: Search bar
 
-const GRID_PAD = props.__engine.Constants.GRID_PAD;
+// const SearchBar = props.__engine.renderComponent('index.search_bar', { items: event_lists });
 
-const ListWrapper = styled.div`
-  margin-bottom: ${GRID_PAD};
-  width: 100%;
-`;
-
-return (
-  <>
-    {event_lists.map((event_list, idx) => {
-      return (
-        <ListWrapper key={`${idx}-${event_list.event_list_id}`}>
-          {props.__engine.renderComponent('index.list_item', { event_list })}
-        </ListWrapper>
-      );
-    })}
-  </>
-);
+return <>{props.__engine.renderComponent(widgetName, { event_lists })}</>;
