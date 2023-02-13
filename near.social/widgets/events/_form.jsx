@@ -1,6 +1,6 @@
 const onSave = props.onSave;
 if (onSave === undefined || onSave === null) {
-  return 'props.onSave is required';
+  return props.__engine.helpers.propIsRequiredMessage('onSave');
 }
 
 const model = props.model;
@@ -97,7 +97,7 @@ if (!state) {
   } else {
     State.init(DEFAULT_STATE);
   }
-  return 'Loading...';
+  return props.__engine.loading();
 }
 
 const Select = styled.select`
