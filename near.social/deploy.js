@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { deployWidget, SRC_DIR } = require('./shared');
+const { deployWidgetSync, SRC_DIR } = require('./shared');
 const { join } = require('path');
 const { readdirSync } = require('fs');
 
@@ -24,7 +24,7 @@ function deployAll(dir) {
       return [];
     }
 
-    deployWidget(path, false);
+    deployWidgetSync(path, false);
     return true;
   });
 }
