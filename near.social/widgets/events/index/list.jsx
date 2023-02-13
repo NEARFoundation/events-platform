@@ -1,4 +1,4 @@
-const ANIMATION_DELAY = 50;
+const ANIMATION_DELAY = 100;
 
 let events = props.events || [];
 if (!events) {
@@ -10,7 +10,7 @@ if (events.length === 0) {
   return 'No events found';
 }
 
-const FadeIn = props.__engine.Components.FadeIn;
+const SlideInLeft = props.__engine.Components.SlideInLeft;
 const GridContainer = props.__engine.Components.GridContainer;
 
 return (
@@ -18,9 +18,9 @@ return (
     {events.map((event, idx) => {
       const delay = `${(idx + 2) * ANIMATION_DELAY}ms`;
       return (
-        <FadeIn key={event.event_id} delay={delay}>
+        <SlideInLeft key={event.event_id} delay={delay}>
           {props.__engine.renderComponent('index.list_item', { event, delay })}
-        </FadeIn>
+        </SlideInLeft>
       );
     })}
 

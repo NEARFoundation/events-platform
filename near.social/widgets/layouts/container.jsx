@@ -26,7 +26,7 @@ const Navbar = styled.div`
   z-index: 99999999;
   overflow-x: hidden;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: stretch;
   width: 100%;
   flex-direction: row;
@@ -53,7 +53,7 @@ const NavPrimaryButton = styled.button`
 
   transform: scale(0.975);
 
-  margin: 0 12px;
+  margin: 8px 12px;
 
   &:hover {
     /* darker and transparent */
@@ -78,6 +78,8 @@ const NavbarTitle = styled.h2`
   flex-grow: 1;
   word-break: break-all;
   margin: 0 12px;
+  display: flex;
+  align-items: center;
 
   text-align: ${() => {
     return props.primaryAction || props.back ? 'left' : 'center';
@@ -96,7 +98,7 @@ const NavbarBackButton = styled.button`
   color: white;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: auto;
   border: none;
   outline: none;
   background: transparent;
@@ -106,8 +108,52 @@ const NavbarBackButton = styled.button`
   flex-shrink: 0;
 `;
 
+const NavbarItems = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: auto;
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-direction: row;
+  flex-wrap: nowrap;
+`;
+
+const NavbarItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 1.25rem;
+  text-decoration: none;
+
+  color: white;
+  padding: 0 12px;
+  background-color: transparent;
+
+  transition: all 1s ease-in-out;
+
+  font-weight: ${(item) => {
+    return item.active ? 'bold' : 'normal';
+  }};
+
+  &:hover {
+    background-color: rgba(84, 44, 84, 0.25);
+  }
+
+  @media (max-width: 768px) {
+    font-size: 1.15rem;
+    padding: 0 8px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+    padding: 0 4px;
+  }
+`;
+
 const navbar = (
-  <Navbar className="navbar">
+  <Navbar>
     {props.back ? (
       <NavbarBackButton
         type="button"
@@ -125,7 +171,34 @@ const navbar = (
       </NavbarBackButton>
     ) : null}
 
-    <NavbarTitle>{title}</NavbarTitle>
+    {props.title && props.title.length > 0 && (
+      <NavbarTitle>{title}</NavbarTitle>
+    )}
+
+    {props.items && props.items.length > 0 && (
+      <NavbarItems>
+        {props.items.map((item, idx) => {
+          return (
+            <NavbarItem
+              type="button"
+              key={idx}
+              tabIndex={0}
+              onClick={() => {
+                props.__engine.hacks.dirtyEval(item.onClick);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  props.__engine.hacks.dirtyEval(item.onClick);
+                }
+              }}
+              active={item.active}
+            >
+              {item.label}
+            </NavbarItem>
+          );
+        })}
+      </NavbarItems>
+    )}
 
     {props.primaryAction ? (
       <NavPrimaryButton

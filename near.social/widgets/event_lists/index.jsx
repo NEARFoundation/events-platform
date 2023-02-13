@@ -1,15 +1,26 @@
 props.controller.setLayout('layouts:container', {
-  title: 'ND Event Lists',
   back: false,
 
   primaryAction: {
     label: 'Create new Eventlist',
     onClick: ['push', 'new', {}],
   },
+
+  items: [
+    {
+      label: 'Lists',
+      onClick: [{ appName: 'event_lists', method: 'replace' }, 'index', {}],
+      active: true,
+    },
+    {
+      label: 'Events',
+      onClick: [{ appName: 'events', method: 'replace' }, 'index', {}],
+    },
+  ],
 });
 
 const Container = props.__engine.Components.Container;
-const Hr = props.__engine.Components.Hr;
+const Spacer = props.__engine.Components.Spacer;
 
 return (
   <>
@@ -19,7 +30,8 @@ return (
         forAccountId: props.__engine.accountId,
       })}
     </Container>
-    <Hr />
+
+    <Spacer />
 
     <Container>
       {props.__engine.renderComponent('index.container', {

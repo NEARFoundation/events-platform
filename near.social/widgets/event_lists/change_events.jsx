@@ -147,11 +147,6 @@ const EventTile = styled.div`
   &:hover {
     background: #f5f5f5;
   }
-
-  & > div {
-    flex-grow: 0;
-    flex-shrink: 1;
-  }
 `;
 
 const ImageTileContainer = styled.div`
@@ -160,6 +155,8 @@ const ImageTileContainer = styled.div`
   border-radius: 8px;
 
   overflow: hidden;
+
+  flex-shrink: 0;
 `;
 
 return (
@@ -187,8 +184,9 @@ return (
                 mode: 'tile',
               })}
             </ImageTileContainer>
-            <div style={{ flexGrow: 100, marginLeft: 8 }}>
-              <div>{event.name}</div>
+
+            <div style={{ flexGrow: 100, marginLeft: 8, marginRight: 8 }}>
+              <strong>{event.name}</strong>
               <div>{event.description.slice(0, 100)}</div>
             </div>
 

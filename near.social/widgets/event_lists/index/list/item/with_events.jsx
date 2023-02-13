@@ -14,7 +14,7 @@ if (!state) {
     'get_events_in_event_list',
     {
       event_list_id: event_list.id,
-      limit: EVENTS_LIMIT,
+      limit: props.limit || EVENTS_LIMIT,
     }
   );
 
@@ -125,9 +125,10 @@ const FlexGrowDesktop = styled.div`
 
 const BobbleWrap = styled.div`
   position: relative;
-  width: 10px;
+  width: 0;
   height: 100%;
-  margin-left: ${GRID_PAD};
+  margin-left: 0;
+  padding-right: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -158,7 +159,10 @@ const Bobble = styled.div`
 
 const scrollingEvents =
   (state.events || []).length > 0 ? (
-    <HorizontalScroll itemWidth={'18vw'} style={{ height: '100%' }}>
+    <HorizontalScroll
+      itemWidth={'calc(max(15vw, 210px))'}
+      style={{ height: '100%' }}
+    >
       {state.events
         .sort(({ position: a }, { position: b }) => {
           return a - b;
@@ -185,16 +189,14 @@ const scrollingEvents =
           );
         })}
 
-      {event_list.event_count >= EVENTS_LIMIT && (
-        <EventTileWrapper delay={(state.events.length + 2) * ANIMATION_DELAY}>
-          <BobbleWrap>
-            <Bobble>+{event_list.event_count - EVENTS_LIMIT}</Bobble>
-          </BobbleWrap>
-        </EventTileWrapper>
+      {event_list.event_count > EVENTS_LIMIT && (
+        <BobbleWrap>
+          <Bobble>+{event_list.event_count - EVENTS_LIMIT}</Bobble>
+        </BobbleWrap>
       )}
     </HorizontalScroll>
   ) : (
-    <Text>This list is empty :(</Text>
+    <Text>This list has no events</Text>
   );
 
 const elDescription =
@@ -226,6 +228,10 @@ return (
       </TextButton>
     </CardHeader>
 
-    <CardBody style={{ height: 'auto' }}>{scrollingEvents}</CardBody>
+    {(state.events || []).length > 0 ? (
+      <CardBody style={{ height: 'auto' }}>{scrollingEvents}</CardBody>
+    ) : (
+      <></>
+    )}
   </Card>
 );

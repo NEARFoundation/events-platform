@@ -20,12 +20,13 @@ const PLEASE_CONNECT_WALLET_MESSAGE =
 const GRID_PAD_TINY = '4px';
 const GRID_PAD_SMALL = '10px';
 const GRID_PAD = '20px';
-const GRID_PAD_BIG = '30px';
+const GRID_PAD_BIG = '40px';
 
-const FONT_SIZE_TINY = 'calc(max(12px, 1.05vw))';
-const FONT_SIZE_SMALL = 'calc(max(16px, 1.13vw))';
-const FONT_SIZE_DEFAULT = 'calc(max(20px, 1.2vw))';
-const FONT_SIZE_GIANT = 'calc(max(32px, 2.5vw))';
+const FONT_SIZE_TINY = 'calc(max(13px, 0.85vw))';
+const FONT_SIZE_SMALL = 'calc(max(16px, 0.95vw))';
+const FONT_SIZE_DEFAULT = 'calc(max(18px, 1.0vw))';
+const FONT_SIZE_BIG = 'calc(max(22px, 1.15vw))';
+const FONT_SIZE_GIANT = 'calc(max(32px, 2.25vw))';
 
 const TAG_PADDING = 'calc(max(4px, 0.25vw)) calc(max(8px, 0.5vw))';
 
@@ -111,7 +112,7 @@ const Components = {
     background-color: ${BUTTON_BG_COLOR}
     border: none;
     color: white;
-    padding: ${GRID_PAD} ${GRID_PAD_BIG};
+    padding: ${GRID_PAD} ${GRID_PAD};
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -143,7 +144,6 @@ const Components = {
     border: none;
     color: #007bff;
     cursor: pointer;
-    font-size: ${FONT_SIZE_DEFAULT};
     font-weight: 400;
     outline: none;
     padding: 0;
@@ -152,6 +152,12 @@ const Components = {
     display: inline-block;
     width: fit-content;
     margin-top: ${GRID_PAD_SMALL};
+    text-align: left;
+
+    font-size: ${FONT_SIZE_DEFAULT};
+    @media (max-width: 768px) {
+      font-size: ${FONT_SIZE_SMALL};
+    }
 
     &:hover {
       color: #0056b3;
@@ -181,6 +187,14 @@ const Components = {
     }
   `,
 
+  Spacer: styled.div`
+    height: ${(props) => props.height || GRID_PAD_BIG};
+
+    @media (max-width: 768px) {
+      height: ${(props) => props.heightMobile || props.height || GRID_PAD};
+    }
+  `,
+
   PageTitle: styled.h1`
     font-size: ${FONT_SIZE_GIANT};
     color: black;
@@ -201,7 +215,7 @@ const Components = {
   `,
 
   ContainerHeader: styled.div`
-    font-size: ${FONT_SIZE_DEFAULT};
+    font-size: ${FONT_SIZE_BIG};
     color: ${TEXT_COLOR};
     padding: ${GRID_PAD_SMALL} 0;
     @media (max-width: 768px) {
@@ -407,7 +421,7 @@ const Components = {
     width: 33%;
     min-width: 320px;
     border-right: ${BORDER_THICKNESS} solid ${BORDER_COLOR};
-    min-height: 200px;
+    min-height: 100px;
     flex-grow: 1;
     flex-shrink: 0;
     height: auto;
@@ -472,6 +486,14 @@ const Components = {
   FadeIn: styled.div`
     opacity: 0;
     animation: ${AnimationFadeIn} 0.3s ${EASE_DEFAULT};
+    animation-fill-mode: forwards;
+    animation-delay: ${({ delay }) => delay || '0s'};
+    animation-duration: ${({ duration }) => duration || '0.3s'};
+  `,
+
+  SlideInLeft: styled.div`
+    opacity: 0;
+    animation: ${AnimationSlideInLeft} 0.3s ${EASE_DEFAULT};
     animation-fill-mode: forwards;
     animation-delay: ${({ delay }) => delay || '0s'};
     animation-duration: ${({ duration }) => duration || '0.3s'};
@@ -694,17 +716,24 @@ function pop(/* env */) {
 }
 
 function dirtyEval(env, args) {
-  const method = args[0];
-  const key = args[1];
-  const mArgs = args.slice(2);
+  const controlled = args[0];
+  const method = controlled.method ? controlled.method : args[0];
+
+  const customEnv = {
+    appOwner: controlled.appOwner || env.appOwner,
+    appName: controlled.appName || env.appName,
+  };
+
+  const mArgs = args.slice(1);
+  const widgetEnv = mergeEnv(env, customEnv || {});
 
   switch (method) {
     case 'push':
-      return push(env, key, mArgs[0]);
+      return push(widgetEnv, mArgs[0], mArgs[1]);
     case 'replace':
-      return replace(env, key, mArgs[0]);
+      return replace(widgetEnv, mArgs[0], mArgs[1]);
     case 'pop':
-      return pop(env);
+      return pop(widgetEnv);
     default:
       throw new Error(`Unknown method ${method}`);
   }
