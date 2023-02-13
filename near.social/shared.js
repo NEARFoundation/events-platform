@@ -11,17 +11,8 @@ const SRC_DIR = parsed.SRC_DIR;
 
 const EXT_JSX = '.jsx';
 
-const { spawnSync } = require('child_process');
+const { spawnSync, spawn } = require('child_process');
 const { readFileSync, existsSync } = require('fs');
-
-// setup chokidar and nodemon
-const obj = {};
-obj.watch = [];
-obj.watch.push(SRC_DIR);
-obj.exec = 'echo "Watching for changes ..."';
-obj.ext = 'jsx';
-obj.delay = '20';
-obj.verbose = true;
 
 // skip the first deploy
 const didDeploy = {};
@@ -104,8 +95,12 @@ function buildWidgetName(path) {
     .replace(/\//gu, '__');
 }
 
+function deployWidgetSync(path, skipFirstDeploy = true) {
+  return deployWidget(path, skipFirstDeploy, false);
+}
+
 // deploys widget to social contract
-function deployWidget(path, skipFirstDeploy = true) {
+function deployWidget(path, skipFirstDeploy = true, asyncDeploy = true) {
   if (skipFirstDeploy && !didDeploy[path]) {
     didDeploy[path] = 1;
     return;
@@ -136,23 +131,49 @@ function deployWidget(path, skipFirstDeploy = true) {
     JSON.stringify(contractArgs, null, 4),
   ];
 
-  const timeInMillis = new Date().getTime();
+  let currentTime = new Date().getTime();
   console.log(`  |> Deploying ${widgetName}...`);
+  if (asyncDeploy) {
+    const deploy = spawn(PATH_TO_NEAR_CLI, args, {
+      cwd: __dirname,
+    });
 
-  const deploy = spawnSync(PATH_TO_NEAR_CLI, args, {
-    cwd: __dirname,
-  });
+    deploy.stdout.on('data', () => {
+      // console.log(`stdout: ${data}`);
+    });
 
-  if (deploy.status === 0) {
-    console.log(
-      `  |> Successfully deployed ${widgetName} in ${
-        new Date().getTime() - timeInMillis
-      }`
-    );
-    // console.log(deploy.stdout.toString('utf8'));
+    deploy.stderr.on('data', (data) => {
+      console.log(`sterr: ${data}`);
+      currentTime = new Date().getTime();
+    });
+
+    deploy.on('close', (code, error) => {
+      if (code !== 0) {
+        console.log(`  |> Can not deploy ${widgetName}`, code, error);
+        throw new Error('Can not deploy');
+      }
+      console.log(
+        `  |> Successfully deployed ${widgetName} in ${
+          new Date().getTime() - currentTime
+        }`
+      );
+    });
   } else {
-    console.log(`  |> Can not deploy ${widgetName}`);
-    throw new Error('Can not deploy');
+    const deploy = spawnSync(PATH_TO_NEAR_CLI, args, {
+      cwd: __dirname,
+    });
+
+    if (deploy.status === 0) {
+      console.log(
+        `  |> Successfully deployed ${widgetName} in ${
+          new Date().getTime() - currentTime
+        }`
+      );
+      // console.log(deploy.stdout.toString('utf8'));
+    } else {
+      console.log(`  |> Can not deploy ${widgetName}`);
+      throw new Error('Can not deploy');
+    }
   }
 }
 
@@ -165,4 +186,5 @@ module.exports = {
   EXT_JSX,
 
   deployWidget,
+  deployWidgetSync,
 };

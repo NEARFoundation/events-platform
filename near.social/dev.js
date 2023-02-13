@@ -2,23 +2,22 @@
 
 const { deployWidget, SRC_DIR } = require('./shared');
 
-const nodemon = require('nodemon');
 const chokidar = require('chokidar');
-
-// setup chokidar and nodemon
-const obj = {};
-obj.watch = [];
-obj.watch.push(SRC_DIR);
-obj.exec = 'echo "Watching for changes ..."';
-obj.ext = 'jsx';
-obj.delay = '20';
-obj.verbose = true;
-
-chokidar.watch(obj.watch).on('all', (event, path) => {
+chokidar.watch([SRC_DIR]).on('all', (event, path) => {
   console.log(event, path);
   if (event === 'add' || event === 'change') {
     deployWidget(path);
   }
 });
 
-nodemon(obj);
+process.once('SIGUSR2', () => {
+  process.kill(process.pid, 'SIGUSR2');
+});
+
+process.once('SIGINT', () => {
+  process.kill(process.pid, 'SIGINT');
+});
+
+process.once('SIGTERM', () => {
+  process.kill(process.pid, 'SIGTERM');
+});
