@@ -706,8 +706,10 @@ export class HelloNear {
   @view({})
   get_events_in_event_list({
     event_list_id,
+    limit,
   }: {
     event_list_id: string;
+    limit?: number;
   }): EventListEventEntryApiResponse[] {
     // First we check if there is an event_list with the specified ID.
     const currentEventList = this.event_lists.get(event_list_id);
@@ -716,19 +718,22 @@ export class HelloNear {
       `The event_list with id: ${event_list_id} does not exist!`
     );
 
-    // @petar
-    // not sure about this method of getting the events.
-    // this.events.get() in a loop may be expensive since it performs
-    // multiple storage reads?
-    return currentEventList.events.toArray().map((eventEntry) => {
-      return <EventListEventEntryApiResponse>{
-        position: eventEntry.position,
-        added_by: eventEntry.added_by,
-        last_updated_by: eventEntry.last_updated_by,
-        last_updated_at: eventEntry.last_updated_at,
-        event: { ...this.events.get(eventEntry.event_id) },
-      };
-    });
+    if (limit && limit < 0) {
+      assert(false, "Limit must be greater than 0");
+    }
+
+    return currentEventList.events.toArray()
+      .sort((a, b) => a.position - b.position)
+      .slice(0, limit || currentEventList.events.length)
+      .map((eventEntry) => {
+        return <EventListEventEntryApiResponse>{
+          position: eventEntry.position,
+          added_by: eventEntry.added_by,
+          last_updated_by: eventEntry.last_updated_by,
+          last_updated_at: eventEntry.last_updated_at,
+          event: { ...this.events.get(eventEntry.event_id) },
+        };
+      });
   }
 
   /**
