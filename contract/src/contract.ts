@@ -225,7 +225,7 @@ export class HelloNear {
   /**
    * Remove an event.
    */
-  @call({})
+  @call({ payableFunction: true })
   remove_event({ event_id }: { event_id: string }): NearPromise {
     // We check if the event exists.
     const currentEvent = this.events.get(event_id);
@@ -351,9 +351,9 @@ export class HelloNear {
       created_at: now(),
       last_updated_at: now(),
       permissions: <UnorderedMap<{ permissions: PermissionType[] }>>(
-        new UnorderedMap("p")
+        new UnorderedMap(uuid + "p")
       ),
-      events: <Vector<EventListEventEntry>>new Vector("v"),
+      events: <Vector<EventListEventEntry>>new Vector(uuid + "v"),
     };
 
     // Store the event in the events map.
@@ -403,17 +403,17 @@ export class HelloNear {
   return_event_list_api_response(args: {
     event_list_id: string;
   }): EventListApiResponse {
-    const list = this.event_lists.get(args.event_list_id);
+    const event_list = this.event_lists.get(args.event_list_id);
 
     return <EventListApiResponse>{
-      id: list.id,
-      name: list.name,
-      description: list.description,
-      owner_account_id: list.owner_account_id,
-      created_at: list.created_at,
-      last_updated_at: list.last_updated_at,
-      has_events: list.events.length > 0,
-      event_count: list.events.length,
+      id: event_list.id,
+      name: event_list.name,
+      description: event_list.description,
+      owner_account_id: event_list.owner_account_id,
+      created_at: event_list.created_at,
+      last_updated_at: event_list.last_updated_at,
+      has_events: event_list.events.length > 0,
+      event_count: event_list.events.length,
     };
   }
 
