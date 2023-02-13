@@ -1005,7 +1005,8 @@ const AppLayer = styled.div`
     return props.backdropFilter;
   }};
 
-  transition: backdrop-filter 0.3s ${EASE_DEFAULT};
+  transition: backdrop-filter ${(props) => props.transitionDuration}
+    ${EASE_DEFAULT};
   transition-delay: ${(props) => props.transitionDelay};
 `;
 
@@ -1047,9 +1048,10 @@ return (
       return (
         <AppLayer
           key={index}
-          delay={isLast ? '0.0s' : '0.2s'}
-          duration={isLast ? '0.3s' : '1s'}
-          transitionDelay={isLast ? '0s' : '1s'}
+          delay={isLast ? '0s' : '0.8s'}
+          duration={isLast ? '0.66s' : '1s'}
+          transitionDuration={isLast ? '0.3s' : '1s'}
+          transitionDelay={isLast ? '0.2s' : '1s'}
           backdropFilter={
             isLast
               ? 'blur(16px) saturate(140%) brightness(80%)'
