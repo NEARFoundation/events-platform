@@ -138,7 +138,7 @@ function deployWidget(path, skipFirstDeploy = true, asyncDeploy = true) {
       cwd: __dirname,
     });
 
-    deploy.stdout.on('data', () => {
+    deploy.stdout.on('data', (data) => {
       // console.log(`stdout: ${data}`);
     });
 
